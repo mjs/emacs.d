@@ -1,0 +1,11 @@
+-- -*- SQL -*-
+
+\connect mtf_db
+set session authorization mtf_usr;
+set search_path to mtf_core, public;
+
+begin;
+
+$0
+
+commit;
