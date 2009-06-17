@@ -1,0 +1,1 @@
+parser.add_option("$1", "$2", dest="$3", action="store$4", default=$5, help="$6")
