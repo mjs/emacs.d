@@ -9,6 +9,6 @@
 
 (defun insert-date ()
   (interactive)
-  (insert (format-times-tring "%Y-%m-%d %H:%M:%S")))
+  (insert (format-time-string "%Y-%m-%d")))
 
 (provide 'insert-timestamp)
