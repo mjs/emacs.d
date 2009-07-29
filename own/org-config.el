@@ -10,6 +10,9 @@
 
 (setq org-agenda-files (list "~/Notes/TODO.org"))
 
+(setq org-link-abbrev-alist
+      '(("bug" . "http://bugzilla/show_bug.cgi?id=")))
+
 ;-----------------------------------------------------------
 ; org integration with appointments (appt)
 ;-----------------------------------------------------------
