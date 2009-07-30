@@ -13,6 +13,18 @@
 (setq org-link-abbrev-alist
       '(("bug" . "http://bugzilla/show_bug.cgi?id=")))
 
+
+(defun my-org-insert-todo-heading ()
+  (interactive)
+  (move-beginning-of-line nil)
+  (org-insert-todo-heading 0)
+  (viper-insert 0))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)))
+
+
 ;-----------------------------------------------------------
 ; org integration with appointments (appt)
 ;-----------------------------------------------------------
