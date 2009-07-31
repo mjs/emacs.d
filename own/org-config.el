@@ -14,15 +14,31 @@
       '(("bug" . "http://bugzilla/show_bug.cgi?id=")))
 
 
+; Friendlier TODO insert, can do it from any point on a line and plays nice with viper mode
 (defun my-org-insert-todo-heading ()
   (interactive)
   (move-beginning-of-line nil)
   (org-insert-todo-heading 0)
   (viper-insert 0))
 
+; Move a subtree to the bottom of the buffer, good for low priority or DONE items
+; TODO: figure out how to not leave the second last subtree open
+(defun org-move-subtree-to-bottom ()
+  (interactive)
+  (save-excursion
+    (org-cut-subtree)
+    (goto-char (point-max))
+    (show-subtree)
+    (goto-char (point-max))
+    (yank)
+    (org-up-heading-all 99)
+    (hide-subtree)))
+
+
 (add-hook 'org-mode-hook
           (lambda ()
-            (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)))
+            (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
+            (define-key org-mode-map (kbd "C-c C-0") 'org-move-subtree-to-bottom)))
 
 
 ;-----------------------------------------------------------
