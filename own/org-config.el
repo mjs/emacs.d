@@ -26,6 +26,7 @@
 (defun org-move-subtree-to-bottom ()
   (interactive)
   (save-excursion
+    (move-beginning-of-line nil)
     (org-cut-subtree)
     (goto-char (point-max))
     (show-subtree)
