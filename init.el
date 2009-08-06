@@ -42,6 +42,7 @@
  '(font-lock-type-face ((((class color) (min-colors 88) (background light)) (:foreground "ForestGreen" :weight bold))))
  '(font-lock-variable-name-face ((((class color) (min-colors 88) (background dark)) nil)))
  '(hl-line ((t (:background "#222222"))))
+ '(magit-item-highlight ((((class color) (background dark)) (:background "#090909"))))
  '(org-level-1 ((t (:inherit outline-1 :overline "darkgray"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
