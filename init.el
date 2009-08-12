@@ -17,6 +17,7 @@
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
  '(jabber-account-list (quote (("menno.smits@gmail.com") ("msmits@batsutil"))))
+ '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
@@ -47,6 +48,11 @@
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
 
+;; get rid of useless chrome
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+
 ;; make more elisp mods available
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
@@ -67,17 +73,17 @@
 (require 'jabber-autoloads)
 (require 'org-config)
 
+;; Provide a menu of tags when there's multiple matches
+(require 'etag-select)
+(global-set-key "\M-?" 'etags-select-find-tag-at-point)
+(global-set-key "\M-." 'etags-select-find-tag)
+
 ;; make switch buffer and find file much nicer
 (ido-mode 1)
 (ido-everywhere 1)
 
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-
-;; get rid of useless chrome
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
 ;; Keep temporary and backup files in a sane place
 (setq backup-directory-alist '(("." . "~/.emacs.tmp/backup")))
