@@ -1,11 +1,17 @@
 (require 'xml)
 (require 'url)
 
+;; Usage:
+;;
+;; (bugzilla-read-bug "1837")
+;; 
+;; (cdr (assq 'id (bugzilla-read-bug "1837")))
+;; (cdr (assq 'desc (bugzilla-read-bug "1837")))
+
 ;; XXX make the URL a variable
 
-;; XXX accept bug_id as int
 (defun bugzilla-dl-bug (bug_id) 
-  (let ((xml (url-retrieve-synchronously (concat "http://bugzilla/show_bug.cgi?ctype=xml&id=" bug_id))))
+  (let ((xml (url-retrieve-synchronously (concat "http://bugzilla/show_bug.cgi?ctype=xml&id=" (number-to-string bug_id)))))
     (save-excursion
       (set-buffer xml)
       (xml-parse-region (point-min) (point-max)))))
@@ -17,6 +23,7 @@
                        (priority . priority)
                        (severity . bug_severity)
                        (component . component)))  
+
 
 (defun bugzilla-read-bug (bug_id)
   (let* ((root (bugzilla-dl-bug bug_id))
@@ -33,11 +40,5 @@
    
     (mapcar 'get-bug-keyval bug-attributes)))
  
-(bugzilla-read-bug "1837")
-
-(cdr (assq 'id (bugzilla-read-bug "1837")))
-(cdr (assq 'desc (bugzilla-read-bug "1837")))
-
-
 (provide 'bugzilla)
 
