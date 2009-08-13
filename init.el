@@ -74,7 +74,7 @@
 (require 'org-config)
 
 ;; Provide a menu of tags when there's multiple matches
-(require 'etag-select)
+(require 'etags-select)
 (global-set-key "\M-?" 'etags-select-find-tag-at-point)
 (global-set-key "\M-." 'etags-select-find-tag)
 
@@ -197,6 +197,7 @@
 
 ;; load host/site specific config if it exists
 (let ((site-lib "~/.emacs.d/site.el"))
+  (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (server-start)
