@@ -86,10 +86,10 @@
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;; Keep temporary and backup files in a sane place
-(setq backup-directory-alist '(("." . "~/.emacs.tmp/backup")))
-(setq tramp-auto-save-directory "~/.emacs.tmp/autosave")
+(setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
+(setq tramp-auto-save-directory "~/.emacs.d/tmp/autosave")
 (setq tramp-backup-directory-alist backup-directory-alist)
-;; (setq auto-save-file-name-transforms `((".*" "~/.emacs.tmp/autosave" t)))
+;; (setq auto-save-file-name-transforms `((".*" "~/.emacs/tmp/autosave" t)))
 
 ;; Less convoluted key for window switching
 (global-set-key (kbd "C-'") 'other-window)
