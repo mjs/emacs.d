@@ -16,7 +16,6 @@
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
- '(jabber-account-list (quote (("menno.smits@gmail.com") ("msmits@batsutil"))))
  '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
@@ -43,7 +42,10 @@
  '(font-lock-type-face ((((class color) (min-colors 88) (background light)) (:foreground "ForestGreen" :weight bold))))
  '(font-lock-variable-name-face ((((class color) (min-colors 88) (background dark)) nil)))
  '(hl-line ((t (:background "#222222"))))
- '(magit-item-highlight ((((class color) (background dark)) (:background "#090909"))))
+ '(magit-diff-add ((((class color) (background dark)) (:foreground "lime green"))))
+ '(magit-diff-del ((((class color) (background dark)) (:foreground "IndianRed"))))
+ '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
+ '(magit-item-highlight ((((class color) (background dark)) (:background "#070707"))))
  '(org-level-1 ((t (:inherit outline-1 :overline "darkgray"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
@@ -65,7 +67,6 @@
 (require 'flymake-pyflakes)
 (require 'flymake-config)
 (require 'redo)                ;; More intuitive redo, bound to C-R with Vimpulse
-(require 'magit)
 (require 'file-misc)
 (require 'c-misc)
 (require 'insert-timestamp)
@@ -89,7 +90,7 @@
 (setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
 (setq tramp-auto-save-directory "~/.emacs.d/tmp/autosave")
 (setq tramp-backup-directory-alist backup-directory-alist)
-;; (setq auto-save-file-name-transforms `((".*" "~/.emacs/tmp/autosave" t)))
+;; (setq auto-save-file-name-transforms `((".*" "~/.emacs.d/tmp/autosave" t)))
 
 ;; Less convoluted key for window switching
 (global-set-key (kbd "C-'") 'other-window)
