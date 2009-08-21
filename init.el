@@ -98,7 +98,7 @@
 ;; remember what I was doing before
 (recentf-mode 1)
 (defalias 'rf 'recentf-open-files)
-
+(global-set-key (kbd "C-x C-r") 'recent-open-files)
 
 ;; Show trailing whitespace when working with Python files
 (add-hook 'python-mode-hook
