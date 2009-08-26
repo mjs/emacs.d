@@ -16,7 +16,8 @@
 
 
 (defun move-buffer-file (dir)
- "Moves both current buffer and file it's visiting to DIR." (interactive "DNew directory: ")
+ "Moves both current buffer and file it's visiting to DIR." 
+ (interactive "DNew directory: ")
  (let* ((name (buffer-name))
         (filename (buffer-file-name))
         (dir
@@ -31,5 +32,19 @@
        (set-visited-file-name newname)
        (set-buffer-modified-p nil)
        t))))
+
+
+(defun clone-buffer-file (new-filename)
+ "Copies the file in the current buffer to a new location, opens it, and leaves the old buffer open too."
+ (interactive "FNew directory: ")
+ (let* ((filename (buffer-file-name)))
+   (if (not filename)
+       (message "Buffer '%s' is not visiting a file!" name)
+     (progn
+       (save-buffer)
+       (copy-file filename new-filename 1)
+       (find-file new-filename)
+       t))))
+
 
 (provide 'file-misc)
