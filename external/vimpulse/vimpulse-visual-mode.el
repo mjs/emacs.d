@@ -532,12 +532,7 @@ chosen according to this command."
 	    (connect-undos 2 buffer-undo-list))	 ; insert, repeat
 	(if (eq i-com ?c)
 	    (connect-undos 2 buffer-undo-list)	 ; delete, insert
-	  (connect-undos 1 buffer-undo-list))))) ; insert
-  (if (and (/= (char-before (point)) ?\r) 
-	   (/= (char-before (point)) ?\n))
-      (backward-char 1)))               ; <---------- a[ESC] leaves the cursor 
-					; where it was before in VIM, without 
-					; backward-char it advances 1 character.
+	  (connect-undos 1 buffer-undo-list)))))) ; insert
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Visual block hack:                              ;;
