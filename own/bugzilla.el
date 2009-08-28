@@ -11,7 +11,8 @@
 ;; XXX make the URL a variable
 
 (defun bugzilla-dl-bug (bug_id) 
-  (let ((xml (url-retrieve-synchronously (concat "http://bugzilla/show_bug.cgi?ctype=xml&id=" (number-to-string bug_id)))))
+  (let ((xml (url-retrieve-synchronously (concat "http://bugzilla/show_bug.cgi?ctype=xml&id=" 
+                                                 (number-to-string bug_id)))))
     (save-excursion
       (set-buffer xml)
       (xml-parse-region (point-min) (point-max)))))

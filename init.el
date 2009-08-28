@@ -59,6 +59,7 @@
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
+(add-to-list 'load-path "~/.emacs.d/external/vimpulse")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
 (setenv "PYTHONPATH" (expand-file-name "~/.emacs.d/pylib"))
