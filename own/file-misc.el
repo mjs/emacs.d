@@ -34,17 +34,24 @@
        t))))
 
 
-(defun clone-buffer-file (new-filename)
- "Copies the file in the current buffer to a new location, opens it, and leaves the old buffer open too."
- (interactive "FNew directory: ")
+(defun copy-buffer-file (new-filename)
+ "Copies the file in the current buffer to a new location."
+ (interactive "FDestination filename: ")
  (let* ((filename (buffer-file-name)))
    (if (not filename)
        (message "Buffer '%s' is not visiting a file!" name)
      (progn
        (save-buffer)
        (copy-file filename new-filename 1)
-       (find-file new-filename)
-       t))))
+       ))))
+
+(defun clone-buffer-file (new-filename)
+ "Copies the file in the current buffer to a new location, opens it, and leaves the old buffer open too."
+ (interactive "FDestination filename: ")
+ (progn
+   (copy-buffer-file new-filename)
+   (find-file new-filename)
+   t))
 
 
 (provide 'file-misc)
