@@ -59,7 +59,6 @@
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
-(add-to-list 'load-path "~/.emacs.d/external/vimpulse")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
 (setenv "PYTHONPATH" (expand-file-name "~/.emacs.d/pylib"))
@@ -67,7 +66,6 @@
 (require 'filecache)
 (require 'flymake-pyflakes)
 (require 'flymake-config)
-(require 'redo)                ;; More intuitive redo, bound to C-R with Vimpulse
 (require 'file-misc)
 (require 'c-misc)
 (require 'insert-timestamp)
@@ -120,12 +118,9 @@
 
 (global-set-key (kbd "C-x C-h") 'highlight-word)
 
-;; Set up Viper and Vimpulse
 (setq viper-mode t)                ; enable Viper at load time
 (require 'viper)                   ; load Viper
-(require 'vimpulse)                ; load Vimpulse
-(setq woman-use-own-frame nil)     ; don't create new frame for manpages
-(setq woman-use-topic-at-point t)  ; don't prompt upon K key (manpage display)
+(require 'vimlike)                 ; vim emulation
 
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
