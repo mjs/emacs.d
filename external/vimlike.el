@@ -12,7 +12,11 @@
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; * rectange support using rect-mark
+; * when selecting a region, include the char under the cursor (or move one further)
+; * text object motions and commands
+; * rename module to avoid confusion
+; * consistent function naming
+; * rectange support using rect-mark (CTRL-V to start, CTRL-P or something yank)
 
 ; Viper setup
 (viper-buffer-search-enable)
@@ -121,7 +125,8 @@
 
 ; Function to make brace highlighting like Vim's
 ; Contributed by Alessandro Piras
-(defadvice show-paren-function (around viper-shop-paren-function activate)
+; XXX buggy - now not activated by default
+(defadvice show-paren-function (around viper-shop-paren-function disable)
   (if viper-vi-basic-minor-mode
       (cond
        ((= (char-after (point)) ?\))
