@@ -22,6 +22,7 @@
 (viper-buffer-search-enable)
 (setq viper-syntax-preference 'emacs)
 (setq viper-auto-indent t) 
+(setq viper-ex-style-motion nil)        ; can move past the end of the line
 
 ; make :n cycle through buffers on the current window
 (setq ex-cycle-other-window nil) 
@@ -29,7 +30,8 @@
 ; Keymaps to make Viper more Vim-like
 ; Command mode keys
 (define-key viper-vi-global-user-map "gf"   'find-file-at-point)
-(define-key viper-vi-global-user-map "gg"   'viper-goto-first-line) 
+(define-key viper-vi-global-user-map "gg"   'vimlike-beginning-of-buffer)
+(define-key viper-vi-global-user-map "G"    'vimlike-end-of-buffer)
 (define-key viper-vi-global-user-map "zt"   'viper-line-to-top)
 (define-key viper-vi-global-user-map "zb"   'viper-line-to-bottom)
 (define-key viper-vi-global-user-map "zz"   'viper-line-to-middle)
@@ -156,6 +158,15 @@
     (progn 
       (beginning-of-line)
       (cua-set-mark)
-      (end-of-line))))
+      (end-of-line)
+      (forward-line))))
+
+(defun vimlike-beginning-of-buffer ()
+  (interactive)
+  (goto-char (point-min)))
+
+(defun vimlike-end-of-buffer ()
+  (interactive)
+  (goto-char (point-max)))
 
 (provide 'vimlike)
