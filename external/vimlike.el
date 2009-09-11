@@ -42,6 +42,7 @@
 (define-key viper-vi-global-user-map "v"    'cua-set-mark)
 (define-key viper-vi-global-user-map "V"    'vimlike-select-line)
 (define-key viper-vi-global-user-map "x"    'vimlike-delete-char)
+(define-key viper-vi-global-user-map "d"    'vimlike-delete)
 (define-key viper-vi-global-user-map "y"    'vimlike-yank)
 
 ; Map undo and redo from XEmacs' redo.el
@@ -144,6 +145,12 @@
   (if (use-region-p)
       (kill-region (region-beginning) (region-end))
     (viper-delete-char arg)))
+
+(defun vimlike-delete (arg)
+  (interactive "P")
+  (if (use-region-p)
+      (kill-region (region-beginning) (region-end))
+    (viper-command-argument arg)))
 
 (defun vimlike-yank (arg)
   (interactive "P")
