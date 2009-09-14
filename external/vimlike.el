@@ -5,7 +5,9 @@
 ; http://common-lisp.net/project/vial/darcs/extended-viper/vimlike.el
 ;
 ; The major changes are removal of visual mode. Visual selection are
-; lightweight and tie in with more tightly with base Emac region.
+; lightweight and tie in with more tightly with normal Emacs region
+; operations. This is often done by overriding Viper bindings with
+; functions that call standard Emacs functions.
 
 (require 'advice)
 (require 'redo)
@@ -35,15 +37,17 @@
 (define-key viper-vi-global-user-map "zt"   'viper-line-to-top)
 (define-key viper-vi-global-user-map "zb"   'viper-line-to-bottom)
 (define-key viper-vi-global-user-map "zz"   'viper-line-to-middle)
-(define-key viper-vi-global-user-map "*"    'viper-search-forward-for-word-at-point) 
-(define-key viper-vi-global-user-map "#"    'viper-search-backward-for-word-at-point) 
-(define-key viper-vi-global-user-map "\C-]" 'viper-jump-to-tag-at-point)
+(define-key viper-vi-global-user-map "*"    'vimlike-search-forward-for-word-at-point) 
+(define-key viper-vi-global-user-map "#"    'vimlike-search-backward-for-word-at-point) 
+(define-key viper-vi-global-user-map "\C-]" 'vimlike-jump-to-tag-at-point)
 (define-key viper-vi-global-user-map "\C-t" 'pop-tag-mark)
 (define-key viper-vi-global-user-map "v"    'cua-set-mark)
 (define-key viper-vi-global-user-map "V"    'vimlike-select-line)
 (define-key viper-vi-global-user-map "x"    'vimlike-delete-char)
 (define-key viper-vi-global-user-map "d"    'vimlike-delete)
 (define-key viper-vi-global-user-map "y"    'vimlike-yank)
+(define-key viper-vi-global-user-map "}"    'forward-paragraph)
+(define-key viper-vi-global-user-map "{"    'backward-paragraph)
 
 ; Map undo and redo from XEmacs' redo.el
 (define-key viper-vi-global-user-map "u"    'undo)
@@ -82,7 +86,7 @@
   (ex-edit file))
 
 ;;; Functions that the new key mappings use
-(defun viper-jump-to-tag-at-point ()
+(defun vimlike-jump-to-tag-at-point ()
   (interactive)
   (let ((tag (thing-at-point 'word)))
     (find-tag tag)))
@@ -109,11 +113,11 @@
     (setq viper-s-forward forward)
     (viper-search word forward 1))) 
 
-(defun viper-search-forward-for-word-at-point ()
+(defun vimlike-search-forward-for-word-at-point ()
   (interactive)
   (viper-search-for-word-at-point t))
 
-(defun viper-search-backward-for-word-at-point ()
+(defun vimlike-search-backward-for-word-at-point ()
   (interactive)
   (viper-search-for-word-at-point nil))
 
