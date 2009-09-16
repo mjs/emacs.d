@@ -14,10 +14,10 @@
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; * rather than override all the viper stuff to make marks work better try advicing away viper-deactivate-mark
 ; * when selecting a region, include the char under the cursor (or move one further)
 ; * text object motions and commands
 ; * rename module to avoid confusion
-; * consistent function naming
 ; * rectange support using rect-mark (CTRL-V to start, CTRL-P or something yank)
 
 ; Viper setup
@@ -46,8 +46,8 @@
 (define-key viper-vi-global-user-map "x"    'vimlike-delete-char)
 (define-key viper-vi-global-user-map "d"    'vimlike-delete)
 (define-key viper-vi-global-user-map "y"    'vimlike-yank)
-(define-key viper-vi-global-user-map "}"    'forward-paragraph)
-(define-key viper-vi-global-user-map "{"    'backward-paragraph)
+(define-key viper-vi-global-user-map "}"    'vimlike-forward-paragraph)
+(define-key viper-vi-global-user-map "{"    'vimlike-backward-paragraph)
 
 ; Map undo and redo from XEmacs' redo.el
 (define-key viper-vi-global-user-map "u"    'undo)
@@ -144,6 +144,12 @@
        (t ad-do-it))
     ad-do-it))
 
+(defadvice viper-deactivate-mark (around vimlike-stop-viper-deactivating-mark activate)
+  (message "blocked mark DEactivate"))
+
+(defadvice viper-activate-mark (around vimlike-stop-viper-activating-mark activate)
+  (message "blocked mark activate"))
+
 (defun vimlike-delete-char (arg)
   (interactive "P")
   (if (use-region-p)
@@ -179,5 +185,14 @@
 (defun vimlike-end-of-buffer ()
   (interactive)
   (goto-char (point-max)))
+
+(defun vimlike-forward-paragraph (arg)
+  (interactive "P")
+  (forward-paragraph (viper-p-val arg)))
+
+(defun vimlike-backward-paragraph (arg)
+  (interactive "P")
+  (backward-paragraph (viper-p-val arg)))
+
 
 (provide 'vimlike)
