@@ -14,17 +14,10 @@
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; * rather than override all the viper stuff to make marks work better try advicing away viper-deactivate-mark
 ; * when selecting a region, include the char under the cursor (or move one further)
 ; * text object motions and commands
 ; * rename module to avoid confusion
 ; * rectange support using rect-mark (CTRL-V to start, CTRL-P or something yank)
-
-; Viper setup
-(viper-buffer-search-enable)
-(setq viper-syntax-preference 'emacs)
-(setq viper-auto-indent t) 
-(setq viper-ex-style-motion nil)        ; can move past the end of the line
 
 ; make :n cycle through buffers on the current window
 (setq ex-cycle-other-window nil) 
@@ -145,10 +138,10 @@
     ad-do-it))
 
 (defadvice viper-deactivate-mark (around vimlike-stop-viper-deactivating-mark activate)
-  (message "blocked mark DEactivate"))
+  t)
 
 (defadvice viper-activate-mark (around vimlike-stop-viper-activating-mark activate)
-  (message "blocked mark activate"))
+  t)
 
 (defun vimlike-delete-char (arg)
   (interactive "P")
