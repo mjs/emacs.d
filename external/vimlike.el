@@ -14,6 +14,8 @@
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; * y} doesn't yank anymore!
+; * dG is broken
 ; * when selecting a region, include the char under the cursor (or move one further)
 ; * text object motions and commands
 ; * rename module to avoid confusion
@@ -126,7 +128,7 @@
 ; Function to make brace highlighting like Vim's
 ; Contributed by Alessandro Piras
 ; XXX buggy - now not activated by default
-(defadvice show-paren-function (around viper-shop-paren-function disable)
+(defadvice show-paren-function (around vimlike-show-paren-function disable)
   (if viper-vi-basic-minor-mode
       (cond
        ((= (char-after (point)) ?\))
@@ -138,9 +140,6 @@
     ad-do-it))
 
 (defadvice viper-deactivate-mark (around vimlike-stop-viper-deactivating-mark activate)
-  t)
-
-(defadvice viper-activate-mark (around vimlike-stop-viper-activating-mark activate)
   t)
 
 (defun vimlike-delete-char (arg)
