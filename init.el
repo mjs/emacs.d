@@ -68,6 +68,7 @@
 (require 'flymake-config)
 (require 'file-misc)
 (require 'c-misc)
+(require 'misc-misc)
 (require 'insert-timestamp)
 (require 'csv-mode)
 (require 'jabber-autoloads)
@@ -90,9 +91,6 @@
 (setq tramp-auto-save-directory "~/.emacs.d/tmp/autosave")
 (setq tramp-backup-directory-alist backup-directory-alist)
 ;; (setq auto-save-file-name-transforms `((".*" "~/.emacs.d/tmp/autosave" t)))
-
-;; Less convoluted key for window switching
-(global-set-key (kbd "C-'") 'other-window)
 
 ;; remember what I was doing before
 (recentf-mode 1)
