@@ -102,8 +102,8 @@
   (select-window (next-window)))
 
 (defun viper-search-for-word-at-point (forward)
-  "Search forwards or bacward for the word under point."
-  (let ((word (thing-at-point 'word)))
+  "Search forwards or backwards for the word under point."
+  (let ((word (thing-at-point 'symbol)))
     (setq viper-s-string word)
     (setq viper-s-forward forward)
     (viper-search word forward 1))) 
