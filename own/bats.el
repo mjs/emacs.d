@@ -3,21 +3,13 @@
 (require 'org-config)
 
 
-(defun bats-dest-from-crontab-name (filename)
-  "Extract the username and host from a crontab filename in user@host form"
-  (unless (string-match "\\.crontab$" filename) (throw 'invalid-filename t))
-  (let* ((basename (file-name-nondirectory filename))
-         (user-host (car (split-string basename "\\."))))
-    (replace-regexp-in-string "_" "@" user-host)))
-
-
 (defun bats-deploy-crontab ()
   "Deploy the current buffer containing a BATS crontab"
   (interactive)
   (save-buffer)
   (let ((dest (bats-dest-from-crontab-name (buffer-file-name))))
-    (bats-deploy-crontab-to-host dest)
-    ))
+    (bats-deploy-crontab-to-host dest)))
+
 
 (defun bats-deploy-crontab-to-host (dest)
   (interactive "sDestination [host/user@host]: ")
@@ -29,8 +21,15 @@
     (when (yes-or-no-p "Ok to deploy? ")
       (shell-command (format "ssh %s 'crontab newcron'" dest))
       (kill-buffer diff-buffer))
-    (delete-file write-dest)
-    ))
+    (delete-file write-dest)))
+
+
+(defun bats-dest-from-crontab-name (filename)
+  "Extract the username and host from a crontab filename in user@host form"
+  (unless (string-match "\\.crontab$" filename) (throw 'invalid-filename t))
+  (let* ((basename (file-name-nondirectory filename))
+         (user-host (car (split-string basename "\\."))))
+    (replace-regexp-in-string "_" "@" user-host)))
 
 
 (defun bats-insert-bug-title (bug-id)
@@ -40,6 +39,7 @@
                   (cdr (assq 'id bug))
                   (cdr (assq 'desc bug))))
     ))
+
 
 (defun bats-insert-org-bug (bug-id)
   (interactive "NBug ID: ")
