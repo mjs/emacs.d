@@ -2,6 +2,37 @@
 (require 'magit)
 (require 'org-config)
 
+
+(defun bats-dest-from-crontab-name (filename)
+  "Extract the username and host from a crontab filename in user@host form"
+  (unless (string-match "\\.crontab$" filename) (throw 'invalid-filename t))
+  (let* ((basename (file-name-nondirectory filename))
+         (user-host (car (split-string basename "\\."))))
+    (replace-regexp-in-string "_" "@" user-host)))
+
+
+(defun bats-deploy-crontab ()
+  "Deploy the current buffer containing a BATS crontab"
+  (interactive)
+  (save-buffer)
+  (let ((dest (bats-dest-from-crontab-name (buffer-file-name))))
+    (bats-deploy-crontab-to-host dest)
+    ))
+
+(defun bats-deploy-crontab-to-host (dest)
+  (interactive "sDestination [host/user@host]: ")
+  (let* ((write-dest (format "/ssh:%s:newcron" dest))
+         (diff-buffer (create-file-buffer "crontab-diff")))
+    (copy-file (buffer-file-name) write-dest t)
+    (shell-command (format "ssh %s 'crontab -l | diff - newcron'" dest) diff-buffer)
+    (switch-to-buffer-other-window diff-buffer)
+    (when (yes-or-no-p "Ok to deploy? ")
+      (shell-command (format "ssh %s 'crontab newcron'" dest))
+      (kill-buffer diff-buffer))
+    (delete-file write-dest)
+    ))
+
+
 (defun bats-insert-bug-title (bug-id)
   (interactive "NBug ID: ")
   (let ((bug (bugzilla-read-bug bug-id)))
