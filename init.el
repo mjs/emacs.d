@@ -61,7 +61,9 @@
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
-(setenv "PYTHONPATH" (expand-file-name "~/.emacs.d/pylib"))
+(setenv "PYTHONPATH" (format "%s:%s" 
+                             (expand-file-name "~/.emacs.d/pylib") 
+                             (getenv "PYTHONPATH")))
 
 (require 'filecache)
 (require 'flymake-pyflakes)
