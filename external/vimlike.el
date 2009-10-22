@@ -14,12 +14,9 @@
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; * y} doesn't yank anymore!
-; * dG is broken
-; * when selecting a region, include the char under the cursor (or move one further)
-; * text object motions and commands
+; * text object motions and commands: steal from modal-mode?
 ; * rename module to avoid confusion
-; * rectange support using rect-mark (CTRL-V to start, CTRL-P or something yank)
+; * get rect-mark working
 
 ; make :n cycle through buffers on the current window
 (setq ex-cycle-other-window nil) 
@@ -38,11 +35,6 @@
 (define-key viper-vi-global-user-map "\C-t" 'pop-tag-mark)
 (define-key viper-vi-global-user-map "v"    'cua-set-mark)
 (define-key viper-vi-global-user-map "V"    'vimlike-select-line)
-(define-key viper-vi-global-user-map "x"    'vimlike-delete-char)
-(define-key viper-vi-global-user-map "d"    'vimlike-delete)
-(define-key viper-vi-global-user-map "y"    'vimlike-yank)
-(define-key viper-vi-global-user-map "}"    'vimlike-forward-paragraph)
-(define-key viper-vi-global-user-map "{"    'vimlike-backward-paragraph)
 
 ; Map undo and redo from XEmacs' redo.el
 (define-key viper-vi-global-user-map "u"    'undo)
@@ -50,56 +42,19 @@
 
 ; Window manipulation
 (define-key global-map "\C-w" (make-sparse-keymap))
-(define-key global-map "\C-w\C-w" 'viper-cycle-windows)
+(define-key global-map "\C-w\C-w" 'vimlike-cycle-windows)
 (define-key global-map "\C-wo" 'delete-other-windows)
 (define-key global-map "\C-wc" 'delete-window)
 
-; Insert mode keys
-; Vim-like completion key
-(define-key viper-insert-global-user-map "\C-n" 'dabbrev-expand)
+(defun vimlike-cycle-windows ()
+  "Cycle point to another window."
+  (interactive) 
+  (select-window (next-window)))
 
-;;; Additional Ex mode features.
-;;; ex-token-alist is defined as a constant, but it appears I can safely push values to it!
-(defvar viper-extra-ex-commands '(
-      ("sp" "split")
-      ("split" (viper-split-window))
-      ("b" "buffer")
-      ("bd" "bdelete")
-      ("bdelete" (viper-kill-current-buffer))
-      ("bn" "next")
-      ("vs" "vsplit")   ; Emacs and Vim use inverted naming conventions for splits :)
-      ("vsplit" (viper-split-window-horizontally))
-))
-(setq ex-token-alist (append viper-extra-ex-commands ex-token-alist))
-
-(defun viper-split-window (&optional file)
-  (split-window)
-  (ex-edit file))
-
-(defun viper-split-window-horizontally (&optional file)
-  (split-window-horizontally)
-  (ex-edit file))
-
-;;; Functions that the new key mappings use
 (defun vimlike-jump-to-tag-at-point ()
   (interactive)
   (let ((tag (thing-at-point 'word)))
     (find-tag tag)))
-
-(defun viper-goto-first-line ()
-  "Send point to the start of the first line."
-  (interactive)
-  (viper-goto-line 1)) 
-
-(defun viper-kill-current-buffer ()
-  "Kill the current buffer."
-  (interactive)
-  (kill-buffer nil)) 
-
-(defun viper-cycle-windows ()
-  "Cycle point to another window."
-  (interactive) 
-  (select-window (next-window)))
 
 (defun viper-search-for-word-at-point (forward)
   "Search forwards or backwards for the word under point."
@@ -125,42 +80,8 @@
 (add-hook 'lisp-mode-hook 'viper-mode-lisp-hook)
 (add-hook 'emacs-lisp-mode-hook 'viper-mode-lisp-hook) 
 
-; Function to make brace highlighting like Vim's
-; Contributed by Alessandro Piras
-; XXX buggy - now not activated by default
-(defadvice show-paren-function (around vimlike-show-paren-function disable)
-  (if viper-vi-basic-minor-mode
-      (cond
-       ((= (char-after (point)) ?\))
-	(forward-char)
-	ad-do-it
-	(backward-char))
-       ((= (char-after (- (point) 1)) ?\)) nil)
-       (t ad-do-it))
-    ad-do-it))
-
-(defadvice viper-deactivate-mark (around vimlike-stop-viper-deactivating-mark activate)
-  t)
-
-(defun vimlike-delete-char (arg)
-  (interactive "P")
-  (if (use-region-p)
-      (kill-region (region-beginning) (region-end))
-    (viper-delete-char arg)))
-
-(defun vimlike-delete (arg)
-  (interactive "P")
-  (if (use-region-p)
-      (kill-region (region-beginning) (region-end))
-    (viper-command-argument arg)))
-
-(defun vimlike-yank (arg)
-  (interactive "P")
-  (if (use-region-p)
-      (copy-region-as-kill (region-beginning) (region-end))
-    (viper-command-argument arg)))
-
 (defun vimlike-select-line ()
+  "Select the whole current line - poor man's Vim 'V' binding"
   (interactive)
   (if (use-region-p)
       (cua-set-mark)
@@ -178,13 +99,44 @@
   (interactive)
   (goto-char (point-max)))
 
-(defun vimlike-forward-paragraph (arg)
-  (interactive "P")
-  (forward-paragraph (viper-p-val arg)))
+;;
+;; Override the default forward and backward paragraph functions to
+;; act on whole lines and to remove the mark fiddling
+;;
+;; Hopefully I can ween myself off these at some point :)
+;;
 
-(defun vimlike-backward-paragraph (arg)
+(defun viper-forward-paragraph (arg)
+  "Forward paragraph."
   (interactive "P")
-  (backward-paragraph (viper-p-val arg)))
+  ;(or (eq last-command this-command)
+  ;    (push-mark nil t))
+  (let ((val (viper-p-val arg))
+	;; if you want d} operate on whole lines, change viper-getcom to
+	;; viper-getCom below
+	(com (viper-getCom arg)))
+    (if com (viper-move-marker-locally 'viper-com-point (point)))
+    (forward-paragraph val)
+    (if com
+	(progn
+	  (backward-char 1)
+	  (viper-execute-com 'viper-forward-paragraph nil com)))))
 
+(defun viper-backward-paragraph (arg)
+  "Backward paragraph."
+  (interactive "P")
+  ;(or (eq last-command this-command)
+  ;    (push-mark nil t))
+  (let ((val (viper-p-val arg))
+	;; if you want d{ operate on whole lines, change viper-getcom to
+	;; viper-getCom below
+	(com (viper-getCom arg)))
+    (if com (viper-move-marker-locally 'viper-com-point (point)))
+    (backward-paragraph val)
+    (if com
+	(progn
+	  (forward-char 1)
+	  (viper-execute-com 'viper-backward-paragraph nil com)
+	  (backward-char 1)))))
 
 (provide 'vimlike)
