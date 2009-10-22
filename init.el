@@ -131,6 +131,8 @@
   "Stop viper from trying to do anything VC related"
   nil)
 
+;; This requires a lot of work but might be good eventually
+;; (require 'modal-mode-extras)
 
 ;; python mode settings
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
