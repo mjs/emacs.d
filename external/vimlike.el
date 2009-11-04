@@ -3,20 +3,15 @@
 ;
 ; Heavily customised version of:
 ; http://common-lisp.net/project/vial/darcs/extended-viper/vimlike.el
-;
-; The major changes are removal of visual mode. Visual selection are
-; lightweight and tie in with more tightly with normal Emacs region
-; operations. This is often done by overriding Viper bindings with
-; functions that call standard Emacs functions.
 
 (require 'advice)
 (require 'redo)
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; * text object motions and commands: steal from modal-mode?
+; * dG doesn't work
+; * text object motions and commands: steal from modal-mode or vimpulse?
 ; * rename module to avoid confusion
-; * get rect-mark working
 
 ; make :n cycle through buffers on the current window
 (setq ex-cycle-other-window nil) 
