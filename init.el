@@ -75,7 +75,6 @@
 (require 'insert-timestamp)
 (require 'csv-mode)
 (require 'jabber-autoloads)
-(require 'org-config)
 (require 'lua-mode)
 
 ;; Provide a menu of tags when there's multiple matches

@@ -1,5 +1,5 @@
 ;-----------------------------------------------------------
-; Org-mode settings
+; Org-mode settings - somewhat BATS specific
 ;-----------------------------------------------------------
 (require 'org-install)
 
