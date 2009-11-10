@@ -99,6 +99,16 @@
 (recentf-mode 1)
 (defalias 'rf 'recentf-open-files)
 
+
+;; Interaction with the standard X clipboard
+(global-set-key "\C-cc" 'clipboard-kill-ring-save)
+(global-set-key "\C-cx" 'clipboard-kill-region)
+(global-set-key "\C-cv" 'clipboard-yank)
+
+;; Possibly useful
+;; (setq x-select-enable-clipboard t)
+;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
+
 ;; Show trailing whitespace when working with Python files
 (add-hook 'python-mode-hook
           (lambda () (setq show-trailing-whitespace t)))
