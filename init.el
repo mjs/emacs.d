@@ -110,6 +110,8 @@
 (global-set-key "\C-cx" 'clipboard-kill-region)
 (global-set-key "\C-cv" 'clipboard-yank)
 
+(global-set-key "\C-x9" 'bury-buffer)
+
 ;; Possibly useful
 ;; (setq x-select-enable-clipboard t)
 ;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
