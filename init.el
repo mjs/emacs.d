@@ -4,6 +4,9 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(browse-url-browser-function (quote browse-url-firefox))
+ '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
+ '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org")))
+ '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
  '(cua-enable-cua-keys nil)
  '(cua-mode t nil (cua-base))
  '(cua-remap-control-v nil)
@@ -21,6 +24,7 @@
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
+ '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
@@ -76,6 +80,7 @@
 (require 'csv-mode)
 (require 'jabber-autoloads)
 (require 'lua-mode)
+(require 'midnight)
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
