@@ -82,7 +82,8 @@ None
 ;; ---------------------------------------------------------
 (global-set-key (kbd "C-# C-t") 'bats-insert-bug-title)
 (global-set-key (kbd "C-# C-r") 'bats-release-notes)
-(global-set-key (kbd "C-# g") 'magit-status)
+(global-set-key (kbd "C-. s") 'magit-status)
+(global-set-key (kbd "C-. l") 'magit-log)
 
 ;; BATS only bindings for org-mode
 (add-hook 'org-mode-hook
