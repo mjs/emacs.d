@@ -112,13 +112,17 @@
 
 (global-set-key "\C-x9" 'bury-buffer)
 
+;; Navigation of grep results/errors
+(global-set-key "\M-n" 'next-error)
+(global-set-key "\M-p" 'previous-error)
+
 ;; Possibly useful
 ;; (setq x-select-enable-clipboard t)
 ;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
 ;; Show trailing whitespace when working with Python files
-(add-hook 'python-mode-hook
-          (lambda () (setq show-trailing-whitespace t)))
+;; (add-hook 'python-mode-hook
+;;           (lambda () (setq show-trailing-whitespace t)))
 
 ;; highlighting to see all occurrences of a word in the buffer
 (setq highlighted-word "")
