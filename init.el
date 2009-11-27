@@ -187,6 +187,21 @@
 ;; Show the column number in the mode line
 (column-number-mode)
 
+;; Make window sizing saner
+(defun enlarge-window-horiz-quick (arg)
+  (interactive "P")
+  (enlarge-window-horizontally 3))
+
+(defun shrink-window-horiz-quick (arg)
+  (interactive "P")
+  (shrink-window-horizontally 3))
+
+(global-set-key (kbd "C-_") 'shrink-window-horiz-quick)
+(global-set-key (kbd "C-+") 'enlarge-window-horiz-quick)
+(global-set-key (kbd "C--") 'shrink-window)
+(global-set-key (kbd "C-=") 'enlarge-window)
+
+
 ;; get rid of the multiple dired buffer problem
 (require 'dired-single)
 
