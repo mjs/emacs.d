@@ -42,28 +42,8 @@
             (define-key org-mode-map (kbd "C-c C-0") 'org-move-subtree-to-bottom)))
 
 
-;-----------------------------------------------------------
-; org integration with appointments (appt)
-;-----------------------------------------------------------
-(require 'appt)
 
-; Erase all reminders and rebuilt reminders for today from the agenda
-(defun my-org-agenda-to-appt ()
-  (interactive)
-  (setq appt-time-msg-list nil)
-  (org-agenda-to-appt))
 
-; Rebuild the reminders everytime the agenda is displayed
-(add-hook 'org-finalize-agenda-hook 'my-org-agenda-to-appt)
-
-; Set up appointments when this loads
-(my-org-agenda-to-appt)
-
-; Activate appointments so we get notifications
-(appt-activate t)
-
-; If we leave Emacs running overnight - reset the appointments one minute after midnight
-(run-at-time "24:01" nil 'my-org-agenda-to-appt)
 
 
 (provide 'org-config)
