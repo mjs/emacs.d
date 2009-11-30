@@ -35,14 +35,41 @@
     (org-up-heading-all 99)
     (hide-subtree)))
 
+(defun org-meeting-timeline ()
+  (interactive)
+  (org-timeline)
+  (universal-argument)
+  (universal-argument)
+  (org-agenda-log-mode))
+
 
 (add-hook 'org-mode-hook
           (lambda ()
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
-            (define-key org-mode-map (kbd "C-c C-0") 'org-move-subtree-to-bottom)))
+            (define-key org-mode-map (kbd "C-c C-0") 'org-move-subtree-to-bottom)
+            (define-key org-mode-map (kbd "C-c M-m") 'org-meeting-timeline)))
+
+; Use 4 numeric priorities
+(setq org-highest-priority ?1)
+(setq org-lowest-priority ?4)
+(setq org-default-priority ?4)
+
+(setq org-tag-alist '(("@bluesky" . ?b)
+                      ("@cleanup" . ?c)
+                      ("@research" . ?r)
+                      ("@secondary" . ?s)))
+
+(setq org-todo-keywords
+       '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "DELEGATED")))
 
 
-
+(setq org-agenda-custom-commands
+      '(("0" "Agenda + Tasks"
+         ((agenda)
+          (todo)))
+        ("c" tags "@cleanup")
+        ("b" tags "@bluesky")
+        ("r" tags "@research")))
 
 
 
