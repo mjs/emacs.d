@@ -60,12 +60,13 @@
                       ("@secondary" . ?s)))
 
 (setq org-todo-keywords
-       '((sequence "TODO" "STARTED" "WAITING" "|" "DONE" "DELEGATED")))
+       '((sequence "TODO" "WAITING" "|" "DONE")))
 
 
 (setq org-agenda-custom-commands
       '(("0" "Agenda + Tasks"
-         ((agenda)
+         ((agenda "" ((org-agenda-start-on-weekday nil)
+                      (org-agenda-ndays 1)))
           (todo)))
         ("c" tags "@cleanup")
         ("b" tags "@bluesky")
