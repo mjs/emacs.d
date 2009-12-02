@@ -21,32 +21,29 @@
   (org-insert-todo-heading 0)
   (viper-insert 0))
 
-; Move a subtree to the bottom of the buffer, good for low priority or DONE items
-; TODO: figure out how to not leave the second last subtree open
-(defun org-move-subtree-to-bottom ()
+(defun org-move-to-done-tree ()
+  "Move the current subtree to a monthly DONE tree at the bottom of the file" 
   (interactive)
-  (save-excursion
-    (move-beginning-of-line nil)
-    (org-cut-subtree)
-    (goto-char (point-max))
-    (show-subtree)
-    (goto-char (point-max))
-    (yank)
-    (org-up-heading-all 99)
-    (hide-subtree)))
+  ; Hijack the org-archive-sibling-heading functionality by
+  ; temporarily shadowing the settings it uses
+  (let ((org-archive-sibling-heading (format-time-string "DONE: %Y %b"))
+        (org-archive-tag "ARCH"))
+    (org-archive-to-archive-sibling)))
+
 
 (defun org-meeting-timeline ()
   (interactive)
   (org-timeline)
   (universal-argument)
   (universal-argument)
-  (org-agenda-log-mode))
+  (org-agenda-log-mode)
+  (end-of-buffer))
 
 
 (add-hook 'org-mode-hook
           (lambda ()
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
-            (define-key org-mode-map (kbd "C-c C-0") 'org-move-subtree-to-bottom)
+            (define-key org-mode-map (kbd "C-c C-0") 'org-move-to-done-tree)
             (define-key org-mode-map (kbd "C-c M-m") 'org-meeting-timeline)))
 
 ; Use 4 numeric priorities
