@@ -51,9 +51,10 @@
  '(magit-diff-del ((((class color) (background dark)) (:foreground "IndianRed"))))
  '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
  '(magit-item-highlight ((((class color) (background dark)) (:background "#070707"))))
- '(org-level-1 ((t (:inherit outline-1 :overline "darkgray"))))
+ '(org-level-1 ((t (:inherit outline-1))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
+
 
 ;; get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -180,6 +181,10 @@
 ;; enable case-transformers
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
+
+;; Bind this elsewhere since Viper uses C-u
+;; p == 'prefix'
+(global-set-key (kbd "C-p") 'universal-argument)
 
 ;; tabs are for babies and Aztecs (and Makefiles, I guess)
 (setq-default indent-tabs-mode nil)
