@@ -174,6 +174,9 @@
 ;;(require 'pysmell)
 ;;(add-hook 'python-mode-hook (lambda () (pysmell-mode 1)))
 
+(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
+(setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+
 ;; nice completion
 (global-set-key (kbd "M-/") 'hippie-expand)
 
