@@ -104,6 +104,7 @@
 (recentf-mode 1)
 (defalias 'rf 'recentf-open-files)
 
+(put 'narrow-to-region 'disabled nil)
 
 ;; Interaction with the standard X clipboard
 (global-set-key "\C-cc" 'clipboard-kill-ring-save)
@@ -248,3 +249,4 @@
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (server-start)
+
