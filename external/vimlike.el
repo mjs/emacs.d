@@ -5,7 +5,7 @@
 ; http://common-lisp.net/project/vial/darcs/extended-viper/vimlike.el
 
 (require 'advice)
-(require 'redo)
+;; (require 'redo)
 (require 'cua-base)
 
 ;;;;;;;;; TODO ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -33,7 +33,7 @@
 
 ; Map undo and redo from XEmacs' redo.el
 (define-key viper-vi-global-user-map "u"    'undo)
-(define-key viper-vi-global-user-map "\C-r" 'redo)
+; (define-key viper-vi-global-user-map "\C-r" 'undo)
 
 ; Window manipulation
 (define-key global-map "\C-w" (make-sparse-keymap))
