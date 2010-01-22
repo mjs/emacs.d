@@ -143,12 +143,13 @@
 
 (global-set-key (kbd "C-x C-h") 'highlight-word)
 
-
 (setq viper-mode t)                ; enable Viper at load time
 ;; These 2 are special and need to be set before viper is loaded. They don't
 ;; work if set in the customize block.
 (setq viper-ex-style-editing nil)  ; can backspace past start of insert / line
 (setq viper-ex-style-motion nil)   ; can move past end of line
+(setq viper-fast-keyseq-timeout 0)
+;;(setq viper-ESC-keyseq-timeout 0)
 (require 'viper)                   ; load Viper
 (require 'vimlike)                 ; vim emulation
 

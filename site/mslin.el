@@ -10,4 +10,4 @@
                               (:connection-type . ssl))
                             ))
 
-(jabber-connect-all)
+;;(jabber-connect-all)
