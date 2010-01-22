@@ -14,8 +14,6 @@
  '(dabbrev-case-fold-search nil)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
- '(gnus-summary-line-format "%U%R%z%I %-23,23f% %d %5k %S
-")
  '(hippie-expand-try-functions-list (quote (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
  '(ido-default-buffer-method (quote selected-window))
  '(ido-default-file-method (quote selected-window))
@@ -83,7 +81,6 @@
 (require 'csv-mode)
 (require 'jabber-autoloads)
 (require 'lua-mode)
-(require 'gnus-config)
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
