@@ -52,6 +52,7 @@
  '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
  '(magit-item-highlight ((((class color) (background dark)) (:background "#070707"))))
  '(org-level-1 ((t (:inherit outline-1))))
+ '(post-signature-text-face ((((class color) (background dark)) (:foreground "lightblue"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
 
@@ -81,6 +82,7 @@
 (require 'csv-mode)
 (require 'jabber-autoloads)
 (require 'lua-mode)
+(require 'post-config)
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
