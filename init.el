@@ -26,6 +26,7 @@
  '(js2-mirror-mode nil)
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
+ '(org-agenda-files nil)
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
  '(recentf-max-saved-items 100)
