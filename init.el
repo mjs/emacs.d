@@ -151,7 +151,8 @@
 (setq viper-fast-keyseq-timeout 0)
 ;;(setq viper-ESC-keyseq-timeout 0)
 (require 'viper)                   ; load Viper
-(require 'vimlike)                 ; vim emulation
+;; (require 'vimlike)                 ; vim emulation
+(require 'vimpulse)                ; vim emulation
 
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
