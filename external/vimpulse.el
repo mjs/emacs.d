@@ -1890,9 +1890,8 @@ To go the other way, press \\[vimpulse-jump-backward]."
         (goto-char next-pos)
         (setq vimpulse-mark-list (cdr vimpulse-mark-list))))))
 
-(define-key viper-vi-basic-map "\C-o" 'vimpulse-jump-backward)
-(define-key viper-vi-basic-map "\C-i" 'vimpulse-jump-forward)
-(global-set-key "\M-o" 'open-line) ; some may miss this command
+(define-key viper-vi-basic-map "\M-o" 'vimpulse-jump-backward)
+(define-key viper-vi-basic-map "\M-i" 'vimpulse-jump-forward)
 
 ;; N%
 (defadvice viper-paren-match (around vimpulse activate)
