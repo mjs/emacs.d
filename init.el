@@ -167,21 +167,9 @@
 				   interpreter-mode-alist))
 (autoload 'python-mode "python-mode" "Python editing mode." t)
 
-;; Pymacs
-(autoload 'pymacs-apply "pymacs")
-(autoload 'pymacs-call "pymacs")
-(autoload 'pymacs-eval "pymacs" nil t)
-(autoload 'pymacs-exec "pymacs" nil t)
-(autoload 'pymacs-load "pymacs" nil t)
+;; Pymacs and ropemacs
 (require 'pymacs)
 (pymacs-load "ropemacs" "rope-")
-
-;;(eval-after-load "pymacs"
-;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
-
-;; Enable PySmell
-;;(require 'pysmell)
-;;(add-hook 'python-mode-hook (lambda () (pysmell-mode 1)))
 
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
