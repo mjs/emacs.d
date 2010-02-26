@@ -29,6 +29,7 @@
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
  '(recentf-max-saved-items 100)
+ '(ropemacs-enable-shortcuts nil)
  '(show-paren-mode t)
  '(size-indication-mode t)
  '(visible-bell t))
@@ -172,6 +173,9 @@
 (autoload 'pymacs-eval "pymacs" nil t)
 (autoload 'pymacs-exec "pymacs" nil t)
 (autoload 'pymacs-load "pymacs" nil t)
+(require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
+
 ;;(eval-after-load "pymacs"
 ;;  '(add-to-list 'pymacs-load-path YOUR-PYMACS-DIRECTORY"))
 
