@@ -40,6 +40,7 @@
     ))
 
 
+;; XXX lists of bugs
 (defun bats-insert-org-bug (bug-id)
   (interactive "NBug ID: ")
   (let ((bug (bugz-get-bug bug-id)))
@@ -47,6 +48,24 @@
                   (cadr (assq 'short_desc bug))
                   (cadr (assq 'bug_id bug))))
     ))
+
+
+(defun bats-extract-org-bug-id ()
+  "Pull the bug ID out of the current line"
+  (save-excursion 
+    (beginning-of-line)
+    (search-forward "[[bug:")
+    (let ((startp (point)))
+      (search-forward "]")
+      (backward-char 1)
+      (buffer-substring-no-properties startp (point)))))
+
+
+;; XXX allow for interactive selection of resolution
+(defun bats-close-org-bug ()
+  (interactive)
+  (bugz-close-bug (bats-extract-org-bug-id))
+  (org-todo 'done))
 
 
 (defun bats-release-notes (last-rev)
@@ -87,6 +106,7 @@ None
 ;; BATS only bindings for org-mode
 (add-hook 'org-mode-hook
           (lambda ()
-            (define-key org-mode-map (kbd "C-; b") 'bats-insert-org-bug)))
+            (define-key org-mode-map (kbd "C-c C-i") 'bats-insert-org-bug)
+            (define-key org-mode-map (kbd "C-c C-c") 'bats-close-org-bug)))
 
 (provide 'bats)
