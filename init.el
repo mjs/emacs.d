@@ -4,6 +4,7 @@
   ;; Your init file should contain only one such instance.
   ;; If there is more than one, they won't work right.
  '(browse-url-browser-function (quote browse-url-firefox))
+ '(browse-url-generic-program "google-chrome")
  '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
@@ -19,6 +20,8 @@
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
+ '(jabber-account-list (quote (("msmits@lxchat" (:connection-type . ssl)) ("menno.smits@gmail.com" (:network-server . "talk.google.com") (:port . 443) (:connection-type . ssl)))))
+ '(jabber-alert-presence-hooks nil)
  '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
@@ -170,6 +173,7 @@
 ;; Pymacs and ropemacs
 (require 'pymacs)
 (pymacs-load "ropemacs" "rope-")
+(pymacs-load "bugzilla" "bugz-")
 
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
@@ -246,3 +250,6 @@
 
 (server-start)
 
+;; Allow editing from Chrome
+(require 'edit-server)
+(edit-server-start)

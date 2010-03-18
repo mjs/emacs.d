@@ -1,4 +1,3 @@
-(require 'bugzilla)
 (require 'magit)
 (require 'org-config)
 
@@ -34,19 +33,19 @@
 
 (defun bats-insert-bug-title (bug-id)
   (interactive "NBug ID: ")
-  (let ((bug (bugzilla-read-bug bug-id)))
+  (let ((bug (bugz-get-bug bug-id)))
     (insert (format "Bug %s - %s"
-                  (cdr (assq 'id bug))
-                  (cdr (assq 'desc bug))))
+                  (cadr (assq 'bug_id bug))
+                  (cadr (assq 'short_desc bug))))
     ))
 
 
 (defun bats-insert-org-bug (bug-id)
   (interactive "NBug ID: ")
-  (let ((bug (bugzilla-read-bug bug-id)))
+  (let ((bug (bugz-get-bug bug-id)))
     (insert (format "%s [[bug:%s]]"
-                  (cdr (assq 'desc bug))
-                  (cdr (assq 'id bug))))
+                  (cadr (assq 'short_desc bug))
+                  (cadr (assq 'bug_id bug))))
     ))
 
 
