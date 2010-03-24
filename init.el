@@ -20,7 +20,6 @@
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
- '(jabber-account-list (quote (("msmits@lxchat" (:connection-type . ssl)) ("menno.smits@gmail.com" (:network-server . "talk.google.com") (:port . 443) (:connection-type . ssl)))))
  '(jabber-alert-presence-hooks nil)
  '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
