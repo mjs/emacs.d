@@ -3,6 +3,16 @@ from ConfigParser import RawConfigParser
 from Pymacs import lisp
 from bugz.bugzilla import Bugz
 
+def create_bug(product, component, title, description, assigned_to, priority, severity):
+    result = bugzObj.post(product, component, title, description,
+                          assigned_to=assigned_to,
+                          priority=priority,
+                          severity=severity)
+    if result == 0:
+        raise IOError('bug creation failed')
+    return result
+    
+
 def get_bug(bug_id):
     root = bugzObj.get(bug_id).getroot()
     bugelem = root.find('bug')
@@ -22,7 +32,3 @@ def _load_config():
 config = _load_config()
 bugzObj = Bugz(config['url'], config['user'], config['password'])
 
-
-
-if __name__ == '__main__':
-    close_bug(4227, 'RESOLVED', 'LATER')
