@@ -89,12 +89,11 @@
 (require 'post-config)
 
 ;; Git support
-(require 'egg)
+(require 'git)
+(require 'git-blame)
+(require 'egit-extras)
+;; (require 'egg)
 ;; (require 'magit)  ;; going away?
-;; (require 'git)
-;; (autoload 'egit "egit" "Emacs git history" t)
-;; (autoload 'egit-file "egit" "Emacs git history file" t)
-;; (autoload 'egit-dir "egit" "Emacs git history directory" t)
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
