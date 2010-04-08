@@ -87,6 +87,7 @@
 (require 'jabber-autoloads)
 (require 'lua-mode)
 (require 'post-config)
+(require 'filecache-config)
 
 ;; Git support
 (require 'git)
