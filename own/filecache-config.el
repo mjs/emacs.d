@@ -2,24 +2,21 @@
 
 (require 'filecache)
 
-(defun file-cache-delete-svn ()
-  (file-cache-delete-file-regexp ".*\\.svn.*"))
+;; ignore git directories in my file cache
+(add-to-list 'file-cache-filter-regexps "/[.]git")
 
-(defun file-cache-delete-git ()
-  (file-cache-delete-file-regexp ".*\\.git.*"))
+;; ignore svn directories in my file cache
+(add-to-list 'file-cache-filter-regexps "/[.]svn")
 
-(defun file-cache-delete-pyc ()
-  (file-cache-delete-file-regexp ".*\\.pyc$"))
+;; ignore pyc directories in my file cache
+(add-to-list 'file-cache-filter-regexps "[.]pyc$")
 
 (eval-after-load
     "filecache"
   '(progn
      (message "Loading file cache...")
      (file-cache-add-directory-using-find "~/ecn-git0")
-     (file-cache-add-directory-using-find "~/sql-mtf")
-     (file-cache-delete-pyc)
-     (file-cache-delete-svn)
-     (file-cache-delete-git)))
+     (file-cache-add-directory-using-find "~/sql-mtf")))
 
 (defun file-cache-ido-find-file (file)
   "Using ido, interactively open file from file cache'.
