@@ -77,7 +77,6 @@
                              (getenv "PYTHONPATH")))
 
 (require 'filecache)
-(require 'flymake-pyflakes)
 (require 'flymake-config)
 (require 'file-misc)
 (require 'c-misc)
