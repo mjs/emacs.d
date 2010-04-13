@@ -11,12 +11,14 @@
 ;; ignore pyc directories in my file cache
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
 
-(eval-after-load
-    "filecache"
-  '(progn
-     (message "Loading file cache...")
-     (file-cache-add-directory-using-find "~/ecn-git0")
-     (file-cache-add-directory-using-find "~/sql-mtf")))
+(defun refresh-file-cache ()
+  (message "Loading file cache...")
+  (file-cache-clear-cache)
+  (file-cache-add-directory-using-find "~/ecn-git0")
+  (file-cache-add-directory-using-find "~/sql-mtf"))
+
+(eval-after-load "filecache" '(refresh-file-cache))
+
 
 (defun file-cache-ido-find-file (file)
   "Using ido, interactively open file from file cache'.
