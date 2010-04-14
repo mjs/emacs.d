@@ -18,13 +18,19 @@
                      'flymake-pyflakes-create-tempfile)))
     (list "pyflakes" (list temp-file))))
 
+
 (defun flymake-pyflakes-load ()
-  (interactive)
-  (set (make-local-variable 'flymake-allowed-file-name-masks) flymake-pyflakes-allowed-file-name-masks)
-  (flymake-mode t))
+  (let ((file-name (buffer-file-name (current-buffer))))
+    ; Don't start flymake when a symlink is being followed as the
+    ; buffer gets killed immediately leading to a "Buffer has a
+    ; running process" warning.
+    (when (string= file-name (file-truename file-name))
+      (set (make-local-variable 'flymake-allowed-file-name-masks) flymake-pyflakes-allowed-file-name-masks)
+      (flymake-mode t))))
 
 (add-hook 'python-mode-hook 'flymake-pyflakes-load)
 
 (provide 'flymake-pyflakes)
+
 
 
