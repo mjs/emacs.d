@@ -34,7 +34,8 @@
  '(ropemacs-enable-shortcuts nil)
  '(show-paren-mode t)
  '(size-indication-mode t)
- '(visible-bell t))
+ '(visible-bell t)
+ '(xgit-use-index (quote always)))
 (custom-set-faces
   ;; custom-set-faces was added by Custom.
   ;; If you edit it by hand, you could mess it up, so be careful.
@@ -248,6 +249,13 @@
 ;; javascript mode from stevey
 (autoload 'js2-mode "js2" nil t)
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+
+;; Haskell support
+(load "~/.emacs.d/external/haskell/haskell-site-file")
+(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
+(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
+;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
 ;; load host/site specific config if it exists
 (let ((site-lib "~/.emacs.d/site.el"))
