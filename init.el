@@ -19,6 +19,7 @@
  '(ido-default-buffer-method (quote selected-window))
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
+ '(inferior-lisp-program "java -cp /home/msmits/downloads/clojure-1.1.0/clojure.jar clojure.main")
  '(initial-buffer-choice t)
  '(jabber-alert-presence-hooks nil)
  '(jabber-chat-fill-long-lines nil)
@@ -71,6 +72,7 @@
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
+(add-to-list 'load-path "~/.emacs.d/elpa")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
 (setenv "PYTHONPATH" (format "%s:%s" 
@@ -88,6 +90,9 @@
 (require 'lua-mode)
 (require 'post-config)
 (require 'filecache-config)
+
+(require 'package)
+(package-initialize)
 
 ;; Git support
 (require 'git)
@@ -267,3 +272,5 @@
 ;; Allow editing from Chrome
 (require 'edit-server)
 (edit-server-start)
+
+
