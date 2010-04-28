@@ -95,11 +95,10 @@
 (package-initialize)
 
 ;; Git support
-(require 'git)
-(require 'git-blame)
-(require 'egit-extras)
-;; (require 'egg)
-;; (require 'magit)  ;; going away?
+(require 'magit)
+(global-set-key (kbd "C-x g") 'magit-status)
+(global-set-key (kbd "C-x l") 'magit-log)
+(require 'egit-extras)  ;; has good history support
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
