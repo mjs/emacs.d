@@ -94,6 +94,8 @@
 (require 'package)
 (package-initialize)
 
+(setq auto-mode-alist (append '((".eml$" . longlines-mode)) auto-mode-alist))
+
 ;; Git support
 (require 'magit)
 (global-set-key (kbd "C-x g") 'magit-status)
