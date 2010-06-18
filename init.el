@@ -94,7 +94,13 @@
 (require 'package)
 (package-initialize)
 
-(setq auto-mode-alist (append '((".eml$" . longlines-mode)) auto-mode-alist))
+
+(defun email-config ()
+  (text-mode)
+  (set-fill-column 72)
+  (auto-fill-mode))
+
+(setq auto-mode-alist (append '((".eml$" . email-config)) auto-mode-alist))
 
 ;; Git support
 (require 'magit)
