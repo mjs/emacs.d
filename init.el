@@ -35,6 +35,10 @@
  '(ropemacs-enable-shortcuts nil)
  '(show-paren-mode t)
  '(size-indication-mode t)
+ '(sml-modeline-borders nil)
+ '(sml-modeline-len 14)
+ '(sml-modeline-mode t)
+ '(sml-modeline-numbers (quote line-numbers))
  '(visible-bell t)
  '(xgit-use-index (quote always)))
 (custom-set-faces
@@ -60,13 +64,19 @@
  '(post-emoticon-face ((t (:background "black" :foreground "white"))))
  '(post-signature-text-face ((((class color) (background dark)) (:foreground "lightblue"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
- '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t))
+ '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t)
+ '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
+ '(sml-modeline-vis-face ((t (:inherit region :foreground "white")))))
 
 
 ;; get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+
+;; Add some useful chrome
+(require 'sml-modeline)
+(sml-modeline-mode t)
 
 ;; make more elisp mods available
 (add-to-list 'load-path "~/.emacs.d/own")
