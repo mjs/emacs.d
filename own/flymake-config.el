@@ -1,7 +1,7 @@
 ;; General setup for flymake
 
 (require 'flymake-pyflakes)
-(provide 'flymake-cursor)
+(require 'flymake-cursor)
 
 (global-set-key (kbd "C-c k") 'flymake-goto-prev-error)
 (global-set-key (kbd "C-c j") 'flymake-goto-next-error)
