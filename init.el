@@ -68,16 +68,6 @@
  '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white")))))
 
-
-;; get rid of useless chrome
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-
-;; Add some useful chrome
-(require 'sml-modeline)
-(sml-modeline-mode t)
-
 ;; make more elisp mods available
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
@@ -88,6 +78,15 @@
 (setenv "PYTHONPATH" (format "%s:%s" 
                              (expand-file-name "~/.emacs.d/pylib") 
                              (getenv "PYTHONPATH")))
+
+;; get rid of useless chrome
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+
+;; Add some useful chrome
+(require 'sml-modeline)
+(sml-modeline-mode t)
 
 (require 'filecache)
 (require 'flymake-config)
