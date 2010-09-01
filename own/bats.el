@@ -1,6 +1,4 @@
-(require 'magit)
 (require 'org-config)
-
 
 (defun bats-deploy-crontab ()
   "Deploy the current buffer containing a BATS crontab"
@@ -68,6 +66,32 @@
   (org-todo 'done))
 
 
+;;XXX - breaks after bugzilla interaction
+;;XXX - needs a buffer
+(defun bats-create-org-bug ()
+  (interactive)
+  (let* ((title (read-string "Bug title: "))
+        (description (read-string "Desc: "))
+        (priority (completing-read "Priority: " '("P1" "P2" "P3" "P4" "P5") nil t "P3"))
+        (severity (completing-read "Severity: " 
+                                   '("blocker" "critical" "major" "normal" "minor" "trivial" "enhancement") 
+                                   nil t "normal"))
+        (bug-id (bats-create-bug title description priority severity)))
+    (open-line)
+    (insert (format "* TODO %s [[bug:%s]]\n%s" title bug-id description))))
+     
+
+;; works
+(defun bats-create-bug (title desc priority severity)
+  (bugz-create-bug "BATS Internal"
+                    "General"
+                    title
+                    desc
+                    "msmits@batstrading.com"
+                    priority
+                    severity))
+
+     
 (defun bats-release-notes (last-rev)
   (interactive "NLast revision: ")
   (let ((buffer (create-file-buffer "changelog")))
@@ -83,9 +107,16 @@ Schema Versions
 ---------------
 None
 
+
 Data Deltas
 -----------
 None
+
+
+Crontab Deltas
+--------------
+None
+
 
 ")
     (beginning-of-buffer)
@@ -100,13 +131,11 @@ None
 ;; ---------------------------------------------------------
 (global-set-key (kbd "C-# C-t") 'bats-insert-bug-title)
 (global-set-key (kbd "C-# C-r") 'bats-release-notes)
-(global-set-key (kbd "C-. s") 'magit-status)
-(global-set-key (kbd "C-. l") 'magit-log)
 
 ;; BATS only bindings for org-mode
 (add-hook 'org-mode-hook
           (lambda ()
-            (define-key org-mode-map (kbd "C-c C-i") 'bats-insert-org-bug)
-            (define-key org-mode-map (kbd "C-c C-c") 'bats-close-org-bug)))
+            (define-key org-mode-map (kbd "C-c b i") 'bats-insert-org-bug)
+            (define-key org-mode-map (kbd "C-c b c") 'bats-close-org-bug)))
 
 (provide 'bats)
