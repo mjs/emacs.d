@@ -1,10 +1,12 @@
-(defun replace-symbol-at-point (with)
-  (interactive "sReplace with: ")
-  (let ((sym (thing-at-point 'symbol)))
-    (save-excursion
-      (beginning-of-buffer)
+;; Replace the symbol under the cursor 
+(defun replace-symbol-at-point ()
+  (interactive)
+  (save-excursion
+    (let* ((sym (thing-at-point 'symbol))
+           ; Using r-f-mb so that the prompt can be dynamic and the
+           ; thing to be replaced can be used as an initial value
+           (with (read-from-minibuffer (concat "Replace \"" sym "\" with: ") sym)))
       (query-replace sym with))))
-
 
 ;; Add a per-buffer hook to automatically remove trailing whitespace on write
 (defun auto-del-trailing-whitespace ()
