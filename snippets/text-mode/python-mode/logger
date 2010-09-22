@@ -1,0 +1,3 @@
+from ecn.web.util import log
+
+logger = log.getLogger('$1')
