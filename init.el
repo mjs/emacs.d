@@ -103,7 +103,6 @@
 (require 'package)
 (package-initialize)
 
-
 (defun email-config ()
   (text-mode)
   (set-fill-column 72)
@@ -128,6 +127,9 @@
 
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+;; Essential for C/C++ programming
+(global-set-key (kbd "C-c o") 'ff-find-other-file)
 
 ;; Keep temporary and backup files in a sane place
 (setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
@@ -189,9 +191,6 @@
   "Stop viper from trying to do anything VC related"
   nil)
 
-;; This requires a lot of work but might be good eventually
-;; (require 'modal-mode-extras)
-
 ;; python mode settings
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
@@ -205,6 +204,8 @@
 
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+
+(setq auto-mode-alist (cons '("\\.sqli$" . sql-mode) auto-mode-alist))
 
 ;; nice completion
 (global-set-key (kbd "M-/") 'hippie-expand)
@@ -220,8 +221,10 @@
 ;; tabs are for babies and Aztecs (and Makefiles, I guess)
 (setq-default indent-tabs-mode nil)
 
-;; Show the column number in the mode line
+;; Show the column number in the mode line and line numbers down the
+;; side
 (column-number-mode)
+(linum-mode)
 
 ;; Make window sizing saner
 (defun enlarge-window-horiz-quick (arg)
