@@ -45,6 +45,30 @@ directory, select directory. Lastly the file is opened."
 	   (setq ido-temp-list choices))))
     (ido-read-buffer prompt)))
 
+(defun plain-thing-at-point (thing-type)
+  (let ((thing (thing-at-point thing-type)))
+      (set-text-properties 0 (length thing) nil thing)
+      thing))
+
+(defun filename-at-point ()
+  (save-excursion
+    (let ((orig-col (current-column)))
+      (beginning-of-line)
+      (if (looking-at "#include") 
+          (re-search-forward "[<\"]")
+        (move-to-column orig-col))
+      (plain-thing-at-point 'filename))))
+  
+(defun file-cache-find-file-at-point ()
+  "Using the filename at the point, open it using the file cache"
+  (interactive)
+  (let ((filename (filename-at-point)))
+    (if (string= filename "") 
+        (message "No filename at point")
+      (file-cache-ido-find-file filename))))
+
+
 (global-set-key (kbd "C-x f") 'file-cache-ido-find-file)
+(global-set-key (kbd "C-x F") 'file-cache-find-file-at-point)
 
 (provide 'filecache-config)
