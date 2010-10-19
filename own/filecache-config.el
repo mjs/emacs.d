@@ -1,6 +1,7 @@
 ;; Filecache configuration
 
 (require 'filecache)
+(require 'text-misc)
 
 ;; ignore git directories in my file cache
 (add-to-list 'file-cache-filter-regexps "/[.]git")
@@ -45,24 +46,10 @@ directory, select directory. Lastly the file is opened."
 	   (setq ido-temp-list choices))))
     (ido-read-buffer prompt)))
 
-(defun plain-thing-at-point (thing-type)
-  (let ((thing (thing-at-point thing-type)))
-      (set-text-properties 0 (length thing) nil thing)
-      thing))
-
-(defun filename-at-point ()
-  (save-excursion
-    (let ((orig-col (current-column)))
-      (beginning-of-line)
-      (if (looking-at "#include") 
-          (re-search-forward "[<\"]")
-        (move-to-column orig-col))
-      (plain-thing-at-point 'filename))))
-  
 (defun file-cache-find-file-at-point ()
   "Using the filename at the point, open it using the file cache"
   (interactive)
-  (let ((filename (filename-at-point)))
+  (let ((filename (filename-near-point)))
     (if (string= filename "") 
         (message "No filename at point")
       (file-cache-ido-find-file filename))))

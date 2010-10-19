@@ -1,8 +1,25 @@
-;; Replace the symbol under the cursor 
+(defun plain-thing-at-point (thing-type)
+  "Like thing-at-point, but strip out any text properties"
+  (let ((thing (thing-at-point thing-type)))
+      (set-text-properties 0 (length thing) nil thing)
+      thing))
+
+(defun filename-near-point ()
+  "Get the filename at point with special handling 
+for C/C++ #include lines"
+  (save-excursion
+    (let ((orig-col (current-column)))
+      (beginning-of-line)
+      (if (looking-at "#include") 
+          (re-search-forward "[<\"]")
+        (move-to-column orig-col))
+      (plain-thing-at-point 'filename))))
+  
 (defun replace-symbol-at-point ()
+  "Replace the symbol under the cursor"
   (interactive)
   (save-excursion
-    (let* ((sym (thing-at-point 'symbol))
+    (let* ((sym (plain-thing-at-point 'symbol))
            ; Using r-f-mb so that the prompt can be dynamic and the
            ; thing to be replaced can be used as an initial value
            (with (read-from-minibuffer (concat "Replace \"" sym "\" with: ") sym)))
