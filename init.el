@@ -281,7 +281,11 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
-;; load host/site specific config if it exists
+(require 'point-stack)
+(global-set-key (kbd "M-RET") 'point-stack-push)
+(global-set-key (kbd "M-[") 'point-stack-pop)
+(global-set-key (kbd "M-]") 'point-stack-forward-stack-pop)
+
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
