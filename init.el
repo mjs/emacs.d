@@ -290,6 +290,8 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
+(desktop-save-mode 1)    ;; reopen previously open buffers
+
 (server-start)
 
 ;; Allow editing from Chrome
