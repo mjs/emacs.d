@@ -2,6 +2,7 @@
 ; Org-mode settings - somewhat BATS specific
 ;-----------------------------------------------------------
 (require 'org-install)
+(require 'org-utils)
 
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 (global-set-key "\C-cl" 'org-store-link)
@@ -44,7 +45,8 @@
           (lambda ()
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
             (define-key org-mode-map (kbd "C-c C-0") 'org-move-to-done-tree)
-            (define-key org-mode-map (kbd "C-c M-m") 'org-meeting-timeline)))
+            (define-key org-mode-map (kbd "C-c M-m") 'org-meeting-timeline)
+            (define-key org-mode-map (kbd "C-c \\") 'org-table-inplace-to-tsv)))
 
 ; Use 4 numeric priorities
 (setq org-highest-priority ?1)
