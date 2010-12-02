@@ -114,6 +114,7 @@
 (require 'magit)
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x l") 'magit-log)
+(require 'gitk)         ;; spawn gitk for the current file etc
 (require 'egit-extras)  ;; has good history support
 
 ;; Provide a menu of tags when there's multiple matches
@@ -140,6 +141,8 @@
 ;; remember what I was doing before
 (recentf-mode 1)
 (defalias 'rf 'recentf-open-files)
+
+(defalias 'rb 'revert-buffer)
 
 (put 'narrow-to-region 'disabled nil)
 
