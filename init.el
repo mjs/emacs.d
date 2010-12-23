@@ -72,6 +72,8 @@
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
+(add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
+(add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
