@@ -2,14 +2,14 @@
 
 ;; Copyright (C) 1992,1993,1994  Tim Peters
 
-;; Author: 2003-2009 https://launchpad.net/python-mode
+;; Author: 2003-2011 https://launchpad.net/python-mode
 ;;         1995-2002 Barry A. Warsaw
 ;;         1992-1994 Tim Peters
 ;; Maintainer: python-mode@python.org
 ;; Created:    Feb 1992
 ;; Keywords:   python languages oop
 
-(defconst py-version "5.1.0"
+(defconst py-version "5.2.0"
   "`python-mode' version number.")
 
 ;; This file is part of python-mode.el.
@@ -54,15 +54,22 @@
 
 ;; To install, just drop this file into a directory on your load-path and
 ;; byte-compile it.  To set up Emacs to automatically edit files ending in
-;; ".py" using python-mode add the following to your ~/.emacs file (GNU
-;; Emacs) or ~/.xemacs/init.el file (XEmacs):
+;; ".py" using python-mode, add to your emacs init file
+;;
+;; GNU Emacs: ~/.emacs, ~/.emacs.el, or ~/.emacs.d/init.el
+;;
+;; XEmacs: ~/.xemacs/init.el
+;;
+;; the following code:
+;;
 ;;    (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 ;;    (setq interpreter-mode-alist (cons '("python" . python-mode)
 ;;                                       interpreter-mode-alist))
 ;;    (autoload 'python-mode "python-mode" "Python editing mode." t)
 ;;
 ;; In XEmacs syntax highlighting should be enabled automatically.  In GNU
-;; Emacs you may have to add these lines to your ~/.emacs file:
+;; Emacs you may have to add these lines to your init file:
+;;
 ;;    (global-font-lock-mode t)
 ;;    (setq font-lock-maximum-decoration t)
 
@@ -375,11 +382,21 @@ to select the appropriate python interpreter mode for a file.")
   :type 'boolean
   :group 'python)
 
-(defcustom py-handle-triple-quoted-strings t
-  "If non-nil, then color triple-quoted strings correctly.
-This may be slow, depending on your system."
+(defcustom py-hide-show-keywords
+  '(
+    "class"    "def"    "elif"    "else"    "except"
+    "for"      "if"     "while"   "finally" "try"
+    "with"
+    )
+  "*Keywords that can be hidden by hide-show"
+  :type '(repeat string)
+  :group 'python)
+
+(defcustom py-hide-show-hide-docstrings t
+  "*Controls if doc strings can be hidden by hide-show"
   :type 'boolean
   :group 'python)
+
 
 
 ;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -390,6 +407,107 @@ This may be slow, depending on your system."
 subsequent py-up-exception needs the line number where the region
 started, in order to jump to the correct file line.  This variable is
 set in py-execute-region and used in py-jump-to-exception.")
+
+;; 2009-09-10 a.roehler@web.de changed section start
+;; from python.el, version "22.1"
+
+(defconst python-font-lock-syntactic-keywords
+  '(("[^\\]\\\\\\(?:\\\\\\\\\\)*\\(\\s\"\\)\\1\\(\\1\\)"
+     (2
+      (7)))
+    ("\\([RUBrub]?\\)[Rr]?\\(\\s\"\\)\\2\\(\\2\\)"
+     (1
+      (python-quote-syntax 1))
+     (2
+      (python-quote-syntax 2))
+     (3
+      (python-quote-syntax 3)))))
+
+(defun python-quote-syntax (n)
+  "Put `syntax-table' property correctly on triple quote.
+Used for syntactic keywords.  N is the match number (1, 2 or 3)."
+  ;; Given a triple quote, we have to check the context to know
+  ;; whether this is an opening or closing triple or whether it's
+  ;; quoted anyhow, and should be ignored.  (For that we need to do
+  ;; the same job as `syntax-ppss' to be correct and it seems to be OK
+  ;; to use it here despite initial worries.) We also have to sort
+  ;; out a possible prefix -- well, we don't _have_ to, but I think it
+  ;; should be treated as part of the string.
+  ;; Test cases:
+  ;;  ur"""ar""" x='"' # """
+  ;; x = ''' """ ' a
+  ;; '''
+  ;; x '"""' x """ \"""" x
+  (save-excursion
+    (goto-char (match-beginning 0))
+    (cond
+     ;; Consider property for the last char if in a fenced string.
+     ((= n 3)
+      (let* ((font-lock-syntactic-keywords nil)
+             (syntax (syntax-ppss)))
+        (when (eq t (nth 3 syntax))     ; after unclosed fence
+          (goto-char (nth 8 syntax))    ; fence position
+          (skip-chars-forward "uUrRbB") ; skip any prefix
+          ;; Is it a matching sequence?
+          (if (eq (char-after) (char-after (match-beginning 2)))
+              (if (featurep 'xemacs)
+                  '(15)
+                (eval-when-compile (string-to-syntax "|")))
+            ))))
+     ;; Consider property for initial char, accounting for prefixes.
+     ((or (and (= n 2)                  ; leading quote (not prefix)
+               (= (match-beginning 1) (match-end 1))) ; prefix is null
+          (and (= n 1)                  ; prefix
+               (/= (match-beginning 1) (match-end 1)))) ; non-empty
+      (let ((font-lock-syntactic-keywords nil))
+        (unless (eq 'string (syntax-ppss-context (syntax-ppss)))
+          ;; (eval-when-compile (string-to-syntax "|"))
+          (if (featurep 'xemacs)
+              '(15)
+            (eval-when-compile (string-to-syntax "|")))
+          )))
+     ;; Otherwise (we're in a non-matching string) the property is
+     ;; nil, which is OK.
+     )))
+
+(setq py-mode-syntax-table
+      (let ((table (make-syntax-table))
+            (tablelookup (if (featurep 'xemacs)
+                             'get-char-table
+                           'aref)))
+        ;; Give punctuation syntax to ASCII that normally has symbol
+        ;; syntax or has word syntax and isn't a letter.
+        (if (featurep 'xemacs)
+            (setq table (standard-syntax-table))
+          (let ((symbol (if (featurep 'xemacs) '(3)(string-to-syntax "_")))
+                ;; (symbol (string-to-syntax "_"))
+                (sst (standard-syntax-table)))
+            (dotimes (i 128)
+              (unless (= i ?_)
+                (if (equal symbol (funcall tablelookup sst i))
+                    (modify-syntax-entry i "." table))))))
+        (modify-syntax-entry ?$ "." table)
+        (modify-syntax-entry ?% "." table)
+        ;; exceptions
+        (modify-syntax-entry ?# "<" table)
+        (modify-syntax-entry ?\n ">" table)
+        (modify-syntax-entry ?' "\"" table)
+        (modify-syntax-entry ?` "$" table)
+        (modify-syntax-entry ?\_ "w" table)
+        table))
+
+(defsubst python-in-string/comment ()
+    "Return non-nil if point is in a Python literal (a comment or string)."
+    ;; We don't need to save the match data.
+    (nth 8 (syntax-ppss)))
+
+(defconst python-space-backslash-table
+  (let ((table (copy-syntax-table py-mode-syntax-table)))
+    (modify-syntax-entry ?\\ " " table)
+    table)
+  "`python-mode-syntax-table' with backslash given whitespace syntax.")
+
+;; 2009-09-10 a.roehler@web.de changed section end
 
 (defconst py-emacs-features
   (let (features)
@@ -418,6 +536,16 @@ support for features needed by `python-mode'.")
   "Face for XXX, TODO, and FIXME tags")
 (make-face 'py-XXX-tag-face)
 
+;; Face for class names
+(defvar py-class-name-face 'py-class-name-face
+  "Face for Python class names.")
+(make-face 'py-class-name-face)
+
+;; Face for exception names
+(defvar py-exception-name-face 'py-exception-name-face
+  "Face for exception names like TypeError.")
+(make-face 'py-exception-name-face)
+
 (defun py-font-lock-mode-hook ()
   (or (face-differs-from-default-p 'py-pseudo-keyword-face)
       (copy-face 'font-lock-keyword-face 'py-pseudo-keyword-face))
@@ -427,7 +555,12 @@ support for features needed by `python-mode'.")
       (copy-face 'py-pseudo-keyword-face 'py-decorators-face))
   (or (face-differs-from-default-p 'py-XXX-tag-face)
       (copy-face 'font-lock-comment-face 'py-XXX-tag-face))
+  (or (face-differs-from-default-p 'py-class-name-face)
+      (copy-face 'font-lock-type-face 'py-class-name-face))
+  (or (face-differs-from-default-p 'py-exception-name-face)
+      (copy-face 'font-lock-builtin-face 'py-exception-name-face))
   )
+
 (add-hook 'font-lock-mode-hook 'py-font-lock-mode-hook)
 
 (defvar python-font-lock-keywords
@@ -488,7 +621,8 @@ support for features needed by `python-mode'.")
                         "\\|"))
         )
     (list
-     '("^[ \t]*\\(@.+\\)" 1 'py-decorators-face)
+     ;; decorators
+     '("^[ \t]*\\(@[a-zA-Z_][a-zA-Z_0-9]+\\)\\((.+)\\)?" 1 'py-decorators-face)
      ;; keywords
      (cons (concat "\\<\\(" kw1 "\\)\\>[ \n\t(]") 1)
      ;; builtins when they don't appear as object attributes
@@ -498,9 +632,13 @@ support for features needed by `python-mode'.")
      ;; Yes "except" is in both lists.
      (cons (concat "\\<\\(" kw2 "\\)[ \n\t(]") 1)
      ;; Exceptions
-     (list (concat "\\<\\(" kw4 "\\)[ \n\t:,(]") 1 'py-builtins-face)
+     (list (concat "\\<\\(" kw4 "\\)[ \n\t:,()]") 1 'py-exception-name-face)
+     ;; raise stmts
+     '("\\<raise[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_.]*\\)" 1 py-exception-name-face)
+     ;; except clauses
+     '("\\<except[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_.]*\\)" 1 py-exception-name-face)
      ;; classes
-     '("\\<class[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)" 1 font-lock-type-face)
+     '("\\<class[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)" 1 py-class-name-face)
      ;; functions
      '("\\<def[ \t]+\\([a-zA-Z_]+[a-zA-Z0-9_]*\\)"
        1 font-lock-function-name-face)
@@ -509,20 +647,29 @@ support for features needed by `python-mode'.")
        1 py-pseudo-keyword-face)
      ;; XXX, TODO, and FIXME tags
      '("XXX\\|TODO\\|FIXME" 0 py-XXX-tag-face t)
+     ;; special marking for string escapes and percent substitutes;
+     ;; loops adapted from lisp-mode in font-lock.el
+     ;; '((lambda (bound)
+     ;;     (catch 'found
+     ;;       (while (re-search-forward
+     ;;               (concat
+     ;;                "\\(\\\\\\\\\\|\\\\x..\\|\\\\u....\\|\\\\U........\\|"
+     ;;                "\\\\[0-9][0-9]*\\|\\\\[abfnrtv\"']\\)") bound t)
+     ;;         (let ((face (get-text-property (1- (point)) 'face)))
+     ;;           (when (or (and (listp face) (memq 'font-lock-string-face face))
+     ;;                     (eq 'font-lock-string-face face))
+     ;;             (throw 'found t))))))
+     ;;   (1 'font-lock-regexp-grouping-backslash prepend))
+     ;; '((lambda (bound)
+     ;;     (catch 'found
+     ;;       (while (re-search-forward "\\(%[^(]\\|%([^)]*).\\)" bound t)
+     ;;         (let ((face (get-text-property (1- (point)) 'face)))
+     ;;           (when (or (and (listp face) (memq 'font-lock-string-face face))
+     ;;                     (eq 'font-lock-string-face face))
+     ;;             (throw 'found t))))))
+     ;;   (1 'font-lock-regexp-grouping-construct prepend))
      ))
   "Additional expressions to highlight in Python mode.")
-
-;; When py-handle-triple-quoted-strings is set, add a special matcher
-;; to python-font-lock-keywords, that will match strings and comments
-;; (including correct matching of triple-quoted strings).  When this
-;; is used, we *remove* quote and comment from the syntax table,
-;; because otherwise they would interfere.
-(when py-handle-triple-quoted-strings
-  (push '(py-syntax-matcher (1 'font-lock-string-face t t)
-			    (2 'font-lock-comment-face t t))
-	python-font-lock-keywords))
-
-(put 'python-mode 'font-lock-defaults '(python-font-lock-keywords))
 
 ;; have to bind py-file-queue before installing the kill-emacs-hook
 (defvar py-file-queue nil
@@ -533,232 +680,6 @@ Currently-active file is at the head of the list.")
 
 (defvar py-pychecker-history nil)
 
-
-;; py-syntax-matcher
-(defun py-syntax-matcher (limit)
-  "A font-lock keyword matcher that matches python strings & comments.
-
-This matcher can be used instead of font-lock's syntactic
-highlighting, to find python strings and comments.  It is slower
-than the font-lock's syntactic highlighting, but it handles
-triple-quoted strings correctly.
-
-It works by maintaining a text property called `py-syntax-type',
-which indicates the syntax type of each character in the buffer,
-and uses that property to decide which spans to color.  See
-`py-update-py-syntax-type' for more information about the
-`py-syntax-type' property.
-"
-  ;; Update the py-syntax-type text property between point & limit.
-  (py-update-py-syntax-type limit)
-
-  ;; Find the first char after point that has a non-nil syntax type
-  ;; (i.e., the first char inside a string or comment).
-  (let ((beg (text-property-not-all (point) limit 'py-syntax-type nil)))
-    (if beg
-	;; Find the first char after beg where syntax-type changes:
-	(let* ((syntax-type (get-text-property beg 'py-syntax-type))
-	       (end (or (text-property-not-all beg limit 'py-syntax-type 
-					       syntax-type)
-			limit)))
-	  ;; Update the regexp match data manually.  Use group 1 for
-	  ;; strings, and group 2 for comments.
-	  (if (eq syntax-type 'comment)
-	      (set-match-data (list beg end nil nil beg end))
-	    (set-match-data (list beg end beg end nil nil)))
-	  ;; Move to the end of the match.
-	  (goto-char end)
-	  ;; Return true.
- 	  t))))
-
-(defun py-update-py-syntax-type (limit)
-  "Update the `py-syntax-type' text-property.
-
-Verify and update the value of the `py-syntax-type' text-property
-between the point and the given limit.  This text-property
-describes the syntactic context of each character, and has six
-possible values:
-  - `py-single-quote-tqs': Inside a single-quote triple-quoted string
-  - `py-double-quote-tqs': Inside a double-quote triple-quoted string
-  - `single-quote': Inside a single-quote string
-  - `double-quote': Inside a double-quote string
-  - `comment': Inside a comment
-  - `nil': Not inside a comment or string.
-
-This property is used by `py-syntax-matcher' to perform syntax
-highlighting for Python (including correct handling of
-triple-quoted strings).
-"
-  (save-excursion
-    (let (old-syntax-type ;; The syntax type before point.
-	  new-syntax-type ;; The syntax type starting at point.
-	  beg             ;; Where old-syntax-type starts.
-	  end             ;; Where old-syntax-type ends.
-	  changed)        ;; Did the last loop modify py-syntax-type?
-
-      ;; Find an initial value for old-syntax-type.  To do this, we
-      ;; move backwards to the first non-special character we can
-      ;; find, and check its py-syntax-type text property.  Special
-      ;; characters are quotes, backslashes, and newlines.
-      (cond 
-       ((search-backward-regexp "[^'\"\\\n]" nil t)
-	(setq old-syntax-type (get-text-property (point) 'py-syntax-type)))
-       (t
-	;; If we don't find any such character, go to the beginning of
-	;; the buffer and start with a syntax-type of nil.
-	(goto-char (point-min))
-	(setq old-syntax-type nil)))
-
-      ;; Repeatedly scan for the next change in syntax type, and
-      ;; update the py-syntax-type text property, until we're done.
-      ;; We're done when we're past the limit, *and* we're no longer
-      ;; making changes to py-syntax-type.  This ensures that
-      ;; changes to py-syntax-type propagate forward correctly.
-      (setq beg (point))
-      (while (and (not (eobp)) (or changed (< (point) limit)))
-	;; Find the next syntax change, and update "end",
-	;; "new-syntax-type", and the point.
-	(cond
-	 (old-syntax-type
-          ;; For debugging:
-          ;; (warn "Looking for the end of a %s, starting at %s"
-          ;;     old-syntax-type (point))
-	  (cond
-	   ((looking-at (py-syntax-type-end-re old-syntax-type))
-	    ;; We found the end of a string/comment:
-	    (setq end (match-end 0))
-	    (setq new-syntax-type nil)
-	    (goto-char end))
-	   (t
-	    ;; We found an unterminated string/comment:
-	    (setq end (point-max))
-	    (setq new-syntax-type 'end-of-buffer)
-	    (goto-char end))))
-	 (t
-          ;; For debugging:
-          ;; (warn "Looking for a string or comment, starting at %s" (point))
-	  (cond 
-	   ((search-forward-regexp py-syntax-begin-re nil t)
-	    ;; We found the start of a string/comment:
-	    (setq end (match-beginning 0))
-	    (setq new-syntax-type (py-syntax-begin-type))
-            ;; For debugging:
-            ;; (warn "Found %s at %s" new-syntax-type (match-end 0))
-	    (goto-char (match-end 0)))
-	   (t
-	    ;; No more strings/comments in buffer:
-	    (setq end (point-max))
-	    (setq new-syntax-type 'end-of-buffer)
-	    (goto-char end)))))
-
-	;; Update the py-syntax-type text property between beg & end.
-	(setq changed (add-text-properties beg end (list 'py-syntax-type
-							 old-syntax-type)))
-
-	;; Update old-syntax-type and beg for the next loop iteration.
-	(setq old-syntax-type new-syntax-type)
-	(setq beg end)))))
-
-
-;; Regexps for py-syntax-matcher
-(defconst py-syntax-begin-re
-  (concat
-   "\\(" "\'\'\'" "\\)" "\\|"    ;; single-quote-tqs
-   "\\(" "\"\"\"" "\\)" "\\|"    ;; double-quote-tqs
-   "\\(" "\'"     "\\)" "\\|"    ;; single-quote
-   "\\(" "\""     "\\)" "\\|"    ;; double-quote
-   "\\(" "#"      "\\)"          ;; comment
-   )
-  "A regexp that matches the beginning of python strings and comments.  
-The type of syntax matched can be determined by checking which group
-matched: 
-  - group 1: single-quote triple-quoted string literal
-  - group 2: double-quote triple-quoted string literal
-  - group 3: single-quote string literal
-  - group 4: double-quote string literal
-  - group 5: comment
-Use `py-syntax-begin-type' to check which group matched.
-")
-
-;; Adapted from: <http://www.python.org/tim_one/000422.html>
-(defconst py-single-quote-tqs-end-re
-  (concat
-   "[^'\\\\]*"                   ; text (not quote, not backslash)
-   "\\("                         ; followed 0+ times by one of...
-     "\\("
-       "\\\\" "\\(\n\\|.\\)"     ;     backslash+anything
-       "\\|"
-       "'\\("                    ;     quote, followed by one of...
-         "\\\\" "\\(\n\\|.\\)"   ;       backslash+anything
-         "\\|"
-           "[^']"                ;       nonquote
-         "\\|"
-           "'\\("                ;       quote, followed by one of...
-           "\\\\" "\\(\n\\|.\\)" ;         backslash+anything
-           "\\|"
-             "[^']"              ;         nonquote
-           "\\)"
-       "\\)"
-     "\\)"
-     "[^'\\\\]*"                 ;   ...followed by more text.
-   "\\)*"
-   "'''")                        ; and finally the close quote
-  "A regexp that matches the end of single-quote triple-quoted strings.")
-
-(defconst py-single-quote-end-re
-  (concat  
-   "[^'\\\\]*"                   ; text (not quote, not backslash)
-   "\\("                         ; followed 0+ times by...
-     "\\\\" "\\(\n\\|.\\)"       ;     backslash+anything
-     "[^'\\\\]*"                 ;   followed by more text.
-   "\\)*"
-   "'")                          ; and finally the close quote
-  "A regexp that matches the end of single-quote strings.")
-
-(defun py-replace-regexp-in-string (regexp replacement text)
-  "Return the result of replacing all mtaches of REGEXP with
-REPLACEMENT in TEXT.  (Since replace-regexp-in-string is not available
-under all versions of emacs, and is called different names in
-different versions, this compatibility function will emulate it if
-it's not available."
-  (let ((start 0))
-    (while (string-match regexp text start)
-      (setq start (- (match-end 0) 1))
-      (setq text (replace-match replacement t nil text)))
-    text))
-
-(defconst py-double-quote-tqs-end-re
-  (py-replace-regexp-in-string "'" "\"" py-single-quote-tqs-end-re)
-  "A regexp that matches the end of double-quote triple-quoted strings.")
-
-(defconst py-double-quote-end-re
-  (py-replace-regexp-in-string "'" "\"" py-single-quote-end-re)
-  "A regexp that matches the end of double-quote strings.")
-
-(defconst py-comment-end-re 
-  "[^\n]*\n"
-  "A regexp that matches the end of comments.")
-
-(defun py-syntax-type-end-re (py-syntax-type)
-  "Return a regexp that matches the end of the given syntax."
-  (cond 
-   ((eq py-syntax-type 'single-quote-tqs) py-single-quote-tqs-end-re)
-   ((eq py-syntax-type 'double-quote-tqs) py-double-quote-tqs-end-re)
-   ((eq py-syntax-type 'single-quote)     py-single-quote-end-re)
-   ((eq py-syntax-type 'double-quote)     py-double-quote-end-re)
-   ((eq py-syntax-type 'comment)          py-comment-end-re)
-   (t (error "Bad end-re type"))))
-
-(defun py-syntax-begin-type ()
-  "Return the py-syntax-type matched by `py-syntax-begin-re'.
-This function assumes that the most recently matched regexp was
-`py-syntax-begin-re'."
-  (cond 
-   ((match-beginning 1) 'single-quote-tqs)
-   ((match-beginning 2) 'double-quote-tqs)
-   ((match-beginning 3) 'single-quote)
-   ((match-beginning 4) 'double-quote)
-   ((match-beginning 5) 'comment)))
 
 
 ;; Constants
@@ -771,15 +692,15 @@ This function assumes that the most recently matched regexp was
    ;;
    ;; (maybe raw), long single quoted triple quoted strings (SQTQ),
    ;; with potential embedded single quotes
-   "[rR]?'''[^']*\\(\\('[^']\\|''[^']\\)[^']*\\)*'''"
+   "[rRuUbB]?'''[^']*\\(\\('[^']\\|''[^']\\)[^']*\\)*'''"
    "\\|"
    ;; (maybe raw), long double quoted triple quoted strings (DQTQ),
    ;; with potential embedded double quotes
-   "[rR]?\"\"\"[^\"]*\\(\\(\"[^\"]\\|\"\"[^\"]\\)[^\"]*\\)*\"\"\""
+   "[rRuUbB]?\"\"\"[^\"]*\\(\\(\"[^\"]\\|\"\"[^\"]\\)[^\"]*\\)*\"\"\""
    "\\|"
-   "[rR]?'\\([^'\n\\]\\|\\\\.\\)*'"     ; single-quoted
-   "\\|"                                ; or
-   "[rR]?\"\\([^\"\n\\]\\|\\\\.\\)*\""  ; double-quoted
+   "[rRuUbB]?'\\([^'\n\\]\\|\\\\.\\)*'"     ; single-quoted
+   "\\|"                                    ; or
+   "[rRuUbB]?\"\\([^\"\n\\]\\|\\\\.\\)*\""  ; double-quoted
    )
   "Regular expression matching a Python string literal.")
 
@@ -831,7 +752,7 @@ This function assumes that the most recently matched regexp was
 ;; pdbtrack constants
 (defconst py-pdbtrack-stack-entry-regexp
 ;  "^> \\([^(]+\\)(\\([0-9]+\\))\\([?a-zA-Z0-9_]+\\)()"
-  "^> \\(.*\\)(\\([0-9]+\\))\\([?a-zA-Z0-9_]+\\)()"
+  "^> \\(.*\\)(\\([0-9]+\\))\\([?a-zA-Z0-9_<>]+\\)()"
   "Regular expression pdbtrack uses to find a stack trace entry.")
 
 (defconst py-pdbtrack-input-prompt "\n[(<]*[Pp]db[>)]+ "
@@ -916,7 +837,7 @@ This function assumes that the most recently matched regexp was
   (define-key py-mode-map "\C-c\C-u"  'py-goto-block-up)
   (define-key py-mode-map "\C-c#"     'py-comment-region)
   (define-key py-mode-map "\C-c?"     'py-describe-mode)
-  (define-key py-mode-map "\C-c\C-h"  'py-help-at-point)
+  (define-key py-mode-map "\C-c\C-e"  'py-help-at-point)
   (define-key py-mode-map "\e\C-a"    'py-beginning-of-def-or-class)
   (define-key py-mode-map "\e\C-e"    'py-end-of-def-or-class)
   (define-key py-mode-map "\C-c-"     'py-up-exception)
@@ -970,59 +891,47 @@ This function assumes that the most recently matched regexp was
   (define-key py-shell-map "\C-c=" 'py-down-exception)
   )
 
-(defvar py-mode-syntax-table nil
-  "Syntax table used in `python-mode' buffers.")
-(when (not py-mode-syntax-table)
-  (setq py-mode-syntax-table (make-syntax-table))
-  (modify-syntax-entry ?\( "()" py-mode-syntax-table)
-  (modify-syntax-entry ?\) ")(" py-mode-syntax-table)
-  (modify-syntax-entry ?\[ "(]" py-mode-syntax-table)
-  (modify-syntax-entry ?\] ")[" py-mode-syntax-table)
-  (modify-syntax-entry ?\{ "(}" py-mode-syntax-table)
-  (modify-syntax-entry ?\} "){" py-mode-syntax-table)
-  ;; Add operator symbols misassigned in the std table
-  (modify-syntax-entry ?\$ "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\% "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\& "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\* "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\+ "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\- "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\/ "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\< "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\= "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\> "."  py-mode-syntax-table)
-  (modify-syntax-entry ?\| "."  py-mode-syntax-table)
-  ;; For historical reasons, underscore is word class instead of
-  ;; symbol class.  GNU conventions say it should be symbol class, but
-  ;; there's a natural conflict between what major mode authors want
-  ;; and what users expect from `forward-word' and `backward-word'.
-  ;; Guido and I have hashed this out and have decided to keep
-  ;; underscore in word class.  If you're tempted to change it, try
-  ;; binding M-f and M-b to py-forward-into-nomenclature and
-  ;; py-backward-into-nomenclature instead.  This doesn't help in all
-  ;; situations where you'd want the different behavior
-  ;; (e.g. backward-kill-word).
-  (modify-syntax-entry ?\_ "w"  py-mode-syntax-table)
-  ;; backquote is open and close paren
-  (modify-syntax-entry ?\` "$"  py-mode-syntax-table)
-  ;; Handling of quotes and comments depends on whether we're 
-  ;; using py-handle-triple-quoted-strings.  
-  (cond (py-handle-triple-quoted-strings
-	 ;; Using py-handle-triple-quoted-strings: Treat quotes and
-	 ;; comment markers as ordinary punctuation, and mark them
-	 ;; using py-syntax-matcher instead.
-	 (modify-syntax-entry ?\' "." py-mode-syntax-table)
-	 (modify-syntax-entry ?\" "." py-mode-syntax-table)
-	 (modify-syntax-entry ?\# "."  py-mode-syntax-table))
-	(t
-	 ;; Not using py-handle-triple-quoted strings:
-	 ;; Both single quote and double quote are string delimiters
-	 (modify-syntax-entry ?\' "\"" py-mode-syntax-table)
-	 (modify-syntax-entry ?\" "\"" py-mode-syntax-table)
-	 ;; comment delimiters
-	 (modify-syntax-entry ?\# "<"  py-mode-syntax-table)
-	 (modify-syntax-entry ?\n ">"  py-mode-syntax-table)))
-  )
+;; (when (featurep 'xemacs) (defvar py-mode-syntax-table nil))
+;; (when (featurep 'xemacs)
+;;   (when (not py-mode-syntax-table)
+;;     (setq py-mode-syntax-table (make-syntax-table))
+;;     (modify-syntax-entry ?\( "()" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\) ")(" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\[ "(]" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\] ")[" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\{ "(}" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\} "){" py-mode-syntax-table)
+;;     ;; Add operator symbols misassigned in the std table
+;;     (modify-syntax-entry ?\$ "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\% "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\& "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\* "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\+ "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\- "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\/ "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\< "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\= "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\> "."  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\| "."  py-mode-syntax-table)
+;;     ;; For historical reasons, underscore is word class instead of
+;;     ;; symbol class.  GNU conventions say it should be symbol class, but
+;;     ;; there's a natural conflict between what major mode authors want
+;;     ;; and what users expect from `forward-word' and `backward-word'.
+;;     ;; Guido and I have hashed this out and have decided to keep
+;;     ;; underscore in word class.  If you're tempted to change it, try
+;;     ;; binding M-f and M-b to py-forward-into-nomenclature and
+;;     ;; py-backward-into-nomenclature instead.  This doesn't help in all
+;;     ;; situations where you'd want the different behavior
+;;     ;; (e.g. backward-kill-word).
+;;     (modify-syntax-entry ?\_ "w"  py-mode-syntax-table)
+;;     ;; Both single quote and double quote are string delimiters
+;;     (modify-syntax-entry ?\' "\"" py-mode-syntax-table)
+;;     (modify-syntax-entry ?\" "|" py-mode-syntax-table)
+;;     ;; backquote is open and close paren
+;;     (modify-syntax-entry ?\` "$"  py-mode-syntax-table)
+;;     ;; comment delimiters
+;;     (modify-syntax-entry ?\# "<"  py-mode-syntax-table)
+;;     (modify-syntax-entry ?\n ">"  py-mode-syntax-table)))
 
 ;; An auxiliary syntax table which places underscore and dot in the
 ;; symbol class for simplicity
@@ -1431,7 +1340,6 @@ py-beep-if-tab-change\t\tring the bell if `tab-width' is changed"
   (interactive)
   ;; set up local variables
   (kill-all-local-variables)
-  (make-local-variable 'font-lock-defaults)
   (make-local-variable 'paragraph-separate)
   (make-local-variable 'paragraph-start)
   (make-local-variable 'require-final-newline)
@@ -1446,10 +1354,16 @@ py-beep-if-tab-change\t\tring the bell if `tab-width' is changed"
   (make-local-variable 'fill-paragraph-function)
   ;;
   (set-syntax-table py-mode-syntax-table)
+  ;; 2009-09-10 a.roehler@web.de changed section start
+  ;; from python.el, version "22.1"
+    (set (make-local-variable 'font-lock-defaults)
+       '(python-font-lock-keywords nil nil nil nil
+                                   (font-lock-syntactic-keywords
+                                    . python-font-lock-syntactic-keywords)))
+  ;; 2009-09-10 a.roehler@web.de changed section end
   (setq major-mode              'python-mode
         mode-name               "Python"
         local-abbrev-table      python-mode-abbrev-table
-        font-lock-defaults      '(python-font-lock-keywords)
         paragraph-separate      "^[ \t]*$"
         paragraph-start         "^[ \t]*$"
         require-final-newline   t
@@ -1479,6 +1393,28 @@ py-beep-if-tab-change\t\tring the bell if `tab-width' is changed"
     (if (fboundp 'imenu-add-to-menubar)
         (imenu-add-to-menubar (format "%s-%s" "IM" mode-name)))
     )
+
+  ;; Add support for HideShow
+  (add-to-list 'hs-special-modes-alist
+               (list
+                'python-mode
+                ;; start regex
+                (concat (if py-hide-show-hide-docstrings
+                            "^\\s-*\"\"\"\\|" "")
+                        (mapconcat 'identity
+                                   (mapcar #'(lambda (x) (concat "^\\s-*" x "\\>"))
+                                           py-hide-show-keywords)
+                                   "\\|"))
+                ;; end regex
+                nil
+                ;; comment-start regex
+                "#"
+                ;; forward-sexp function
+                (lambda (arg)
+                  (py-goto-beyond-block)
+                  (skip-chars-backward " \t\n"))
+                nil))
+
   ;; Run the mode hook.  Note that py-mode-hook is deprecated.
   (if python-mode-hook
       (run-hooks 'python-mode-hook)
@@ -1496,12 +1432,10 @@ py-beep-if-tab-change\t\tring the bell if `tab-width' is changed"
       ;; py-indent-offset.  Never turn it on, because the user must
       ;; have explicitly turned it off.
       (if (/= tab-width py-indent-offset)
-          (setq indent-tabs-mode nil))
-      ))
+          (setq indent-tabs-mode nil))))
   ;; Set the default shell if not already set
   (when (null py-which-shell)
     (py-toggle-shells (py-choose-shell))))
-
 
 (make-obsolete 'jpython-mode 'jython-mode)
 (defun jython-mode ()
@@ -1657,7 +1591,7 @@ If the traceback target file path is invalid, we look for the most
 recently visited python-mode buffer which either has the name of the
 current function \(or class) or which defines the function \(or
 class).  This is to provide for remote scripts, eg, Zope's 'Script
-(Python)' - put a _copy_ of the script in a buffer named for the
+\(Python)' - put a _copy_ of the script in a buffer named for the
 script, and set to python-mode, and pdbtrack will find it.)"
   ;; Instead of trying to piece things together from partial text
   ;; (which can be almost useless depending on Emacs version), we
@@ -2339,7 +2273,7 @@ number of characters to delete (default is 1)."
   "Fix the indentation of the current line according to Python rules.
 With \\[universal-argument] (programmatically, the optional argument
 ARG non-nil), ignore dedenting rules for block closing statements
-(e.g. return, raise, break, continue, pass)
+\(e.g. return, raise, break, continue, pass)
 
 This function is normally bound to `indent-line-function' so
 \\[indent-for-tab-command] will call it."
@@ -2657,7 +2591,8 @@ Optional CLASS is passed directly to `py-beginning-of-def-or-class'."
     (goto-char start)
     (beginning-of-line)
     (setq start (point))
-    (indent-rigidly start end count)))
+    (let (deactivate-mark)
+      (indent-rigidly start end count))))
 
 (defun py-shift-region-left (start end &optional count)
   "Shift region of Python code to the left.
@@ -2670,7 +2605,7 @@ many columns.  With no active region, dedent only the current line.
 You cannot dedent the region if any line is already at column zero."
   (interactive
    (let ((p (point))
-         (m (mark))
+         (m (condition-case nil (mark) (mark-inactive nil)))
          (arg current-prefix-arg))
      (if m
          (list (min p m) (max p m) arg)
@@ -2698,7 +2633,7 @@ If a prefix argument is given, the region is instead shifted by that
 many columns.  With no active region, indent only the current line."
   (interactive
    (let ((p (point))
-         (m (mark))
+         (m (condition-case nil (mark) (mark-inactive nil)))
          (arg current-prefix-arg))
      (if m
          (list (min p m) (max p m) arg)
@@ -2874,8 +2809,9 @@ do not include blank, comment, or continuation lines."
       (if (> count 0) (goto-char start)))
     count))
 
-(defun py-goto-block-up (&optional nomark)
-  "Move up to start of current block.
+(defalias 'py-goto-block-up 'py-beginning-of-block)
+(defun py-beginning-of-block (&optional nomark)
+  "Move to start of current block.
 Go to the statement that starts the smallest enclosing block; roughly
 speaking, this will be the closest preceding statement that ends with a
 colon and is indented less than the statement you started on.  If
@@ -2942,26 +2878,23 @@ start of the buffer each time.
 
 To mark the current `def', see `\\[py-mark-def-or-class]'."
   (interactive "P")                     ; raw prefix arg
-  (setq count (or count 1))
-  (let ((at-or-before-p (<= (current-column) (current-indentation)))
-        (start-of-line (goto-char (py-point 'bol)))
-        (start-of-stmt (goto-char (py-point 'bos)))
-        (start-re (cond ((eq class 'either) "^[ \t]*\\(class\\|def\\)\\>")
-                        (class "^[ \t]*class\\>")
-                        (t "^[ \t]*def\\>")))
-        )
-    ;; searching backward
-    (if (and (< 0 count)
-             (or (/= start-of-stmt start-of-line)
-                 (not at-or-before-p)))
+  (lexical-let* ((count (or count 1))
+                 (step (if (< 0 count) -1 1))
+                 (start-re (cond ((eq class 'either) "^[ \t]*\\(class\\|def\\)\\>")
+                                 (class "^[ \t]*class\\>")
+                                 (t "^[ \t]*def\\>"))))
+    (while (/= 0 count)
+      (if (< 0 count)
+          (unless (looking-at start-re) (end-of-line))
         (end-of-line))
-    ;; search forward
-    (if (and (> 0 count)
-             (zerop (current-column))
-             (looking-at start-re))
-        (end-of-line))
-    (if (re-search-backward start-re nil 'move count)
-        (goto-char (match-beginning 0)))))
+      (if
+          (re-search-backward start-re nil 'move (- step))
+          (unless
+              ;; if inside a string
+              (nth 3 (parse-partial-sexp (point-min) (point)))
+            (goto-char (match-beginning 0))
+            (setq count (+ count step)))
+        (setq count 0)))))
 
 ;; Backwards compatibility
 (defalias 'beginning-of-python-def-or-class 'py-beginning-of-def-or-class)
@@ -3144,7 +3077,10 @@ moves to the end of the block (& does not set mark or display a msg)."
       (push-mark (point) 'no-msg)
       (forward-line -1)
       (message "Mark set after: %s" (py-suck-up-leading-text))
-      (goto-char initial-pos))))
+      (goto-char initial-pos)
+      (exchange-point-and-mark)
+      (py-keep-region-active)
+      )))
 
 (defun py-mark-def-or-class (&optional class)
   "Set region to body of def (or class, with prefix arg) enclosing point.
@@ -3719,8 +3655,8 @@ If nesting level is zero, return nil."
         nil                             ; not in a nest
       (car (cdr status)))))             ; char# of open bracket
 
-(defun py-backslash-continuation-line-p ()
-  "Return t iff preceding line ends with backslash that is not in a comment."
+(defun py-backslash-continuation-preceding-line-p ()
+  "Return t if preceding line ends with backslash. "
   (save-excursion
     (beginning-of-line)
     (and
@@ -3735,7 +3671,7 @@ If nesting level is zero, return nil."
   "Return t iff current line is a continuation line."
   (save-excursion
     (beginning-of-line)
-    (or (py-backslash-continuation-line-p)
+    (or (py-backslash-continuation-preceding-line-p)
         (py-nesting-level))))
 
 (defun py-goto-beginning-of-tqs (delim)
@@ -3757,10 +3693,23 @@ for."
       (py-safe (search-backward skip)))))
 
 (defun py-goto-initial-line ()
-  "Go to the initial line of the current statement.
-Usually this is the line we're on, but if we're on the 2nd or
-following lines of a continuation block, we need to go up to the first
-line of the block."
+  "Go to the initial line of a simple or compound statement.
+If inside a compound statement, go to the line that introduces
+the suite, i.e. the clause header.
+
+The Python language reference:
+
+    \"Compound statements consist of one or more ‘clauses.’ A clause consists
+    of a header and a ‘suite.’ The clause headers of a particular compound
+    statement are all at the same indentation level. Each clause header begins
+    with a uniquely identifying keyword and ends with a colon. A suite is a
+    group of statements controlled by a clause. A suite can be one or more
+    semicolon-separated simple statements on the same line as the header,
+    following the header’s colon, or it can be one or more indented statements
+    on subsequent lines. [...]\"
+
+See: http://docs.python.org/reference/compound_stmts.html
+"
   ;; Tricky: We want to avoid quadratic-time behavior for long
   ;; continued blocks, whether of the backslash or open-bracket
   ;; varieties, or a mix of the two.  The following manages to do that
@@ -3768,21 +3717,30 @@ line of the block."
   ;;
   ;; Also, if we're sitting inside a triple quoted string, this will
   ;; drop us at the line that begins the string.
-  (let (open-bracket-pos)
+  (let (open-bracket-pos pos)
     (while (py-continuation-line-p)
       (beginning-of-line)
-      (if (py-backslash-continuation-line-p)
-          (while (py-backslash-continuation-line-p)
+      (if (py-backslash-continuation-preceding-line-p)
+          (while (py-backslash-continuation-preceding-line-p)
             (forward-line -1))
         ;; else zip out of nested brackets/braces/parens
         (while (setq open-bracket-pos (py-nesting-level))
-          (goto-char open-bracket-pos)))))
-  (beginning-of-line))
+          (goto-char open-bracket-pos))))
+    (if (and (setq pos (python-in-string/comment))
+             (< pos (point)))
+        (progn
+          (goto-char pos)
+          (py-goto-initial-line))
+      (beginning-of-line)
+      (when
+          (and (setq pos (python-in-string/comment))
+               (< pos (point)))
+        (goto-char pos)
+        (py-goto-initial-line)))))
 
 (defun py-goto-beyond-final-line ()
-  "Go to the point just beyond the fine line of the current statement.
-Usually this is the start of the next line, but if this is a
-multi-line statement we need to skip over the continuation lines."
+  "Go to the point just beyond the final line of the current statement. "
+
   ;; Tricky: Again we need to be clever to avoid quadratic time
   ;; behavior.
   ;;
@@ -3796,7 +3754,7 @@ multi-line statement we need to skip over the continuation lines."
     (while (and (py-continuation-line-p)
                 (not (eobp)))
       ;; skip over the backslash flavor
-      (while (and (py-backslash-continuation-line-p)
+      (while (and (py-backslash-continuation-preceding-line-p)
                   (not (eobp)))
         (forward-line 1))
       ;; if in nest, zip to the end of the nest
@@ -3873,8 +3831,7 @@ does not include blank lines, comments, or continuation lines."
 
 (defun py-goto-statement-below ()
   "Go to start of the first statement following the statement containing point.
-Return t if there is such a statement, otherwise nil.  `Statement'
-does not include blank lines, comments, or continuation lines."
+Return t if there is such a statement, otherwise nil. "
   (beginning-of-line)
   (let ((start (point)))
     (py-goto-beyond-final-line)
@@ -4130,7 +4087,7 @@ These are Python temporary files awaiting execution."
 
     (save-excursion
       (goto-char start)
-      (if (looking-at "\\('''\\|\"\"\"\\|'\\|\"\\)\\\\?\n?")
+      (if (looking-at "\\([urbURB]*\\(?:'''\\|\"\"\"\\|'\\|\"\\)\\)\\\\?\n?")
           (setq string-start (match-end 0)
                 delim-length (- (match-end 1) (match-beginning 1))
                 delim (buffer-substring-no-properties (match-beginning 1)
@@ -4146,14 +4103,10 @@ These are Python temporary files awaiting execution."
              (looking-at (concat "[ \t]*" delim))
              (setq string-start (point))))
 
-      (forward-sexp (if (= delim-length 3) 2 1))
-
-      ;; with both triple quoted strings and single/double quoted strings
-      ;; we're now directly behind the first char of the end delimiter
-      ;; (this doesn't work correctly when the triple quoted string
-      ;; contains the quote mark itself). The end of the string's contents
-      ;; is one less than point
-      (setq string-end (1- (point))))
+      ;; move until after end of string, then the end of the string's contents
+      ;; is delim-length characters before that
+      (forward-sexp)
+      (setq string-end (- (point) delim-length)))
 
     ;; Narrow to the string's contents and fill the current paragraph
     (save-restriction
@@ -4205,9 +4158,8 @@ If point is inside a string, narrow to that string and fill.
           (eq (py-in-literal) 'string))
         (save-excursion
           (py-fill-string (py-point 'boi))))
-       ;; otherwise use the default
-       (t
-        (fill-paragraph justify))))))
+       ;; otherwise: do not ever fill code
+       (t nil)))))
 
 
 
