@@ -1,5 +1,5 @@
 (require 'bats)
-(require 'org-config)
+(require 'org-bats-config)
 
 (visit-tags-table "~/source/TAGS")
 
