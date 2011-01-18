@@ -101,6 +101,7 @@
 (require 'lua-mode)
 (require 'post-config)
 (require 'filecache-config)
+(require 'org-config)
 
 (require 'package)
 (package-initialize)
