@@ -31,10 +31,9 @@
 (defun bats-insert-bug-title (bug-id)
   (interactive "NBug ID: ")
   (let ((bug (bugz-get-bug bug-id)))
-    (insert (format "Bug %s - %s"
-                  (cadr (assq 'bug_id bug))
-                  (cadr (assq 'short_desc bug))))
-    ))
+    (insert (format "%s (#%s)"
+                  (cadr (assq 'short_desc bug))
+                  (cadr (assq 'bug_id bug))))))
 
 
 ;; XXX lists of bugs
