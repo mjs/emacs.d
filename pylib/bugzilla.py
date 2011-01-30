@@ -29,6 +29,7 @@ def _load_config():
     parser.read(os.path.expanduser('~/.bugzilla'))
     return dict(parser.items('main'))
 
-config = _load_config()
-bugzObj = Bugz(config['url'], config['user'], config['password'])
+#needs to not initialise if config file is missing
+#config = _load_config()
+#bugzObj = Bugz(config['url'], config['user'], config['password'])
 

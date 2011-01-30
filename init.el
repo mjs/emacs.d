@@ -29,6 +29,7 @@
  '(js2-mirror-mode nil)
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
+ '(org-agenda-files nil)
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
  '(recentf-max-saved-items 100)
@@ -203,9 +204,9 @@
 (autoload 'python-mode "python-mode" "Python editing mode." t)
 
 ;; Pymacs and ropemacs
-(require 'pymacs)
-(pymacs-load "ropemacs" "rope-")
-(pymacs-load "bugzilla" "bugz-")
+; (require 'pymacs)
+; (pymacs-load "ropemacs" "rope-")
+; (pymacs-load "bugzilla" "bugz-")
 
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
 (setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
