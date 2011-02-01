@@ -25,9 +25,10 @@
   (unless (org-at-table-p)
     (error "No table at point"))
   (org-table-align) ;; make sure we have everything we need
-  (let ((beg (org-table-begin))
-        (end (org-table-end))
-        (converted (funcall transform table nil)))
+  (let* ((beg (org-table-begin))
+         (end (org-table-end))
+         (table (org-table-get-lines))
+         (converted (funcall transform table nil)))
     (delete-region beg end)
     (insert converted)
     (insert "\n")))
