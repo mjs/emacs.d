@@ -106,10 +106,13 @@
 (require 'package)
 (package-initialize)
 
+
+(defalias 'll 'longlines-mode)
+
 (defun email-config ()
   (text-mode)
   (set-fill-column 72)
-  (auto-fill-mode))
+  (longlines-mode))
 
 (setq auto-mode-alist (append '((".eml$" . email-config)) auto-mode-alist))
 
@@ -187,10 +190,9 @@
 ;; work if set in the customize block.
 (setq viper-ex-style-editing nil)  ; can backspace past start of insert / line
 (setq viper-ex-style-motion nil)   ; can move past end of line
-(setq viper-fast-keyseq-timeout 0)
-;;(setq viper-ESC-keyseq-timeout 0)
 (require 'viper)                   ; load Viper
 (require 'vimpulse)                ; vim emulation
+(defun viper-translate-all-ESC-keysequences () nil)
 
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
