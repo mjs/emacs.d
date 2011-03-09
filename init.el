@@ -48,6 +48,10 @@
   ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil))))
  '(cursor ((t (:background "yellow"))))
+ '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
+ '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
+ '(diff-header ((t (:background "grey11"))))
+ '(diff-removed ((t (:inherit diff-changed :foreground "#dd0000"))))
  '(flymake-errline ((((class color)) (:underline "red"))))
  '(font-lock-comment-face ((nil (:foreground "#99968b"))))
  '(font-lock-function-name-face ((t (:foreground "#cae682" :weight normal))))
