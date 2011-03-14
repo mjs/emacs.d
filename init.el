@@ -116,7 +116,8 @@
 (defun email-config ()
   (text-mode)
   (set-fill-column 72)
-  (longlines-mode))
+  (longlines-mode)
+  (flyspell-mode))
 
 (setq auto-mode-alist (append '((".eml$" . email-config)) auto-mode-alist))
 
