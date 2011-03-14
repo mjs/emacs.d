@@ -96,6 +96,7 @@
 
 (require 'filecache)
 (require 'flymake-config)
+(require 'python-config)
 (require 'file-misc)
 (require 'c-misc)
 (require 'misc-misc)
@@ -171,10 +172,6 @@
 ;; (setq x-select-enable-clipboard t)
 ;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
-;; Show trailing whitespace when working with Python files
-;; (add-hook 'python-mode-hook
-;;           (lambda () (setq show-trailing-whitespace t)))
-
 ;; highlighting to see all occurrences of a word in the buffer
 (setq highlighted-word "")
 (make-variable-buffer-local 'highlighted-word)
@@ -202,12 +199,6 @@
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
   nil)
-
-;; python mode settings
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist (cons '("python" . python-mode)
-				   interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
 
 ;; Pymacs and ropemacs
 (require 'pymacs)
@@ -272,10 +263,6 @@
     (my-dired-init)
   ;; it's not loaded yet, so add our bindings to the load-hook
   (add-hook 'dired-load-hook 'my-dired-init))
-
-;; IPython support!
-(setq ipython-command "ipython")
-(require 'ipython)
 
 ;; yasnippet
 (require 'yasnippet) ;; not yasnippet-bundle
