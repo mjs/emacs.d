@@ -39,6 +39,8 @@
  '(sml-modeline-len 14)
  '(sml-modeline-mode t)
  '(sml-modeline-numbers (quote line-numbers))
+ '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
+ '(uniquify-min-dir-content 0)
  '(visible-bell t)
  '(xgit-use-index (quote always)))
 (custom-set-faces
@@ -94,6 +96,7 @@
 (require 'sml-modeline)
 (sml-modeline-mode t)
 
+(require 'uniquify)
 (require 'filecache)
 (require 'flymake-config)
 (require 'python-config)
@@ -113,6 +116,7 @@
 
 
 (defalias 'll 'longlines-mode)
+(defalias 'tt 'toggle-truncate-lines)
 
 (defun email-config ()
   (text-mode)
