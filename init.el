@@ -79,6 +79,7 @@
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 (add-to-list 'load-path "~/.emacs.d/external/jabber")
+(add-to-list 'load-path "~/.emacs.d/external/color-themes")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
@@ -114,7 +115,6 @@
 
 (require 'package)
 (package-initialize)
-
 
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
@@ -293,6 +293,9 @@
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
+
+(require 'color-theme-solarized)
+(color-theme-solarized-dark)
 
 (desktop-save-mode 1)    ;; reopen previously open buffers
 
