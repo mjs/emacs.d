@@ -40,6 +40,8 @@
  '(sml-modeline-len 14)
  '(sml-modeline-mode t)
  '(sml-modeline-numbers (quote line-numbers))
+ '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
+ '(uniquify-min-dir-content 0)
  '(visible-bell t)
  '(xgit-use-index (quote always)))
 (custom-set-faces
@@ -49,6 +51,10 @@
   ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil))))
  '(cursor ((t (:background "yellow"))))
+ '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
+ '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
+ '(diff-header ((t (:background "grey11"))))
+ '(diff-removed ((t (:inherit diff-changed :foreground "#dd0000"))))
  '(flymake-errline ((((class color)) (:underline "red"))))
  '(font-lock-comment-face ((nil (:foreground "#99968b"))))
  '(font-lock-function-name-face ((t (:foreground "#cae682" :weight normal))))
@@ -91,8 +97,10 @@
 (require 'sml-modeline)
 (sml-modeline-mode t)
 
+(require 'uniquify)
 (require 'filecache)
 (require 'flymake-config)
+(require 'python-config)
 (require 'file-misc)
 (require 'c-misc)
 (require 'misc-misc)
@@ -107,10 +115,15 @@
 (require 'package)
 (package-initialize)
 
+
+(defalias 'll 'longlines-mode)
+(defalias 'tt 'toggle-truncate-lines)
+
 (defun email-config ()
   (text-mode)
   (set-fill-column 72)
-  (auto-fill-mode))
+  (longlines-mode)
+  (flyspell-mode))
 
 (setq auto-mode-alist (append '((".eml$" . email-config)) auto-mode-alist))
 
@@ -164,10 +177,6 @@
 ;; (setq x-select-enable-clipboard t)
 ;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
-;; Show trailing whitespace when working with Python files
-;; (add-hook 'python-mode-hook
-;;           (lambda () (setq show-trailing-whitespace t)))
-
 ;; highlighting to see all occurrences of a word in the buffer
 (setq highlighted-word "")
 (make-variable-buffer-local 'highlighted-word)
@@ -188,20 +197,13 @@
 ;; work if set in the customize block.
 (setq viper-ex-style-editing nil)  ; can backspace past start of insert / line
 (setq viper-ex-style-motion nil)   ; can move past end of line
-(setq viper-fast-keyseq-timeout 0)
-;;(setq viper-ESC-keyseq-timeout 0)
 (require 'viper)                   ; load Viper
 (require 'vimpulse)                ; vim emulation
+(defun viper-translate-all-ESC-keysequences () nil)
 
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
   nil)
-
-;; python mode settings
-(setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
-(setq interpreter-mode-alist (cons '("python" . python-mode)
-				   interpreter-mode-alist))
-(autoload 'python-mode "python-mode" "Python editing mode." t)
 
 ;; Pymacs and ropemacs
 ; (require 'pymacs)
@@ -266,10 +268,6 @@
     (my-dired-init)
   ;; it's not loaded yet, so add our bindings to the load-hook
   (add-hook 'dired-load-hook 'my-dired-init))
-
-;; IPython support!
-(setq ipython-command "ipython")
-(require 'ipython)
 
 ;; yasnippet
 (require 'yasnippet) ;; not yasnippet-bundle
