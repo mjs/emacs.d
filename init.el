@@ -21,6 +21,7 @@
  '(ido-enable-flex-matching t)
  '(inferior-lisp-program "java -cp /home/msmits/downloads/clojure-1.1.0/clojure.jar clojure.main")
  '(initial-buffer-choice t)
+ '(ispell-program-name "/usr/bin/ispell")
  '(jabber-alert-presence-hooks nil)
  '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
