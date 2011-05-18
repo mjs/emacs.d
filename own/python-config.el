@@ -26,8 +26,20 @@
   (interactive)
   (py-which-thing "def"))
 
+(defun py-pdbrc-breakpoint ()
+  "Set breakpoint for current line for pdb to see"
+  (interactive)
+  (save-selected-window
+    (let ((current-file buffer-file-name)
+          (current-line (number-to-string (line-number-at-pos))))
+      (find-file-other-window "~/.pdbrc")
+      (end-of-buffer)
+      (insert "break " current-file ":" current-line "\n")
+      (save-buffer))))
+
 (defun python-customizations ()
   "Additional customizations for python mode"
+  (define-key py-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key py-mode-map "\C-cwc"  'py-which-class)
   (define-key py-mode-map "\C-cwf"  'py-which-function))
 
