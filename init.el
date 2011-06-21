@@ -223,6 +223,9 @@
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
 
+(require 'epa-file)
+(epa-file-enable)
+
 ;; Bind this elsewhere since Viper uses C-u
 ;; p == 'prefix'
 (global-set-key (kbd "C-p") 'universal-argument)
