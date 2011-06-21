@@ -33,29 +33,8 @@
     (insert converted)
     (insert "\n")))
 
-
-;; (defun org-table-inplace-convert ()
-;;   (interactive)
-;;   (let* ((format (org-completing-read
-;;                 "Format: "
-;;                 '("orgtbl-to-tsv" "orgtbl-to-csv"
-;;                   "orgtbl-to-latex" "orgtbl-to-html"
-;;                   "orgtbl-to-generic" "orgtbl-to-texinfo"
-;;                   "orgtbl-to-orgtbl") nil nil
-;;                   "orgtbl-to-tsv"))
-;;     (message format))))
-;;          ;; (transform (intern format)))
-;;     ;; (org-table-do-inplace-convert transform)))
-
-;; (defun org-table-do-inplace-convert (transform)
-;;   (unless (org-at-table-p)
-;;     (error "No table at point"))
-;;   (org-table-align) ;; make sure we have everything we need
-;;   (let ((beg (org-table-begin))
-;;         (end (org-table-end))
-;;         (converted (funcall transform table nil)))
-;;     (delete-region beg end)
-;;     (insert converted)
-;;     (insert "\n")))
+(defun org-today-in-internal-format ()
+  (let ((now (decode-time)))
+    (encode-time 0 0 0 (nth 3 now) (nth 4 now) (nth 5 now))))
 
 (provide 'org-utils)    

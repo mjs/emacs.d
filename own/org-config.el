@@ -37,16 +37,41 @@
         (org-archive-tag "ARCH"))
     (org-archive-to-archive-sibling)))
 
-;; (defun org-today-in-internal-format ()
-;;   (let ((now (decode-time)))
-;;     (encode-time 0 0 0 (nth 3 now) (nth 4 now) (nth 5 now))))
+; Modified version that takes a time to pass to org-deadline as well as the "remove" argument
+(defun org-agenda-deadline (arg &optional time)
+  "Schedule the item at point.
+Arg is passed through to `org-deadline'."
+  (interactive "P")
+  (org-agenda-check-type t 'agenda 'timeline 'todo 'tags 'search)
+  (org-agenda-check-no-diary)
+  (let* ((marker (or (org-get-at-bol 'org-marker)
+		     (org-agenda-error)))
+	 (buffer (marker-buffer marker))
+	 (pos (marker-position marker))
+	 (org-insert-labeled-timestamps-at-point nil)
+	 ts)
+    (org-with-remote-undo buffer
+      (with-current-buffer buffer
+	(widen)
+	(goto-char pos)
+	(setq ts (org-deadline arg time)))   ; this line changed
+      (org-agenda-show-new-time marker ts "D"))
+	(message "Deadline for this item set to %s" ts)))
 
-;; (defun org-agenda-deadline-today ()
-;;   (interactive)
-;;   (org-agenda-deadline nil (org-today-in-internal-format)))
+(defun org-deadline-today ()
+  "Set an org mode item to have a deadline of today"
+  (interactive)
+  (org-deadline nil (org-today-in-internal-format)))
+
+(defun org-agenda-deadline-today ()
+  "Set an org mode agenda item to have a deadline of today"
+  (interactive)
+  (org-agenda-deadline nil (org-today-in-internal-format)))
 
 (add-hook 'org-mode-hook
           (lambda ()
+            (define-key org-agenda-mode-map (kbd "C-c D") 'org-agenda-deadline-today)
+            (define-key org-mode-map (kbd "C-c D") 'org-deadline-today)
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
             (define-key org-mode-map (kbd "C-c C-0") 'org-move-to-done-tree)
             (define-key org-mode-map (kbd "C-c \\") 'org-table-inplace-to-tsv)))
