@@ -26,7 +26,8 @@
   (interactive)
   (move-beginning-of-line nil)
   (org-insert-todo-heading 0)
-  (viper-insert 0))
+  (viper-insert 0)
+  (insert "[#2] "))
 
 (defun org-move-to-done-tree ()
   "Move the current subtree to a monthly DONE tree at the bottom of the file" 
