@@ -12,15 +12,6 @@
 ; Default location of Org files 
 (setq org-directory "~/Dropbox/Notes")
 
-; Sync any agenda files and files in ~/Dropbox/Notes to MobileOrg
-(setq org-mobile-files (list 'org-agenda-files "~/Dropbox/Notes"))
-
-; Where notes entered via MobileOrg go
-(setq org-mobile-inbox-for-pull "~/Dropbox/Notes/new.org")
-
-; MobileOrg's staging directory
-(setq org-mobile-directory "~/Dropbox/MobileOrg")
-
 ; Friendlier TODO insert, can do it from any point on a line and plays nice with viper mode
 (defun my-org-insert-todo-heading ()
   (interactive)
