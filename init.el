@@ -56,7 +56,6 @@
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
  '(diff-header ((t (:background "grey11"))))
  '(diff-removed ((t (:inherit diff-changed :foreground "#dd0000"))))
- '(flymake-errline ((((class color)) (:underline "red"))))
  '(font-lock-comment-face ((nil (:foreground "#99968b"))))
  '(font-lock-function-name-face ((t (:foreground "#cae682" :weight normal))))
  '(font-lock-keyword-face ((nil (:foreground "#8ac6f2"))))
@@ -298,7 +297,7 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
-(require 'color-theme-solarized)
+;;(require 'color-theme-solarized)
 ;;(color-theme-solarized-dark)
 
 (global-linum-mode)      ;; line numbers everywhere
