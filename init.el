@@ -85,8 +85,8 @@
 (add-to-list 'load-path "~/.emacs.d/elpa")
 
 ;; allow access to dependent Python libraries (Pymacs etc)
-(setenv "PYTHONPATH" (format "%s:%s" 
-                             (expand-file-name "~/.emacs.d/pylib") 
+(setenv "PYTHONPATH" (format "%s:%s"
+                             (expand-file-name "~/.emacs.d/pylib")
                              (getenv "PYTHONPATH")))
 
 ;; get rid of useless chrome
@@ -237,6 +237,10 @@
 (column-number-mode)
 (linum-mode)
 
+;; Get OCD about whitespace
+(require 'ethan-wspace)
+(global-ethan-wspace-mode 1)
+
 ;; Make window sizing saner
 (defun enlarge-window-horiz-quick (arg)
   (interactive "P")
@@ -250,7 +254,6 @@
 (global-set-key (kbd "C-+") 'enlarge-window-horiz-quick)
 (global-set-key (kbd "C--") 'shrink-window)
 (global-set-key (kbd "C-=") 'enlarge-window)
-
 
 ;; get rid of the multiple dired buffer problem
 (require 'dired-single)
@@ -309,5 +312,3 @@
 ;; Allow editing from Chrome
 (require 'edit-server)
 (edit-server-start)
-
-
