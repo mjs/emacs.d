@@ -56,6 +56,7 @@
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
  '(diff-header ((t (:background "grey11"))))
  '(diff-removed ((t (:inherit diff-changed :foreground "#dd0000"))))
+ '(ethan-wspace-face ((t (:background "#222200000000"))))
  '(font-lock-comment-face ((nil (:foreground "#99968b"))))
  '(font-lock-function-name-face ((t (:foreground "#cae682" :weight normal))))
  '(font-lock-keyword-face ((nil (:foreground "#8ac6f2"))))
@@ -162,7 +163,7 @@
 
 (put 'narrow-to-region 'disabled nil)
 
-;; Interaction with the standard X clipboard
+;; Interaction with the system clipboard
 (global-set-key "\C-cc" 'clipboard-kill-ring-save)
 (global-set-key "\C-cx" 'clipboard-kill-region)
 (global-set-key "\C-cv" 'clipboard-yank)
@@ -172,6 +173,10 @@
 ;; Navigation of grep results/errors
 (global-set-key "\M-n" 'next-error)
 (global-set-key "\M-p" 'previous-error)
+
+;; Unique grep buffer per search
+(require 'grep-a-lot)
+(grep-a-lot-setup-keys)
 
 ;; Possibly useful
 ;; (setq x-select-enable-clipboard t)
