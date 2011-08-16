@@ -1,11 +1,13 @@
 -- -*- SQL -*-
 
-\connect mtf_db
-set session authorization mtf_usr;
-set search_path to mtf_core, public;
+\connect \${MONGO_DB_NAME}
+set session authorization \${READWRITE_USR};
+set search_path to \${CORE_SCHEMA}, public;
 
 begin;
 
-$0
+${2:sql}
 
+
+insert into schema_version values (${1:version}, now());
 commit;
