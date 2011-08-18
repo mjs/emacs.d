@@ -2,11 +2,12 @@
 
 (require 'text-misc)
 (require 'flymake-pyflakes)
+(require 'python-pylint)
 
 ;; python mode settings
 (setq auto-mode-alist (cons '("\\.py$" . python-mode) auto-mode-alist))
 (setq interpreter-mode-alist (cons '("python" . python-mode)
-				   interpreter-mode-alist))
+                                   interpreter-mode-alist))
 (autoload 'python-mode "python-mode" "Python editing mode." t)
 
 (defun py-which-thing (thing-type)
@@ -39,6 +40,7 @@
 
 (defun python-customizations ()
   "Additional customizations for python mode"
+  (define-key py-mode-map "\C-c\C-c" 'python-pylint)
   (define-key py-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key py-mode-map "\C-cwc"  'py-which-class)
   (define-key py-mode-map "\C-cwf"  'py-which-function))
