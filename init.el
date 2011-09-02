@@ -126,7 +126,11 @@
   (longlines-mode)
   (flyspell-mode))
 
-(setq auto-mode-alist (append '((".eml$" . email-config)) auto-mode-alist))
+(add-to-list 'auto-mode-alist '("\\.eml$" . email-config))
+
+;; Crontab support
+(autoload 'crontab-mode "crontab-mode")
+(add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
 
 ;; Git support
 (require 'magit)
