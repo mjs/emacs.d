@@ -309,9 +309,6 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
-;;(require 'color-theme-solarized)
-;;(color-theme-solarized-dark)
-
 (global-linum-mode)      ;; line numbers everywhere
 
 (desktop-save-mode 1)    ;; reopen previously open buffers
