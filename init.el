@@ -316,56 +316,6 @@
 
 (desktop-save-mode 1)    ;; reopen previously open buffers
 
-;---- mew ----------------------------------------------------------
-;; (add-to-list 'load-path "~/.emacs.d/external/mew")
-
-;; ;; allow access to dependent Python libraries (Pymacs etc)
-;; (setenv "PATH" (format "%s:%s"
-;;                        (expand-file-name "~/.emacs.d/external/mew-bin")
-;;                        (getenv "PATH")))
-
-;; (setenv "PATH" (format "%s:%s"
-;;                        (expand-file-name "/usr/sbin/stunnel")
-;;                        (getenv "PATH")))
-
-;; (autoload 'mew "mew" nil t)
-;; (autoload 'mew-send "mew" nil t)
-
-;; ;; Optional setup (Read Mail menu):
-;; (setq read-mail-command 'mew)
-
-;; ;; Optional setup (e.g. C-xm for sending a message):
-;; (autoload 'mew-user-agent-compose "mew" nil t)
-;; (if (boundp 'mail-user-agent)
-;;     (setq mail-user-agent 'mew-user-agent))
-;; (if (fboundp 'define-mail-user-agent)
-;;     (define-mail-user-agent
-;;       'mew-user-agent
-;;       'mew-user-agent-compose
-;;       'mew-draft-send-message
-;;       'mew-draft-kill
-;;       'mew-send-hook))
-
-;; (set-language-environment "Latin-1")
-;; (set-input-method "latin-1-prefix") ;; or "latin-1-postfix"
-
-;; ;; (setq mew-name "your name") ;; (user-full-name)
-;; ;; (setq mew-user "user name of e-mail address") ;; (user-login-name)
-;; (setq mew-mail-domain "freshfoo.com")
-
-;; (setq mew-smtp-server "ukexch2.uk.bats.com")
-;; (setq mew-smtp-user "msmits")
-
-;; (setq mew-proto "%")
-;; (setq mew-imap-user "msmits")
-;; (setq mew-imap-server "ukexch2.uk.bats.com")
-;; (setq mew-imap-ssl nil)
-
-;; (setq mew-use-cached-passwd t)
-;--------=-----------------------------------------------------------
-
-
-
 (server-start)
 
 ;; Allow editing from Chrome
