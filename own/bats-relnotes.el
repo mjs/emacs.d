@@ -1,17 +1,16 @@
+; TODO
+; - highlights insert (detect when missing)
+; - highlights helpers (extract text and allow editing, gets shoved up the top)
+; - crontab helpers
+; - SQL delta helpers
+; - basic syntax highlighting
 
-(defun bats-relnotes-narrow-to-revs ()
-  (widen)
-  (beginning-of-buffer)
-  (re-search-forward "^---------------------")
-  (beginning-of-line)
-  (let ((start-point (point)))
-    (re-search-forward "^Checking for existence of trunk")
-    (narrow-to-region start-point (match-beginning 0)))
-  (beginning-of-buffer))
+(defconst bats-relnotes-title-regex "^  Rev  ")
+(defconst bats-relnotes-header-line-regex "^---------------------")
 
 (defun bats-relnotes-next-rev ()
   (interactive)
-  (re-search-forward "^  Rev  ")
+  (re-search-forward bats-relnotes-title-regex)
   (beginning-of-line)
   (next-line)
   (next-line))
@@ -19,24 +18,40 @@
 (defun bats-relnotes-prev-rev ()
   (interactive)
   (re-search-backward "^$")
-  (re-search-backward "^  Rev  ")
+  (re-search-backward bats-relnotes-title-regex)
   (beginning-of-line)
   (next-line)
   (next-line))
 
-(defvar bats-relnotes-mode-map 
+(defvar bats-relnotes-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "\C-cn" 'bats-relnotes-next-rev)
-    (define-key map "\C-cp" 'bats-relnotes-prev-rev)
+    (define-key map (kbd "M-n") 'bats-relnotes-next-rev)
+    (define-key map (kbd "M-p") 'bats-relnotes-prev-rev)
+    (define-key map (kbd "C-c b") 'bats-relnotes-bump)
     map)
   "Keymap for bats-relnotes-mode")
+
+(defun bats-relnotes-bump ()
+  "Bump minor version in release notes file"
+  (interactive)
+  (let* ((parts (bats-relnotes-parts-from-filename (buffer-file-name)))
+         (new-filename (format "%s_%s_%d_%s.txt"
+                           (car parts) (cadr parts)
+                           (+ (string-to-number (caddr parts)) 1)
+                           (cadddr parts))))
+       (write-file new-filename t)))
+
+(defun bats-relnotes-parts-from-filename (filename)
+  "Extract parts of the release notes filename"
+  (unless (string-match "bld.+\\.txt$" filename) (throw 'invalid-filename t))
+  (let ((basename (file-name-nondirectory filename)))
+    (split-string (car (split-string basename "\\.")) "_")))
 
 (defun bats-relnotes-mode ()
   "Major mode for processing BATS software release notes"
   (interactive)
   (kill-all-local-variables)
   (use-local-map bats-relnotes-mode-map)
-  (bats-relnotes-narrow-to-revs)
   (setq major-mode 'bats-relnotes-mode)
   (setq mode-name "BATS-Release-Notes"))
 
