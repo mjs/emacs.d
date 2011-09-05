@@ -99,6 +99,9 @@
 (require 'sml-modeline)
 (sml-modeline-mode t)
 
+(require 'jabber-autoloads)
+
+;; TODO: more autoloads!
 (require 'uniquify)
 (require 'filecache)
 (require 'flymake-config)
@@ -108,7 +111,6 @@
 (require 'misc-misc)
 (require 'insert-timestamp)
 (require 'csv-mode)
-(require 'jabber-autoloads)
 (require 'lua-mode)
 (require 'post-config)
 (require 'filecache-config)
@@ -294,6 +296,7 @@
 (add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; Haskell support
+;; TODO: autoload
 (load "~/.emacs.d/external/haskell/haskell-site-file")
 (add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
 (add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
