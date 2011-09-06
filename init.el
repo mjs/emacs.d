@@ -56,7 +56,6 @@
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
  '(diff-header ((t (:background "grey11"))))
  '(diff-removed ((t (:inherit diff-changed :foreground "#dd0000"))))
- '(ethan-wspace-face ((t (:background "#222200000000"))))
  '(font-lock-comment-face ((nil (:foreground "#99968b"))))
  '(font-lock-function-name-face ((t (:foreground "#cae682" :weight normal))))
  '(font-lock-keyword-face ((nil (:foreground "#8ac6f2"))))
@@ -251,6 +250,8 @@
 ;; Get OCD about whitespace
 (require 'ethan-wspace)
 (global-ethan-wspace-mode 1)
+(setq ethan-wspace-face '(t (:background "#05ff00")))
+(setq ethan-wspace-face-customized t)
 
 ;; Make window sizing saner
 (defun enlarge-window-horiz-quick (arg)
