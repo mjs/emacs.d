@@ -55,4 +55,17 @@
   (setq major-mode 'bats-relnotes-mode)
   (setq mode-name "BATS-Release-Notes"))
 
+(add-to-list 'auto-mode-alist '("bld.+\\.txt$" . bats-relnotes-mode))
+
+(defun bats-relnotes-new ()
+  "Create a new release notes file with today's date"
+  (interactive)
+  (find-file (expand-file-name (format "~/Notes/releases/%s" (bats-relnotes-new-filename)))))
+
+(defun bats-relnotes-new-filename ()
+  "Generate the filename for a new release notes file"
+  (multiple-value-bind
+      (second minute hour day month year day-of-week dst-p tz) (decode-time)
+    (format "bldS_%d%02d%02d_1_mtf.txt" year month day)))
+
 (provide 'bats-relnotes)
