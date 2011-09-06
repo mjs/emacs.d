@@ -1,3 +1,5 @@
+;; TODO - autoload to hook this into the main crontab mode hook
+
 (defun bats-deploy-crontab ()
   "Deploy the current buffer containing a BATS crontab"
   (interactive)
