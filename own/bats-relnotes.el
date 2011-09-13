@@ -36,17 +36,19 @@ None.
 (defun bats-relnotes-next-rev ()
   (interactive)
   (re-search-forward bats-relnotes-title-regex)
-  (beginning-of-line)
-  (next-line)
-  (next-line))
+  (bats-relnotes-jump-update))
 
 (defun bats-relnotes-prev-rev ()
   (interactive)
   (re-search-backward "^$")
   (re-search-backward bats-relnotes-title-regex)
+  (bats-relnotes-jump-update))
+
+(defun bats-relnotes-jump-update ()
   (beginning-of-line)
   (next-line)
-  (next-line))
+  (next-line)
+  (recenter))
 
 (defvar bats-relnotes-mode-map
   (let ((map (make-sparse-keymap)))
@@ -79,6 +81,7 @@ None.
   (use-local-map bats-relnotes-mode-map)
   (setq major-mode 'bats-relnotes-mode)
   (setq mode-name "BATS-Release-Notes")
+  (toggle-truncate-lines 1)
   (bats-relnotes-add-titles))
 
 (add-to-list 'auto-mode-alist '("bld.+\\.txt$" . bats-relnotes-mode))
