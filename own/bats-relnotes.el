@@ -1,5 +1,4 @@
 ; TODO
-; - highlights insert (detect when missing)
 ; - highlights helpers (extract text and allow editing, gets shoved up the top)
 ; - crontab helpers
 ; - SQL delta helpers
@@ -7,6 +6,32 @@
 
 (defconst bats-relnotes-title-regex "^  Rev  ")
 (defconst bats-relnotes-header-line-regex "^---------------------")
+
+(defun bats-relnotes-add-titles ()
+  (unless (bats-relnotes-has-titles)
+    (goto-char 1)
+    (insert "\
+Highlights
+----------
+
+
+SQL Deltas
+----------
+None.
+
+
+Crontab Updates
+---------------
+None.
+
+
+")))
+
+
+(defun bats-relnotes-has-titles ()
+  (save-excursion
+    (goto-char 1)
+    (string= (current-word) "Highlights")))
 
 (defun bats-relnotes-next-rev ()
   (interactive)
@@ -53,7 +78,8 @@
   (kill-all-local-variables)
   (use-local-map bats-relnotes-mode-map)
   (setq major-mode 'bats-relnotes-mode)
-  (setq mode-name "BATS-Release-Notes"))
+  (setq mode-name "BATS-Release-Notes")
+  (bats-relnotes-add-titles))
 
 (add-to-list 'auto-mode-alist '("bld.+\\.txt$" . bats-relnotes-mode))
 
