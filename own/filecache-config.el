@@ -16,7 +16,8 @@
   (message "Loading file cache...")
   (file-cache-clear-cache)
   (file-cache-add-directory-using-find "~/ecn/0/source")
-  (file-cache-add-directory-using-find "~/sql-mtf"))
+  (file-cache-add-directory-using-find "~/sql-mtf")
+  (file-cache-add-directory-using-find "~/config"))
 
 (eval-after-load "filecache" '(refresh-file-cache))
 
