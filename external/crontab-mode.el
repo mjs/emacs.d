@@ -53,10 +53,8 @@
 (defvar crontab-mode-map nil
   "Keymap used in `crontab-mode'.")
 
-;; (if crontab-mode-map
-;;   ()
-;;   (setq crontab-mode-map (make-sparse-keymap))
-;;   (define-key crontab-mode-map "\C-c\C-c" 'crontab-save-and-apply))
+(unless crontab-mode-map
+  (setq crontab-mode-map (make-sparse-keymap)))
 
 (defun crontab-mode ()
   "Major mode for editing crontabs.
