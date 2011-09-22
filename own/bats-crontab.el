@@ -1,5 +1,3 @@
-;; TODO - autoload to hook this into the main crontab mode hook
-
 (defun bats-deploy-crontab ()
   "Deploy the current buffer containing a BATS crontab"
   (interactive)
@@ -16,16 +14,19 @@
     (copy-file (buffer-file-name) write-dest t)
     (shell-command (format "ssh -q %s 'sudo -u %s crontab -l | diff - crontab.new'" host user) diff-buffer)
     (switch-to-buffer-other-window diff-buffer)
+    (diff-mode)
     (when (yes-or-no-p "Ok to deploy? ")
       (shell-command (format "ssh -q %s 'sudo -u %s crontab crontab.new'" host user))
       (kill-buffer diff-buffer))
     (delete-file write-dest)))
-
 
 (defun bats-dest-from-crontab-name (filename)
   "Extract the username and host from a crontab filename"
   (unless (string-match "\\.crontab$" filename) (throw 'invalid-filename t))
   (let ((basename (file-name-nondirectory filename)))
     (split-string (car (split-string basename "\\.")) "_")))
+
+(autoload 'crontab-mode-map "crontab-mode")
+(define-key crontab-mode-map "\C-c\C-c" 'bats-deploy-crontab)
 
 (provide 'bats-crontab)
