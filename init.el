@@ -296,9 +296,9 @@
   (add-hook 'dired-load-hook 'my-dired-init))
 
 ;; yasnippet
-(require 'yasnippet) ;; not yasnippet-bundle
-(yas/initialize)
-(yas/load-directory "~/.emacs.d/snippets")
+(add-to-list 'load-path "~/.emacs.d/external/yasnippet")
+(require 'yasnippet)
+(yas/global-mode 1)
 
 ;; javascript mode from stevey
 (autoload 'js2-mode "js2" nil t)
