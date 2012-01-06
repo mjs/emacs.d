@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+#key: pprint
+# --
+from pprint import pprint, pformat   #XXX

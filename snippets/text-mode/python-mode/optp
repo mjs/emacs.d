@@ -1,5 +1,0 @@
-from optparse import OptionParser
-
-parser = OptionParser("%prog [options]$1")
-$0
-options, args = parser.parse_args()
