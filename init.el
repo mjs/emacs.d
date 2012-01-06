@@ -149,6 +149,13 @@
 (ido-mode 1)
 (ido-everywhere 1)
 
+;; Set up smex
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)    ;; This is the default M-x.
+
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
