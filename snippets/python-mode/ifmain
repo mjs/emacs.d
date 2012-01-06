@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-#key: ifmain
-# --
-if __name__ == '__main__':
-    $0
