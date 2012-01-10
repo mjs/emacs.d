@@ -54,25 +54,29 @@ None.
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-n") 'bats-relnotes-next-rev)
     (define-key map (kbd "M-p") 'bats-relnotes-prev-rev)
-    (define-key map (kbd "C-c b") 'bats-relnotes-bump)
+    (define-key map (kbd "C-c C-c") 'bats-relnotes-bump)
     map)
   "Keymap for bats-relnotes-mode")
 
-(defun bats-relnotes-bump ()
-  "Bump minor version in release notes file"
+(defun bats-relnotes-prev-release ()
   (interactive)
-  (let* ((parts (bats-relnotes-parts-from-filename (buffer-file-name)))
+  (let* ((parts (bats-relnotes-split-filename (buffer-file-name)))
          (new-filename (format "%s_%s_%d_%s.txt"
                            (car parts) (cadr parts)
                            (+ (string-to-number (caddr parts)) 1)
                            (cadddr parts))))
        (write-file new-filename t)))
 
-(defun bats-relnotes-parts-from-filename (filename)
-  "Extract parts of the release notes filename"
-  (unless (string-match "bld.+\\.txt$" filename) (throw 'invalid-filename t))
-  (let ((basename (file-name-nondirectory filename)))
-    (split-string (car (split-string basename "\\.")) "_")))
+
+(defun bats-relnotes-bump ()
+  "Bump minor version in release notes file"
+  (interactive)
+  (let* ((parts (bats-relnotes-split-filename (buffer-file-name)))
+         (new-filename (format "%s_%s_%d_%s.txt"
+                           (car parts) (cadr parts)
+                           (+ (string-to-number (caddr parts)) 1)
+                           (cadddr parts))))
+       (write-file new-filename t)))
 
 (defun bats-relnotes-mode ()
   "Major mode for processing BATS software release notes"
@@ -95,6 +99,15 @@ None.
   "Generate the filename for a new release notes file"
   (multiple-value-bind
       (second minute hour day month year day-of-week dst-p tz) (decode-time)
-    (format "bldS_%d%02d%02d_1_mtf.txt" year month day)))
+    (bats-relnotes-make-filename "bldS" year month day 1)))
+
+(defun bats-relnotes-make-filename (prefix year month day release)
+  (format "%s_%d%02d%02d_%d_mtf.txt" prefix year month day release))
+
+(defun bats-relnotes-split-filename (filename)
+  "Extract parts of the release notes filename"
+  (unless (string-match "bld.+\\.txt$" filename) (throw 'invalid-filename t))
+  (let ((basename (file-name-nondirectory filename)))
+    (split-string (car (split-string basename "\\.")) "_")))
 
 (provide 'bats-relnotes)
