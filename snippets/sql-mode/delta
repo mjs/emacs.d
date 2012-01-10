@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# key: delta
+# --
+-- -*- SQL -*-
+begin;
+
+${1:sql}
+
+commit;

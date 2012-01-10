@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: from testfixtures import ...
+# key: fromtestf
+# --
+from testfixtures import compare

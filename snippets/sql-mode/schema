@@ -1,5 +1,7 @@
+# -*- mode: snippet -*-
+# key: schema
+# --
 -- -*- SQL -*-
-
 \connect \${MONGO_DB_NAME}
 set session authorization \${READWRITE_USR};
 set search_path to \${CORE_SCHEMA}, public;
