@@ -1,3 +1,5 @@
+(require 'crontab-mode)
+
 (defun bats-deploy-crontab ()
   "Deploy the current buffer containing a BATS crontab"
   (interactive)
@@ -26,7 +28,6 @@
   (let ((basename (file-name-nondirectory filename)))
     (split-string (car (split-string basename "\\.")) "_")))
 
-(autoload 'crontab-mode-map "crontab-mode")
 (define-key crontab-mode-map "\C-c\C-c" 'bats-deploy-crontab)
 
 (provide 'bats-crontab)
