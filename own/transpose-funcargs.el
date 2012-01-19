@@ -12,14 +12,14 @@
 ; char-syntax
 ; skip-syntax-forward / backward
 
-(defun forward-one-farg ()
+(defun forward-one-funcarg ()
   (interactive)
   (unless (eq (car (syntax-ppss)) 0)
     (forward-sexp)
     (while (not (looking-at "[,) ]"))
       (forward-sexp))))
 
-(defun backward-one-farg ()
+(defun backward-one-funcarg ()
   (interactive)
   (unless (eq (car (syntax-ppss)) 0)
     (backward-sexp)
@@ -32,17 +32,21 @@
 ;;     (thing-at-point 'char)))
 
 
-(defun forward-farg (arg)
+(defun forward-funcarg (arg)
   (interactive "p*")
   (if (>= arg 0)
-      (dotimes (_ arg) (forward-one-farg))
-    (dotimes (_ (abs arg)) (backward-one-farg))))
+      (dotimes (_ arg) (forward-one-funcarg))
+    (dotimes (_ (abs arg)) (backward-one-funcarg))))
 
-(defun transpose-fargs (arg)
+(defun transpose-funcarg (arg)
   (interactive "*p")
-  (transpose-subr 'forward-farg arg))
+  (transpose-subr 'forward-funcarg arg))
 
-(provide 'transpose-fargs)
+(defun transpose-previous-funcarg (arg)
+  (interactive "*p")
+  (transpose-subr 'forward-funcarg (- arg)))
+
+(provide 'transpose-funcargs)
 
 ;; Python test data
 ;;
