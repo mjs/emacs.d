@@ -85,11 +85,6 @@
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
 
-;; allow access to dependent Python libraries (Pymacs etc)
-(setenv "PYTHONPATH" (format "%s:%s"
-                             (expand-file-name "~/.emacs.d/pylib")
-                             (getenv "PYTHONPATH")))
-
 ;; get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -223,9 +218,6 @@
   "Stop viper from trying to do anything VC related"
   nil)
 
-;; Pymacs and ropemacs
-; (require 'pymacs)
-; (pymacs-load "ropemacs" "rope-")
 ; (pymacs-load "bugzilla" "bugz-")
 
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)

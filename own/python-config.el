@@ -1,5 +1,10 @@
 ;; Customisations related to editing Python files
 
+;; allow access to dependent Python libraries (Pymacs etc)
+(setenv "PYTHONPATH" (format "%s:%s"
+                             (expand-file-name "~/.emacs.d/pylib")
+                             (getenv "PYTHONPATH")))
+
 (require 'text-misc)
 (require 'flymake-pyflakes)
 (require 'python-pylint)
@@ -9,6 +14,10 @@
 (setq interpreter-mode-alist (cons '("python" . python-mode)
                                    interpreter-mode-alist))
 (autoload 'python-mode "python-mode" "Python editing mode." t)
+
+;; Pymacs and ropemacs
+(require 'pymacs)
+(pymacs-load "ropemacs" "rope-")
 
 (defun py-which-thing (thing-type)
   (save-excursion
