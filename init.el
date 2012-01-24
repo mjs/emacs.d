@@ -94,7 +94,9 @@
 (require 'sml-modeline)
 (sml-modeline-mode t)
 
-(require 'jabber-autoloads)
+(require 'vim-config)
+
+;;(require 'jabber-autoloads)
 
 ;; TODO: more autoloads!
 (require 'uniquify)
@@ -205,18 +207,6 @@
 
 (global-set-key (kbd "C-x C-h") 'highlight-word)
 
-(setq viper-mode t)                ; enable Viper at load time
-;; These 2 are special and need to be set before viper is loaded. They don't
-;; work if set in the customize block.
-(setq viper-ex-style-editing nil)  ; can backspace past start of insert / line
-(setq viper-ex-style-motion nil)   ; can move past end of line
-(require 'viper)                   ; load Viper
-(require 'vimpulse)                ; vim emulation
-(defun viper-translate-all-ESC-keysequences () nil)
-
-(defadvice viper-maybe-checkout (around viper-checkin-fix activate)
-  "Stop viper from trying to do anything VC related"
-  nil)
 
 ; (pymacs-load "bugzilla" "bugz-")
 
@@ -234,10 +224,6 @@
 
 (require 'epa-file)
 (epa-file-enable)
-
-;; Bind this elsewhere since Viper uses C-u
-;; p == 'prefix'
-(global-set-key (kbd "C-p") 'universal-argument)
 
 ;; tabs are for babies and Aztecs (and Makefiles, I guess)
 (setq-default indent-tabs-mode nil)

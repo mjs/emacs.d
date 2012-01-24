@@ -64,6 +64,7 @@ Arg is passed through to `org-deadline'."
           (lambda ()
             (define-key org-agenda-mode-map (kbd "C-c D") 'org-agenda-deadline-today)
             (define-key org-mode-map (kbd "C-c D") 'org-deadline-today)
+            (define-key org-mode-map (kbd "<tab>") 'org-cycle)
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
             (define-key org-mode-map (kbd "C-c C-0") 'org-move-to-done-tree)
             (define-key org-mode-map (kbd "C-c t t") 'org-table-inplace-to-tsv)
