@@ -43,6 +43,7 @@
  '(sml-modeline-numbers (quote line-numbers))
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
+ '(vimpulse-want-C-u-like-Vim t)
  '(visible-bell t)
  '(x-select-enable-primary t)
  '(xgit-use-index (quote always)))
