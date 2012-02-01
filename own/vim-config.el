@@ -12,16 +12,16 @@
   nil)
 
 (require 'text-misc)
-(require 'transpose-funcargs)
+(require 'elemental)
 
 (define-key viper-vi-global-user-map "S" 'replace-symbol-at-point)
 (define-key viper-vi-global-user-map "=" 'increment-number-at-point)
 (define-key viper-vi-global-user-map "-" 'decrement-number-at-point)
 
-(define-key viper-vi-global-user-map ")" 'forward-one-funcarg)
-(define-key viper-vi-global-user-map "(" 'backward-one-funcarg)
-(define-key viper-vi-global-user-map "gs" 'transpose-funcarg)
-(define-key viper-vi-global-user-map "gS" 'transpose-previous-funcarg)
+(define-key viper-vi-global-user-map ")" 'elem-forward-one)
+(define-key viper-vi-global-user-map "(" 'elem-backward-one)
+(define-key viper-vi-global-user-map "gs" 'elem-transpose)
+(define-key viper-vi-global-user-map "gS" 'elem-transpose-backward)
 
 (setq local-function-key-map (delq '(kp-tab . [9]) local-function-key-map))     ; make C-i and TAB different keys
 
