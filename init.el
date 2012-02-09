@@ -5,6 +5,7 @@
  ;; If there is more than one, they won't work right.
  '(browse-url-browser-function (quote browse-url-generic))
  '(browse-url-generic-program "run-chrome")
+ '(case-fold-search nil)
  '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
@@ -43,7 +44,6 @@
  '(sml-modeline-numbers (quote line-numbers))
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
- '(vimpulse-want-C-u-like-Vim t)
  '(visible-bell t)
  '(x-select-enable-primary t)
  '(xgit-use-index (quote always)))
@@ -97,11 +97,8 @@
 
 (require 'vim-config)
 
-;;(require 'jabber-autoloads)
-
 ;; TODO: more autoloads!
 (require 'uniquify)
-(require 'filecache)
 (require 'flymake-config)
 (require 'python-config)
 (require 'file-misc)
