@@ -139,8 +139,8 @@
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
-(global-set-key "\M-?" 'etags-select-find-tag-at-point)
-(global-set-key "\M-." 'etags-select-find-tag)
+(global-set-key (kbd "M-]") 'etags-select-find-tag-at-point)
+(global-set-key (kbd "M-}") 'etags-select-find-tag)
 
 ;; make switch buffer and find file much nicer
 (ido-mode 1)
