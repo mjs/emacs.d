@@ -228,16 +228,16 @@
 ;; tabs are for babies and Aztecs (and Makefiles, I guess)
 (setq-default indent-tabs-mode nil)
 
-;; Show the column number in the mode line and line numbers down the
-;; side
+;; Show the column number in the mode line and line numbers down the side
 (column-number-mode)
 (linum-mode)
+(global-linum-mode)      ;; line numbers everywhere
 
 ;; Get OCD about whitespace
-(require 'ethan-wspace)
-(global-ethan-wspace-mode 1)
 (setq ethan-wspace-face '(t (:background "#05ff00")))
 (setq ethan-wspace-face-customized t)
+(require 'ethan-wspace)
+(global-ethan-wspace-mode 1)
 
 ;; Make window sizing saner
 (defun enlarge-window-horiz-quick (arg)
@@ -290,16 +290,9 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
-(require 'point-stack)
-(global-set-key (kbd "M-RET") 'point-stack-push)
-(global-set-key (kbd "M-[") 'point-stack-pop)
-(global-set-key (kbd "M-]") 'point-stack-forward-stack-pop)
-
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
-
-(global-linum-mode)      ;; line numbers everywhere
 
 (unless quick-start
   (desktop-save-mode 1)    ;; reopen previously open buffers
