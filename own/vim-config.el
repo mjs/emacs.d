@@ -4,12 +4,23 @@
 (setq viper-ex-style-editing nil)  ; can backspace past start of insert / line
 (setq viper-ex-style-motion nil)   ; can move past end of line
 (require 'viper)                   ; load Viper
-(require 'vimpulse)                ; vim emulation
 (defun viper-translate-all-ESC-keysequences () nil)
 
 (defadvice viper-maybe-checkout (around viper-checkin-fix activate)
   "Stop viper from trying to do anything VC related"
   nil)
+
+(keyboard-translate ?\C-i ?\H-i)       ; map C-i to Hyper-i to avoid conflict with TAB
+(setq vimpulse-want-C-i-like-Vim nil)  ; don't let Vimpulse set the binding, we'll do this ourselves 
+(setq vimpulse-want-C-u-like-Vim t)    ; 
+(require 'vimpulse)                    ; vim emulation
+(define-key viper-vi-global-user-map (kbd "H-i") 'vimpulse-jump-forward)   ; Now set up C-i / H-i
+
+;; Bind this elsewhere since Viper uses C-u (think p == 'prefix')
+(global-set-key (kbd "C-p") 'universal-argument)
+
+
+;; Useful bindings
 
 (require 'text-misc)
 (require 'elemental)
@@ -22,20 +33,5 @@
 (define-key viper-vi-global-user-map "(" 'elem-backward-one)
 (define-key viper-vi-global-user-map "gs" 'elem-transpose)
 (define-key viper-vi-global-user-map "gS" 'elem-transpose-backward)
-
-(setq local-function-key-map (delq '(kp-tab . [9]) local-function-key-map))     ; make C-i and TAB different keys
-
-(defun configure-TAB-key (filepath)
-  (unless (or (boundp 'tab-configured-here) (string= major-mode "org-mode"))
-    (vimpulse-map-local (kbd "<tab>") 'indent-for-tab-command)
-    (vimpulse-map-local (kbd "C-i") 'vimpulse-jump-forward))
-    (make-local-variable 'tab-configured-here)
-    (setq tab-configured-here 't))
-
-(add-to-list 'after-load-functions 'configure-TAB-key)
-
-;; Bind this elsewhere since Viper uses C-u
-;; p == 'prefix'
-(global-set-key (kbd "C-p") 'universal-argument)
 
 (provide 'vim-config)
