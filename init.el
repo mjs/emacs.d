@@ -95,9 +95,8 @@
 (require 'sml-modeline)
 (sml-modeline-mode t)
 
-(require 'vim-config)
-
 ;; TODO: more autoloads!
+(require 'evil-config)   ; Become like Vim!
 (require 'uniquify)
 (require 'flymake-config)
 (require 'python-config)
