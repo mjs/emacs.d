@@ -77,11 +77,13 @@
  '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white")))))
 
+;; set true to skip non-essential (and slow) startup items
+;; useful when restarting Emacs a lot to test some new config
+(setq quick-start nil)
+
 ;; make more elisp mods available
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
-(add-to-list 'load-path "~/.emacs.d/external/jabber")
-(add-to-list 'load-path "~/.emacs.d/external/color-themes")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
@@ -107,8 +109,9 @@
 (require 'csv-mode)
 (require 'lua-mode)
 (require 'post-config)
-(require 'filecache-config)
 (require 'org-config)
+(unless quick-start
+  (require 'filecache-config))
 
 (require 'package)
 (package-initialize)
@@ -298,10 +301,10 @@
 
 (global-linum-mode)      ;; line numbers everywhere
 
-(desktop-save-mode 1)    ;; reopen previously open buffers
+(unless quick-start
+  (desktop-save-mode 1)    ;; reopen previously open buffers
+  (server-start)
 
-(server-start)
-
-;; Allow editing from Chrome
-(require 'edit-server)
-(edit-server-start)
+  ;; Allow editing from Chrome
+  (require 'edit-server)
+  (edit-server-start))
