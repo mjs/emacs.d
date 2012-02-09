@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: import getEcn
+# key: getecn
+# --
+from ecn.web.db.bats import getEcn
