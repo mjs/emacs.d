@@ -132,7 +132,9 @@
 (add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
 
 ;; Git support
+(add-to-list 'load-path "~/.emacs.d/external/magit")
 (require 'magit)
+(require 'magit-svn)
 (global-set-key (kbd "C-x g") 'magit-status)
 (global-set-key (kbd "C-x l") 'magit-log)
 (require 'gitk)         ;; spawn gitk for the current file etc
@@ -141,6 +143,13 @@
 (require 'etags-select)
 (global-set-key (kbd "M-]") 'etags-select-find-tag-at-point)
 (global-set-key (kbd "M-}") 'etags-select-find-tag)
+
+(defun show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name)))
+(global-set-key (kbd "C-c g") 'show-file-name)
+(global-set-key (kbd "C-c C-g") 'show-file-name)
 
 ;; make switch buffer and find file much nicer
 (ido-mode 1)
