@@ -12,12 +12,12 @@
 ; Default location of Org files 
 (setq org-directory "~/Dropbox/Notes")
 
-; Friendlier TODO insert, can do it from any point on a line and plays nice with viper mode
+; Friendlier TODO insert, can do it from any point on a line and plays nice with Evil
 (defun my-org-insert-todo-heading ()
   (interactive)
   (move-beginning-of-line nil)
   (org-insert-todo-heading 0)
-  (viper-insert 0)
+  (evil-insert 0)
   (insert "[#2] "))
 
 (defun org-move-to-done-tree ()
