@@ -70,9 +70,9 @@ None
     (search-forward " SQL Deltas")
     (beginning-of-line)
     (forward-line -2)
-    (insert (format "Point %d\n-------\n\n" release))
+    (insert (format "\nPoint %d\n-------\n\n" release))
     (end-of-buffer)
-    (insert (format "\nPoint %d\n-------\n\n" release)))  ; XXX ugly
+    (insert (format "\n\nPoint %d\n-------\n\n" release)))  ; XXX ugly
   (end-of-buffer))
 
 (defun bats-relnotes-create-next-point-release ()
