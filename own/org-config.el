@@ -86,5 +86,30 @@ Arg is passed through to `org-deadline'."
           (todo)))))
 
 
+; Erase all reminders and rebuilt reminders for today from the agenda
+(defun my-org-agenda-to-appt ()
+  (interactive)
+  (setq appt-time-msg-list nil)
+  (org-agenda-to-appt))
+
+; Rebuild the reminders everytime the agenda is displayed
+(add-hook 'org-finalize-agenda-hook 'my-org-agenda-to-appt 'append)
+
+; Activate appointments so we get notifications
+(appt-activate t)
+
+; If we leave Emacs running overnight - reset the appointments one minute after midnight
+(run-at-time "24:01" nil 'my-org-agenda-to-appt)
+
+; Show appointment reminders using notify-send (goes over DBUS to whatever displays them)
+(defun my-appt-disp-window (minutes-to-appt new-time appt-msg)
+  (when (server-running-p)
+    (call-process "notify-send" nil 0 nil
+                  "-t" "99999999"
+                  "-i" "/usr/share/pixmaps/gnome-calendar.png"
+                  "Reminder"
+                  (format "%s in %s minutes" appt-msg minutes-to-appt))))
+
+(setq appt-disp-window-function 'my-appt-disp-window)
 
 (provide 'org-config)
