@@ -101,14 +101,25 @@ Arg is passed through to `org-deadline'."
 ; If we leave Emacs running overnight - reset the appointments one minute after midnight
 (run-at-time "24:01" nil 'my-org-agenda-to-appt)
 
+(defun zip (&rest seqs)
+  (apply 'mapcar* 'list seqs))
+
 ; Show appointment reminders using notify-send (goes over DBUS to whatever displays them)
 (defun my-appt-disp-window (minutes-to-appt new-time appt-msg)
   (when (server-running-p)
-    (call-process "notify-send" nil 0 nil
-                  "-t" "99999999"
-                  "-i" "/usr/share/pixmaps/gnome-calendar.png"
-                  "Reminder"
-                  (format "%s in %s minutes" appt-msg minutes-to-appt))))
+    (when (not (listp minutes-to-appt))
+      (setq minutes-to-appt (list minutes-to-appt))
+      (setq appt-msg (list appt-msg)))
+    (dolist (details (zip appt-msg minutes-to-appt))
+      (apply 'my-appt-notify details))))
+
+(defun my-appt-notify (msg minutes-to-appt)
+  (call-process "notify-send" nil 0 nil
+                "-t" "99999999"
+                "-i" "/usr/share/pixmaps/gnome-calendar.png"
+                "Reminder"
+                (format "%s in %s minutes" msg minutes-to-appt)))
+
 
 (setq appt-disp-window-function 'my-appt-disp-window)
 
