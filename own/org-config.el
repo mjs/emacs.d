@@ -9,7 +9,7 @@
 (global-set-key "\C-ca" 'org-agenda)
 (setq org-log-done t)
 
-; Default location of Org files 
+; Default location of Org files
 (setq org-directory "~/Dropbox/Notes")
 
 ; Friendlier TODO insert, can do it from any point on a line and plays nice with Evil
@@ -21,7 +21,7 @@
   (insert "[#2] "))
 
 (defun org-move-to-done-tree ()
-  "Move the current subtree to a monthly DONE tree at the bottom of the file" 
+  "Move the current subtree to a monthly DONE tree at the bottom of the file"
   (interactive)
   ; Hijack the org-archive-sibling-heading functionality by
   ; temporarily shadowing the settings it uses
@@ -37,18 +37,18 @@ Arg is passed through to `org-deadline'."
   (org-agenda-check-type t 'agenda 'timeline 'todo 'tags 'search)
   (org-agenda-check-no-diary)
   (let* ((marker (or (org-get-at-bol 'org-marker)
-		     (org-agenda-error)))
-	 (buffer (marker-buffer marker))
-	 (pos (marker-position marker))
-	 (org-insert-labeled-timestamps-at-point nil)
-	 ts)
+                     (org-agenda-error)))
+         (buffer (marker-buffer marker))
+         (pos (marker-position marker))
+         (org-insert-labeled-timestamps-at-point nil)
+         ts)
     (org-with-remote-undo buffer
       (with-current-buffer buffer
-	(widen)
-	(goto-char pos)
-	(setq ts (org-deadline arg time)))   ; this line changed
+        (widen)
+        (goto-char pos)
+        (setq ts (org-deadline arg time)))   ; this line changed
       (org-agenda-show-new-time marker ts "D"))
-	(message "Deadline for this item set to %s" ts)))
+        (message "Deadline for this item set to %s" ts)))
 
 (defun org-deadline-today ()
   "Set an org mode item to have a deadline of today"
