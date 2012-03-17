@@ -1,16 +1,25 @@
 (provide 'fade)
 
+;; XXX add support for multiple fades at the same time by passing the overlay to fade/step
+;; XXX control of fade interval and step
+
 (defun fade/start ()
   (interactive)
-  (when (not (local-variable-p 'fade-color))
-    (make-local-variable 'fade-color)
-    (make-local-variable 'fade-timer))
-  (buffer-face-mode 1)
+  (make-local-variable 'fade-color)
+  (make-local-variable 'fade-overlay)
   (setq fade-color "#ffffff")
+  (if (and (boundp 'fade-overlay) (overlayp 'fade-overlay))
+      (move-overlay fade-overlay (point-min) (point-max))
+    (setq fade-overlay (make-overlay (point-min) (point-max))))
   (fade/step))
 
+(defun fade/clear ()
+  (interactive)
+  (when (overlayp fade-overlay)
+    (delete-overlay fade-overlay)))
+
 (defun fade/step ()
-  (buffer-face-set (list :foreground fade-color))
+  (overlay-put fade-overlay 'face (list :foreground fade-color))
   (setq fade-color (fade/color-triple-to-name (mapcar 'fade/step-color-value
                                               (color-values fade-color))))
   (unless (string= fade-color "#000000")
