@@ -30,7 +30,8 @@
     (org-archive-to-archive-sibling)))
 
 ; Modified version that takes a time to pass to org-deadline as well as the "remove" argument
-(defun org-agenda-deadline (arg &optional time)
+; Note: this advice doesn't call the original org-agenda-deadline
+(defadvice org-agenda-deadline (around org-agenda-deadline-around first (arg &optional time) activate)
   "Schedule the item at point.
 Arg is passed through to `org-deadline'."
   (interactive "P")
@@ -49,6 +50,7 @@ Arg is passed through to `org-deadline'."
         (setq ts (org-deadline arg time)))   ; this line changed
       (org-agenda-show-new-time marker ts "D"))
         (message "Deadline for this item set to %s" ts)))
+
 
 (defun org-deadline-today ()
   "Set an org mode item to have a deadline of today"
