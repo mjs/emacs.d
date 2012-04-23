@@ -20,12 +20,14 @@
 (require 'elemental)
 
 (define-key evil-normal-state-map "S" 'replace-symbol-at-point)
-(define-key evil-normal-state-map "=" 'increment-number-at-point)
-(define-key evil-normal-state-map "-" 'decrement-number-at-point)
+;; (define-key evil-normal-state-map "=" 'increment-number-at-point)
+;; (define-key evil-normal-state-map "-" 'decrement-number-at-point)
 
-(define-key evil-normal-state-map ")" 'elem-forward-one)
-(define-key evil-normal-state-map "(" 'elem-backward-one)
-(define-key evil-normal-state-map "gs" 'elem-transpose)
-(define-key evil-normal-state-map "gS" 'elem-transpose-backward)
+(define-key evil-normal-state-map ")" 'elem/forward-one)
+(define-key evil-normal-state-map "(" 'elem/backward-one)
+(define-key evil-normal-state-map "gs" 'elem/transpose)
+(define-key evil-normal-state-map "gS" '(lambda ()
+                                          (interactive)
+                                          (elem/transpose -1)))
 
 (provide 'evil-config)
