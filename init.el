@@ -290,6 +290,12 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
+(defun eval-buffer-and-run-ert ()
+  (interactive)
+  (eval-buffer)
+  (ert "t"))
+(global-set-key [f5] 'eval-buffer-and-run-ert)
+
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
