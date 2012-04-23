@@ -9,19 +9,19 @@
 (global-set-key "\C-ca" 'org-agenda)
 (setq org-log-done t)
 
-; Default location of Org files 
+; Default location of Org files
 (setq org-directory "~/Dropbox/Notes")
 
-; Friendlier TODO insert, can do it from any point on a line and plays nice with viper mode
+; Friendlier TODO insert, can do it from any point on a line and plays nice with Evil
 (defun my-org-insert-todo-heading ()
   (interactive)
   (move-beginning-of-line nil)
   (org-insert-todo-heading 0)
-  (viper-insert 0)
+  (evil-insert 0)
   (insert "[#2] "))
 
 (defun org-move-to-done-tree ()
-  "Move the current subtree to a monthly DONE tree at the bottom of the file" 
+  "Move the current subtree to a monthly DONE tree at the bottom of the file"
   (interactive)
   ; Hijack the org-archive-sibling-heading functionality by
   ; temporarily shadowing the settings it uses
@@ -30,25 +30,27 @@
     (org-archive-to-archive-sibling)))
 
 ; Modified version that takes a time to pass to org-deadline as well as the "remove" argument
-(defun org-agenda-deadline (arg &optional time)
+; Note: this advice doesn't call the original org-agenda-deadline
+(defadvice org-agenda-deadline (around org-agenda-deadline-around first (arg &optional time) activate)
   "Schedule the item at point.
 Arg is passed through to `org-deadline'."
   (interactive "P")
   (org-agenda-check-type t 'agenda 'timeline 'todo 'tags 'search)
   (org-agenda-check-no-diary)
   (let* ((marker (or (org-get-at-bol 'org-marker)
-		     (org-agenda-error)))
-	 (buffer (marker-buffer marker))
-	 (pos (marker-position marker))
-	 (org-insert-labeled-timestamps-at-point nil)
-	 ts)
+                     (org-agenda-error)))
+         (buffer (marker-buffer marker))
+         (pos (marker-position marker))
+         (org-insert-labeled-timestamps-at-point nil)
+         ts)
     (org-with-remote-undo buffer
       (with-current-buffer buffer
-	(widen)
-	(goto-char pos)
-	(setq ts (org-deadline arg time)))   ; this line changed
+        (widen)
+        (goto-char pos)
+        (setq ts (org-deadline arg time)))   ; this line changed
       (org-agenda-show-new-time marker ts "D"))
-	(message "Deadline for this item set to %s" ts)))
+        (message "Deadline for this item set to %s" ts)))
+
 
 (defun org-deadline-today ()
   "Set an org mode item to have a deadline of today"
@@ -86,5 +88,41 @@ Arg is passed through to `org-deadline'."
           (todo)))))
 
 
+; Erase all reminders and rebuilt reminders for today from the agenda
+(defun my-org-agenda-to-appt ()
+  (interactive)
+  (setq appt-time-msg-list nil)
+  (org-agenda-to-appt))
+
+; Rebuild the reminders everytime the agenda is displayed
+(add-hook 'org-finalize-agenda-hook 'my-org-agenda-to-appt 'append)
+
+; Activate appointments so we get notifications
+(appt-activate t)
+
+; If we leave Emacs running overnight - reset the appointments one minute after midnight
+(run-at-time "24:01" nil 'my-org-agenda-to-appt)
+
+(defun zip (&rest seqs)
+  (apply 'mapcar* 'list seqs))
+
+; Show appointment reminders using notify-send (goes over DBUS to whatever displays them)
+(defun my-appt-disp-window (minutes-to-appt new-time appt-msg)
+  (when (server-running-p)
+    (when (not (listp minutes-to-appt))
+      (setq minutes-to-appt (list minutes-to-appt))
+      (setq appt-msg (list appt-msg)))
+    (dolist (details (zip appt-msg minutes-to-appt))
+      (apply 'my-appt-notify details))))
+
+(defun my-appt-notify (msg minutes-to-appt)
+  (call-process "notify-send" nil 0 nil
+                "-t" "99999999"
+                "-i" "/usr/share/pixmaps/gnome-calendar.png"
+                "Reminder"
+                (format "%s in %s minutes" msg minutes-to-appt)))
+
+
+(setq appt-disp-window-function 'my-appt-disp-window)
 
 (provide 'org-config)
