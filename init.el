@@ -44,6 +44,7 @@
  '(sml-modeline-len 14)
  '(sml-modeline-mode t)
  '(sml-modeline-numbers (quote line-numbers))
+ '(tags-revert-without-query t)
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
  '(visible-bell t)
