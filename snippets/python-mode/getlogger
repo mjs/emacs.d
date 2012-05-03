@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: getLogger import
+# key: getlogger
+# --
+from ecn.log import getLogger
+_log = getLogger('$1')
