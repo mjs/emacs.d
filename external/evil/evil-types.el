@@ -60,9 +60,20 @@ If the end position is at the beginning of a line, then:
                       (if (= width 1) "" "s")))))
 
 (evil-define-type inclusive
-  "Include the character under point."
+  "Include the character under point.
+If the end position is at the beginning of a line or the end of a
+line and `evil-want-visual-char-semi-exclusive', then:
+
+* If in visual state return `exclusive' (expanded)."
   :expand (lambda (beg end)
-            (evil-range beg (1+ end)))
+            (if (and evil-want-visual-char-semi-exclusive
+                     (evil-visual-state-p)
+                     (< beg end)
+                     (save-excursion
+                       (goto-char end)
+                       (or (bolp) (eolp))))
+                (evil-range beg end 'exclusive)
+              (evil-range beg (1+ end))))
   :contract (lambda (beg end)
               (evil-range beg (max beg (1- end))))
   :normalize (lambda (beg end)
@@ -253,6 +264,16 @@ the last column is excluded."
   :ex-arg buffer
   (list (when (evil-ex-p) evil-ex-argument)))
 
+(evil-define-interactive-code "<sh>"
+  "Ex shell command argument."
+  :ex-arg shell
+  (list (when (evil-ex-p) evil-ex-argument)))
+
+(evil-define-interactive-code "<fsh>"
+  "Ex file or shell command argument."
+  :ex-arg file-or-shell
+  (list (when (evil-ex-p) evil-ex-argument)))
+
 (evil-define-interactive-code "<sym>"
   "Ex symbolic argument."
   :ex-arg sym
@@ -278,7 +299,7 @@ the last column is excluded."
   "Ex substitution argument."
   :ex-arg substitution
   (when (evil-ex-p)
-    (evil-ex-parse-substitute evil-ex-argument)))
+    (evil-ex-get-substitute-info evil-ex-argument)))
 
 (provide 'evil-types)
 

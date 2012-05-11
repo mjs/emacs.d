@@ -109,7 +109,8 @@ The return value is a list (BEG END TYPE)."
          ,@keys
          :keep-visual t
          (interactive ,@interactive)
-         ,@body))))
+         (evil-with-adjust-cursor
+           ,@body)))))
 
 (defmacro evil-define-union-move (name args &rest moves)
   "Create a movement function named NAME.
@@ -145,40 +146,42 @@ not be performed.
            (evil-goto-max ,@moves))))))
 
 (defmacro evil-narrow-to-line (&rest body)
-  "Narrow BODY to the current line."
+  "Narrow BODY to the current line.
+BODY will signal the errors \"Beginning of line\" or \"End of line\"
+upon reaching the beginning or end of the current line.
+
+\(fn [[KEY VAL]...] BODY...)"
   (declare (indent defun)
            (debug t))
   `(let* ((range (evil-expand (point) (point) 'line))
           (beg (evil-range-beginning range))
-          (end (evil-range-end range)))
+          (end (evil-range-end range))
+          (min (point-min))
+          (max (point-max)))
      (when (save-excursion (goto-char end) (bolp))
        (setq end (max beg (1- end))))
+     ;; don't include the newline in Normal state
      (when (and evil-move-cursor-back
                 (not (evil-visual-state-p))
                 (not (evil-operator-state-p)))
        (setq end (max beg (1- end))))
-     (save-restriction
-       (narrow-to-region beg end)
+     (evil-with-restriction beg end
        (evil-signal-without-movement
-         (condition-case nil
+         (condition-case err
              (progn ,@body)
            (beginning-of-buffer
-            (error "Beginning of line"))
+            (if (= beg min)
+                (signal (car err) (cdr err))
+              (error "Beginning of line")))
            (end-of-buffer
-            (error "End of line")))))))
+            (if (= end max)
+                (signal (car err) (cdr err))
+              (error "End of line"))))))))
 
 ;; we don't want line boundaries to trigger the debugger
 ;; when `debug-on-error' is t
 (add-to-list 'debug-ignored-errors "^Beginning of line$")
 (add-to-list 'debug-ignored-errors "^End of line$")
-
-(defmacro evil-narrow-to-line-if (cond &rest body)
-  "Narrow BODY to the current line if COND yields non-nil."
-  (declare (indent 1)
-           (debug t))
-  `(if ,cond
-       (evil-narrow-to-line ,@body)
-     ,@body))
 
 (defun evil-eobp (&optional pos)
   "Whether point is at end-of-buffer with regard to end-of-line."
@@ -489,29 +492,22 @@ if COUNT is positive, and to the left of it if negative.
                (evil-operator-range-type
                 (evil-get-command-property ',operator :type))
                (orig (point))
-               (state evil-state)
                evil-operator-range-beginning
                evil-operator-range-end
                evil-inhibit-operator)
           (setq evil-inhibit-operator-value nil
                 evil-this-operator this-command)
-          (unwind-protect
-              ,interactive
+          (prog1 ,interactive
             (setq orig (point)
                   evil-inhibit-operator-value evil-inhibit-operator)
             (if ,visual
                 (when (evil-visual-state-p)
                   (evil-visual-expand-region))
-              (when (evil-visual-state-p)
-                (evil-exit-visual-state))
-              (when (region-active-p)
-                (evil-active-region -1)))
+              (when (or (evil-visual-state-p) (region-active-p))
+                (setq deactivate-mark t)))
             (cond
-             ((evil-visual-state-p state)
-              (evil-visual-rotate 'upper-left
-                                  evil-operator-range-beginning
-                                  evil-operator-range-end
-                                  evil-operator-range-type))
+             ((evil-visual-state-p)
+              (evil-visual-rotate 'upper-left))
              ((evil-get-command-property ',operator :move-point)
               (goto-char (or evil-operator-range-beginning orig)))
              (t
@@ -769,7 +765,7 @@ via KEY-VALUE pairs. BODY should evaluate to a list of values.
 \\>[ \f\t\n\r\v]*\\(\\sw+\\)?"
       (1 font-lock-keyword-face)
       (2 font-lock-function-name-face nil t))
-     ("(\\(evil-\\(?:delay\\|narrow\\|save\\|with\\(?:out\\)?\\)\
+     ("(\\(evil-\\(?:delay\\|narrow\\|signal\\|save\\|with\\(?:out\\)?\\)\
 \\(?:-[-[:word:]]+\\)?\\)\\>\[ \f\t\n\r\v]+"
       1 font-lock-keyword-face)
      ("(\\(evil-\\(?:[-[:word:]]\\)*loop\\)\\>[ \f\t\n\r\v]+"

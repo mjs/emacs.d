@@ -569,6 +569,18 @@ the end of the execution of BODY."
     (evil-test-change-state 'replace)
     (evil-test-change-state 'normal)))
 
+(ert-deftest evil-test-change-to-previous-state ()
+  "Change to some state and back."
+  :tags '(evil state)
+  (with-temp-buffer
+    (evil-test-change-state 'normal)
+    (evil-test-change-state 'visual)
+    (evil-test-change-state 'emacs)
+    (evil-change-to-previous-state)
+    (should (eq evil-state 'visual))
+    (evil-change-to-previous-state)
+    (should (eq evil-state 'normal))))
+
 (ert-deftest evil-test-enter-normal-state-disabled ()
   "Enter Normal state even if `evil-local-mode' is disabled"
   :tags '(evil state)
@@ -867,7 +879,19 @@ Below some empty line"
     ";; This buffer is for notes you don't want to save,
 abc
 de[f]
-;; and for Lisp evaluation."))
+;; and for Lisp evaluation.")
+  (ert-info ("Open empty line")
+    (evil-test-buffer
+      "(let (var)\n  [t]est)\n"
+      (emacs-lisp-mode)
+      ("O" [escape])
+      "(let (var)\n[\n]  test)\n"))
+  (ert-info ("Open non-empty line")
+    (evil-test-buffer
+      "(let (var)\n  [t]est)\n"
+      (emacs-lisp-mode)
+      ("Odo-it" [escape])
+      "(let (var)\n  do-i[t]\n  test)\n")))
 
 (ert-deftest evil-test-open-below ()
   "Test `evil-open-below'"
@@ -879,7 +903,19 @@ de[f]
     ";; This buffer is for notes you don't want to save,
 abc
 de[f]
-;; and for Lisp evaluation."))
+;; and for Lisp evaluation.")
+  (ert-info ("Open empty line")
+    (evil-test-buffer
+      "[(]let (var)\n  test)\n"
+      (emacs-lisp-mode)
+      ("o" [escape])
+      "(let (var)\n[\n]  test)\n"))
+  (ert-info ("Open non-empty line")
+    (evil-test-buffer
+      "[(]let (var)\n  test)\n"
+      (emacs-lisp-mode)
+      ("odo-it" [escape])
+      "(let (var)\n  do-i[t]\n  test)\n")))
 
 (ert-deftest evil-test-open-below-folded ()
   "Test `evil-open-below' on folded lines"
@@ -1916,7 +1952,17 @@ and for Lisp evaluation."
 ;; and for Lisp evaluatio[n]>."
       ("D")
       ";; This buffer is for[ ]
-;; and for Lisp evalua")))
+;; and for Lisp evalua"))
+  (ert-info ("Yank full block with block selection")
+    (evil-test-buffer
+      :visual block
+      "line1 l<ine1 line1 line1\nline2 line2\nline3 lin>e3 line3\n"
+      ("D")
+      "line1 [l]\nline2 l\nline3 l\n"
+      ("0P")
+      "ine1 line1 line1line1 l
+ine2            line2 l
+ine3 line3      line3 l\n")))
 
 (ert-deftest evil-test-delete-folded ()
   "Test `evil-delete' on folded lines."
@@ -2478,6 +2524,22 @@ This bufferThis bufferThis buffe[r];; and for Lisp evaluation."))
     ("Vp")
     ";; This buffer is for notes you don't want to save.
 \[;]; This buffer is for notes you don't want to save."))
+
+(ert-deftest evil-test-register ()
+  "Test yanking and pasting to and from register."
+  :tags '(evil yank paste)
+  (evil-test-buffer
+    "[f]oo\n"
+    ("\"aywP")
+    "fo[o]foo\n"
+    ("\"ayyP")
+    "[f]oofoo\nfoofoo\n")
+  (evil-test-buffer
+    "[f]oo\n"
+    ("\"ayw\"Ayw\"aP")
+    "foofo[o]foo\n"
+    ("\"ayy\"Ayy\"aP")
+    "[f]oofoofoo\nfoofoofoo\nfoofoofoo\n"))
 
 (ert-deftest evil-test-align ()
   "Test `evil-align-left', `evil-align-right' and `evil-align-center'."
@@ -3690,8 +3752,30 @@ Below some empty line."))
   (ert-info ("Select text including enclosing quotes")
     (evil-test-buffer
       "This is 'a [t]est' for quote objects."
+      ("v2i'")
+      "This is <'a test[']> for quote objects."))
+  (ert-info ("Select text including enclosing quotes and following space")
+    (evil-test-buffer
+      "This is 'a [t]est' for quote objects."
       ("va'")
-      "This is <'a test[']> for quote objects.")))
+      "This is <'a test'[ ]>for quote objects."))
+  (ert-info ("Select text including enclosing quotes and previous space")
+    (evil-test-buffer
+      "This is 'a [t]est'. For quote objects."
+      ("va'")
+      "This is< 'a test[']>. For quote objects."))
+  (ert-info ("Select text on opening quote")
+    (evil-test-buffer
+      "This is [\"]a test\". For \"quote\" objects."
+      (emacs-lisp-mode)
+      ("va\"")
+      "This is< \"a test[\"]>. For \"quote\" objects."))
+  (ert-info ("Select text on closing quote")
+    (evil-test-buffer
+      "This is \"a test[\"]. For \"quote\" objects."
+      (emacs-lisp-mode)
+      ("va\"")
+      "This is< \"a test[\"]>. For \"quote\" objects.")))
 
 (ert-deftest evil-test-paren-objects ()
   "Test `evil-inner-paren', etc."
@@ -3939,7 +4023,24 @@ Below some empty line."))
 ;; and for Lisp evaluation."
     ("vV")
     "<;; [ ]buffer is for notes you don't want to save,\n>\
-;; and for Lisp evaluation."))
+;; and for Lisp evaluation.")
+  (ert-info ("Test `evil-want-visual-char-semi-exclusive")
+    (let ((evil-want-visual-char-semi-exclusive t))
+      (evil-test-buffer
+        "[;]; This buffer is for notes you don't want to save,
+;; and for Lisp evaluation.
+;; And a third line."
+        ("v")
+        "<[;]>; This buffer is for notes you don't want to save,
+;; and for Lisp evaluation.
+;; And a third line."
+        ("$")
+        "<;; This buffer is for notes you don't want to save,>[
+];; and for Lisp evaluation.
+;; And a third line."
+        ("^jj")
+        "<;; This buffer is for notes you don't want to save,
+;; and for Lisp evaluation.\n>[;]; And a third line."))))
 
 (ert-deftest evil-test-visual-line ()
   "Test Visual line selection"
@@ -4267,6 +4368,101 @@ if no previous selection")
       (":s/X/\\|\\/\\|/g" [return])
       "[a]bc|/|def|/|ghi|/|jkl\n")))
 
+(ert-deftest evil-test-ex-repeat-substitute-replacement ()
+  "Test `evil-ex-substitute' with repeating of previous substitutions."
+  :tags '(evil ex search)
+  (ert-info ("Repeat previous pattern")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar"
+      (":s//BBB" [return])
+      "[x]xx AAA bar BBB bar foo bar"))
+  (ert-info ("Repeat previous replacement")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar"
+      (":s/bar/~" [return])
+      "[x]xx AAA AAA foo bar foo bar"))
+  (ert-info ("Repeat with previous flags")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar"
+      (":s/bar/BBB/&" [return])
+      "[x]xx AAA BBB AAA BBB AAA BBB"))
+  (ert-info ("Repeat previous substitute without flags")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("j:s" [return])
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar foo bar foo bar")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("j&")
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar foo bar foo bar")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("j:&" [return])
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar foo bar foo bar"))
+  (ert-info ("Repeat previous substitute with the same flags")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("j:s//~/&" [return])
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar AAA bar AAA bar")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("j:&&" [return])
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar AAA bar AAA bar"))
+  (ert-info ("Repeat previous substitute with new flags")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      ("j:s g" [return])
+      "xxx AAA bar foo bar foo bar\n[x]xx AAA bar AAA bar AAA bar")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      ("j:& g" [return])
+      "xxx AAA bar foo bar foo bar\n[x]xx AAA bar AAA bar AAA bar"))
+  (ert-info ("Repeat with previous search pattern")
+    (evil-select-search-module 'evil-search-module 'evil-search)
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      ("/bar" [return])
+      "xxx AAA [b]ar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":2s rg" [return])
+      "xxx AAA bar foo bar foo bar\n[x]xx foo AAA foo AAA foo AAA")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA" [return])
+      "[x]xx AAA bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      ("/bar" [return])
+      "xxx AAA [b]ar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":2~ g" [return])
+      "xxx AAA bar foo bar foo bar\n[x]xx foo AAA foo AAA foo AAA"))
+  (ert-info ("Repeat previous substitute globally")
+    (evil-test-buffer
+      "[x]xx foo bar foo bar foo bar\nxxx foo bar foo bar foo bar"
+      (":s/foo/AAA/g" [return])
+      "[x]xx AAA bar AAA bar AAA bar\nxxx foo bar foo bar foo bar"
+      ("g&")
+      "xxx AAA bar AAA bar AAA bar\n[x]xx AAA bar AAA bar AAA bar")))
+
 (ert-deftest evil-test-ex-regex-without-case ()
   "Test `evil-ex-regex-without-case'"
   :tags '(evil ex search)
@@ -4388,7 +4584,18 @@ if no previous selection")
         ("/ ba/+1" [return])
         "foo foo\nbar bar\n[b]az baz\nAnother line\nAnd yet another line"
         ("n")
-        "foo foo\nbar bar\nbaz baz\n[A]nother line\nAnd yet another line"))))
+        "foo foo\nbar bar\nbaz baz\n[A]nother line\nAnd yet another line"))
+    (ert-info ("Test search next after /$")
+      (evil-test-buffer
+        "[l]ine 1\nline 2\n\n\line 4\n"
+        ("/$" [return])
+        "line [1]\nline 2\n\n\line 4\n"
+        ("n")
+        "line 1\nline [2]\n\n\line 4\n"
+        ("n")
+        "line 1\nline 2\n[\n]\line 4\n"
+        ("n")
+        "line 1\nline 2\n\n\line [4]\n"))))
 
 (ert-deftest evil-test-ex-search-pattern-offset ()
   "Test pattern offsets."
@@ -4441,6 +4648,33 @@ if no previous selection")
         "[f]oo foo\nbar bar\nbaz baz\nAnother line\nAnd yet another line"
         ("/bar/e" [return] "//b+1" [return])
         "foo foo\nbar b[a]r\nbaz baz\nAnother line\nAnd yet another line"))))
+
+(ert-deftest evil-test-ex-search-symbol ()
+  "Test search for symbol under point."
+  :tags '(evil ex search)
+  (evil-without-display
+    (evil-select-search-module 'evil-search-modue 'evil-search)
+    (setq evil-ex-search-history nil)
+    (evil-test-buffer
+      "so[m]e text with a strange word
+and here some other stuff
+maybe we need one line more with some text\n"
+      ("*")
+      "some text with a strange word
+and here [s]ome other stuff
+maybe we need one line more with some text\n"
+      ("n")
+      "some text with a strange word
+and here some other stuff
+maybe we need one line more with [s]ome text\n"
+      (ert-info ("Search history")
+        (should (equal evil-ex-search-history '("\\_<some\\_>"))))
+      ("*")
+      "[s]ome text with a strange word
+and here some other stuff
+maybe we need one line more with some text\n"
+      (ert-info ("Search history with double pattern")
+        (should (equal evil-ex-search-history '("\\_<some\\_>")))))))
 
 (ert-deftest evil-test-read ()
   "Test of `evil-read'"
@@ -4509,6 +4743,10 @@ if no previous selection")
                    (operator
                     plus
                     minus)
+                   (sign
+                    ((\? operator) #'$1))
+                   (signed-number
+                    (sign number))
                    (inc
                     (number #'(lambda (n) (1+ n))))
                    (expr
@@ -4581,7 +4819,9 @@ if no previous selection")
                      '((list
                         (string-to-number "1")
                         nil)
-                       . " a 3"))))
+                       . " a 3")))
+      (should (equal (evil-parser "1" 'signed-number grammar t t)
+                     '((signed-number (sign "") (number "1")) . ""))))
     (ert-info ("Lookahead")
       (should (equal (evil-parser "foobar" '("foo" (& "bar")) grammar)
                      '((list "foo") . "bar")))
@@ -4849,6 +5089,47 @@ if no previous selection")
     (ert-info ("Unknown command")
       (should-error (evil-extract-count "°"))
       (should-error (evil-extract-count "12°")))))
+
+(ert-deftest evil-transform-vim-style-regexp ()
+  "Test `evil-transform-vim-style-regexp'"
+  (dolist (repl '((?s . "[[:space:]]")
+                  (?S . "[^[:space:]]")
+                  (?d . "[[:digit:]]")
+                  (?D . "[^[:digit:]]")
+                  (?x . "[[:xdigit:]]")
+                  (?X . "[^[:xdigit:]]")
+                  (?o . "[0-7]")
+                  (?O . "[^0-7]")
+                  (?a . "[[:alpha:]]")
+                  (?A . "[^[:alpha:]]")
+                  (?l . "[a-z]")
+                  (?L . "[^a-z]")
+                  (?u . "[A-Z]")
+                  (?U . "[^A-Z]")
+                  (?y . "\\s")
+                  (?Y . "\\S")
+                  (?w . "\\w")
+                  (?W . "\\W")))
+    (ert-info ((format "Test transform from '\\%c' to '%s'"
+                       (car repl) (cdr repl)))
+      (should (equal (evil-transform-vim-style-regexp
+                      (concat "xxx\\"
+                              (char-to-string (car repl))
+                              "\\"
+                              (char-to-string (car repl))
+                              "\\\\"
+                              (char-to-string (car repl))
+                              "\\\\\\"
+                              (char-to-string (car repl))
+                              "yyy"))
+                     (concat "xxx"
+                             (cdr repl)
+                             (cdr repl)
+                             "\\\\"
+                             (char-to-string (car repl))
+                             "\\\\"
+                             (cdr repl)
+                             "yyy"))))))
 
 ;;; Advice
 
