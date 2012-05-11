@@ -5,6 +5,7 @@
 (setq evil-want-C-i-jump nil)         ; don't let Evil set the binding, we'll do this ourselves
 (setq evil-want-C-u-scroll t)
 (setq evil-shift-width 4)
+(setq evil-search-module 'evil-search)
 
 (require 'evil)
 (evil-mode 1)
