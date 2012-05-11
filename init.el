@@ -313,7 +313,7 @@
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (unless quick-start
-  (desktop-save-mode 1)    ;; reopen previously open buffers
+  ;(desktop-save-mode 1)    ;; reopen previously open buffers
   (server-start)
 
   ;; Allow editing from Chrome
