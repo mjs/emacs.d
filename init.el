@@ -7,7 +7,6 @@
  '(appt-display-format (quote window))
  '(browse-url-browser-function (quote browse-url-generic))
  '(browse-url-generic-program "run-chrome")
- '(case-fold-search nil)
  '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
