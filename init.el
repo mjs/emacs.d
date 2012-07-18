@@ -141,11 +141,6 @@
 (global-set-key (kbd "C-x l") 'magit-log)
 (require 'gitk)         ;; spawn gitk for the current file etc
 
-;; Provide a menu of tags when there's multiple matches
-(require 'etags-select)
-(global-set-key (kbd "M-]") 'etags-select-find-tag-at-point)
-(global-set-key (kbd "M-}") 'etags-select-find-tag)
-
 (defun show-file-name ()
   "Show the full path file name in the minibuffer."
   (interactive)

@@ -17,13 +17,25 @@
 
 ;; Useful bindings
 
-(require 'text-misc)
-(require 'elemental)
+;; Provide a menu of tags when there's multiple matches
+(require 'etags-select)
+(defun etags-select-ultimate-find-tag ()
+  "Try to find the tag at point but if there isn't one then prompt"
+  (interactive)
+  (let ((tag (find-tag-default)))
+    (if tag
+        (etags-select-find tag)
+      (etags-select-find-tag))))
 
+(define-key evil-normal-state-map (kbd "C-]") 'etags-select-ultimate-find-tag)
+(define-key evil-normal-state-map (kbd "M-]") 'etags-select-find-tag)
+
+(require 'text-misc)
 (define-key evil-normal-state-map "S" 'replace-symbol-at-point)
 ;; (define-key evil-normal-state-map "=" 'increment-number-at-point)
 ;; (define-key evil-normal-state-map "-" 'decrement-number-at-point)
 
+(require 'elemental)
 (define-key evil-normal-state-map ")" 'elem/forward-one)
 (define-key evil-normal-state-map "(" 'elem/backward-one)
 (define-key evil-normal-state-map "gs" 'elem/transpose)
