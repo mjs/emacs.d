@@ -236,8 +236,6 @@
 
 ;; Show the column number in the mode line and line numbers down the side
 (column-number-mode)
-(linum-mode)
-(global-linum-mode)      ;; line numbers everywhere
 
 ;; Get OCD about whitespace
 (setq ethan-wspace-face '(t (:background "#05ff00")))
