@@ -104,8 +104,9 @@
 (require 'uniquify)
 (require 'flymake-config)
 (require 'python-config)
-(require 'file-misc)
+(require 'js-config)
 (require 'c-misc)
+(require 'file-misc)
 (require 'misc-misc)
 (require 'insert-timestamp)
 (require 'csv-mode)
@@ -281,10 +282,6 @@
 (add-to-list 'load-path "~/.emacs.d/external/yasnippet")
 (require 'yasnippet)
 (yas/global-mode 1)
-
-;; javascript mode from stevey
-(autoload 'js2-mode "js2" nil t)
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
 
 ;; Haskell support
 ;; TODO: autoload
