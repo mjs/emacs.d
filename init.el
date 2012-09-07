@@ -37,6 +37,7 @@
  '(org-odd-levels-only t)
  '(recentf-max-saved-items 100)
  '(ropemacs-enable-shortcuts nil)
+ '(shell-file-name "/bin/bash")
  '(show-paren-mode t)
  '(size-indication-mode t)
  '(sml-modeline-borders nil)
