@@ -17,6 +17,7 @@
  '(dabbrev-case-fold-search nil)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
+ '(grep-files-aliases (quote (("all" . "* .*") ("el" . "*.el") ("c" . "*.cc *.[ch]xx *.[ch]pp *.[CHh] *.CC *.HH *.[ch]++") ("h" . "*.h") ("l" . "[Cc]hange[Ll]og*") ("m" . "[Mm]akefile*") ("tex" . "*.tex") ("texi" . "*.texi") ("asm" . "*.[sS]"))))
  '(hippie-expand-try-functions-list (quote (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
  '(ido-default-buffer-method (quote selected-window))
  '(ido-default-file-method (quote selected-window))
