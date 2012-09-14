@@ -25,15 +25,13 @@
  '(inferior-lisp-program "java -cp /home/msmits/downloads/clojure-1.1.0/clojure.jar clojure.main")
  '(initial-buffer-choice t)
  '(ispell-program-name "/usr/bin/ispell")
- '(jabber-alert-presence-hooks nil)
- '(jabber-chat-fill-long-lines nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
- '(org-agenda-files nil)
+ '(org-agenda-files nil t)
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
  '(recentf-max-saved-items 100)
@@ -102,6 +100,7 @@
 (sml-modeline-mode t)
 
 ;; TODO: more autoloads!
+(require 'tramp)
 (require 'evil-config)   ; Become like Vim!
 (require 'uniquify)
 (require 'flymake-config)
@@ -111,9 +110,8 @@
 (require 'file-misc)
 (require 'misc-misc)
 (require 'insert-timestamp)
-(require 'csv-mode)
 (require 'lua-mode)
-(require 'post-config)
+; (require 'post-config)
 (require 'org-config)
 (unless quick-start
   (require 'filecache-config))
@@ -304,9 +302,8 @@
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (unless quick-start
-  ;(desktop-save-mode 1)    ;; reopen previously open buffers
   (server-start)
-
   ;; Allow editing from Chrome
   (require 'edit-server)
   (edit-server-start))
+
