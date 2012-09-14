@@ -65,12 +65,14 @@
 ;; FIXME: buffer-local-ize ethan-wspace-errors
 ;;
 ;; FIXME: coding conventions suggest adding a ethan-wspace-unload-hook to unhook
+;;
+;; FIXME: warn if no-nl highlighting is turned on and
+;;    require-final-newline is on. Maybe even turn it off?
 
 ;; We store the whitespace types here.
 ;; Currently each whitespace type is represented as an association list
 ;; with keys :check, :clean, and :highlight, and values symbols of functions
 ;; or whatever.
-(require 'assoc)
 
 (defvar ethan-wspace-types nil
   "The list of all known whitespace types.")
@@ -78,7 +80,7 @@
 ;; Define the format/structure for the each wspace type. Right now it's
 ;; (name . (:foo bar :baz quux)), aka (name :foo bar :baz :quux).
 (defun ethan-wspace-add-type (name args)
-  (aput 'ethan-wspace-types name args))
+  (push (cons name args) ethan-wspace-types))
 
 (defun ethan-wspace-get-type (name)
   (or (assq name ethan-wspace-types)
@@ -89,12 +91,10 @@
 
 (defun ethan-wspace-all-error-types ()
   "The list of all currently-defined types as symbol names."
-  ;; Repeated loads could define types multiple times, so we define
-  ;; this slightly ugly mechanism that stores symbols uniquely in an
-  ;; association list, and then pulls out the names.
-  (let ((type-names nil))
-    (mapc '(lambda (type) (aput 'type-names (car type) t)) ethan-wspace-types)
-    (mapcar 'car type-names)))
+  ;; Repeated loads could define types multiple times, so we
+  ;; deduplicate before returning.
+  (let ((type-names (mapcar 'car ethan-wspace-types)))
+    (delete-dups type-names)))
 
 (defun ethan-wspace-buffer-errors ()
   (let ((errors nil))
@@ -312,7 +312,8 @@ This supercedes (require 'show-wspace) and show-ws-highlight-tabs."
   (if ethan-wspace-highlight-tabs-mode
       (font-lock-add-keywords nil (list ethan-wspace-type-tabs-keyword))
     (font-lock-remove-keywords nil (list ethan-wspace-type-tabs-keyword)))
-  (font-lock-fontify-buffer))
+  (when font-lock-mode ; may be not initialized yet
+    (font-lock-fontify-buffer)))
 
 (ethan-wspace-declare-type tabs :find ethan-wspace-type-tabs-find
                            :clean ethan-wspace-untabify :highlight ethan-wspace-highlight-tabs-mode
@@ -618,7 +619,7 @@ Typically looks like: \"ew:tLNm\".")
 
 (defun ethan-wspace-appropriate-face (&optional frame)
   (let* ((bg (let
-                 ((frameprop (aget (frame-parameters frame) 'background-color)))
+                 ((frameprop (cdr (assoc 'background-color (frame-parameters frame)))))
                (if (or (null frameprop) ; try to handle undefined bgs by using white
                        (equal "unspecified" frameprop)
                        (equal "unspecified-bg" frameprop))
@@ -630,7 +631,6 @@ Typically looks like: \"ew:tLNm\".")
     (setq ethan-wspace-against-background bg)
     (list :background hex)))
 
-;; FIXME: some way to keep trailing-whitespace in sync with this?
 (defvar ethan-wspace-against-background nil
   "The last background we used to compute ethan-wspace-face.")
 
@@ -656,12 +656,7 @@ user knows best."
 
 ;; show-trailing-whitespace uses the face `trailing-whitespace', so we
 ;; make this mirror `ethan-wspace-face'.
-;(copy-face 'ethan-wspace-face 'trailing-whitespace)
-(defun ethan-wspace-face-updated ()
-  (let ((attribs (list (list t (face-attr-construct 'ethan-wspace-face)))))
-    (face-spec-set 'trailing-whitespace attribs nil)))
-
-(ethan-wspace-face-updated)
+(put 'trailing-whitespace 'face-alias 'ethan-wspace-face)
 
 (defun ethan-wspace-update-face (&optional frame)
   ;(message "Computing face %S %s %S" frame (frame-parameter frame 'name) (frame-parameters frame))
@@ -669,10 +664,9 @@ user knows best."
               ; Don't compute face for tooltips; causes breakage with "Invalid face"
               (equal (frame-parameter frame 'name) "tooltip")
               (eq ethan-wspace-against-background
-                  (aget (frame-parameters frame) 'background-color)))
-    ;(message "updating face for frame %s : was %S, now %S" frame ethan-wspace-against-background (aget (frame-parameters frame) 'background-color))
-    (face-spec-set 'ethan-wspace-face (list (list t (ethan-wspace-appropriate-face frame))))
-    (ethan-wspace-face-updated)))
+                  (cdr (assoc 'background-color (frame-parameters frame)))))
+    ;(message "updating face for frame %s : was %S, now %S" frame ethan-wspace-against-background (assoc 'background-color (frame-parameters frame)))
+    (face-spec-set 'ethan-wspace-face (list (list t (ethan-wspace-appropriate-face frame))))))
 
 (add-hook 'window-configuration-change-hook 'ethan-wspace-update-face)
 
@@ -716,7 +710,8 @@ This just activates each whitespace type in this buffer."
     (remove-hook 'pre-command-hook  'ethan-wspace-pre-command-hook t)
     (remove-hook 'post-command-hook 'ethan-wspace-command-hook t)
     (remove-hook 'hack-local-variables-hook
-                 (function ethan-wspace-hack-local-variables-hook) t)))
+                 (function ethan-wspace-hack-local-variables-hook) t)
+    (ethan-wspace-clean-exit)))
 
 (defun ethan-wspace-update-buffer ()
   (interactive)
@@ -724,6 +719,10 @@ This just activates each whitespace type in this buffer."
     (if (not (memq type ethan-wspace-errors))
         (ethan-wspace-type-deactivate type)
       (ethan-wspace-type-activate type))))
+
+(defun ethan-wspace-clean-exit ()
+  (dolist (type (ethan-wspace-all-error-types))
+    (ethan-wspace-type-deactivate type)))
 
 (defun ethan-wspace-clean-all-modes ()
   "*Turn on clean mode for all whitespace modes."
