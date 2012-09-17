@@ -110,8 +110,14 @@
 (require 'file-misc)
 (require 'misc-misc)
 (require 'insert-timestamp)
+<<<<<<< local
+(require 'csv-mode)
+;;(require 'lua-mode)
+(require 'post-config)
+=======
 (require 'lua-mode)
 ; (require 'post-config)
+>>>>>>> other
 (require 'org-config)
 (unless quick-start
   (require 'filecache-config))
