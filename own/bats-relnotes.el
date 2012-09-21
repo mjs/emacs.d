@@ -4,8 +4,7 @@
 ; - SQL delta helpers
 ; - basic syntax highlighting
 
-(defconst bats-relnotes-title-regex "^  Rev  ")
-(defconst bats-relnotes-header-line-regex "^---------------------")
+(defconst bats-relnotes-title-regex "^ [0-9]+ ")
 
 (defun bats-relnotes-add-titles ()
   (unless (bats-relnotes-has-titles)
