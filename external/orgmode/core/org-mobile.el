@@ -1,10 +1,9 @@
 ;;; org-mobile.el --- Code for asymmetric sync with a mobile device
-;; Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2012 Free Software Foundation, Inc.
 ;;
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 7.4
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -38,6 +37,9 @@
 
 (eval-when-compile (require 'cl))
 
+(declare-function org-pop-to-buffer-same-window
+		  "org-compat" (&optional buffer-or-name norecord label))
+
 (defgroup org-mobile nil
   "Options concerning support for a viewer/editor on a mobile device."
   :tag "Org Mobile"
@@ -63,6 +65,12 @@ org-agenda-text-search-extra-files
 	       (repeat :inline t :tag "Additional files"
 		       (file))))
 
+(defcustom org-mobile-files-exclude-regexp ""
+  "A regexp to exclude files from `org-mobile-files'."
+  :group 'org-mobile
+  :version "24.1"
+  :type 'regexp)
+
 (defcustom org-mobile-directory ""
   "The WebDAV directory where the interaction with the mobile takes place."
   :group 'org-mobile
@@ -77,6 +85,7 @@ Turning on encryption requires to set the same password in the MobileOrg
 application.  Before turning this on, check of MobileOrg does already
 support it - at the time of this writing it did not yet."
   :group 'org-mobile
+  :version "24.1"
   :type 'boolean)
 
 (defcustom org-mobile-encryption-tempfile "~/orgtmpcrypt"
@@ -84,6 +93,7 @@ support it - at the time of this writing it did not yet."
 This must be local file on your local machine (not on the WebDAV server).
 You might want to put this file into a directory where only you have access."
   :group 'org-mobile
+  :version "24.1"
   :type 'directory)
 
 (defcustom org-mobile-encryption-password ""
@@ -104,6 +114,7 @@ it, this also limits the security of this approach.  You can also leave
 this variable empty - Org will then ask for the password once per Emacs
 session."
   :group 'org-mobile
+  :version "24.1"
   :type '(string :tag "Password"))
 
 (defvar org-mobile-encryption-password-session nil)
@@ -128,7 +139,7 @@ been appended to the file given here.  This file should be in
 This should not be changed, because MobileOrg assumes this name.")
 
 (defcustom org-mobile-index-file "index.org"
-  "The index file with inks to all Org files that should be loaded by MobileOrg.
+  "The index file with links to all Org files that should be loaded by MobileOrg.
 Relative to `org-mobile-directory'.  The Address field in the MobileOrg setup
 should point to this file."
   :group 'org-mobile
@@ -143,6 +154,7 @@ custom   all custom agendas defined by the user
 all      the custom agendas and the default ones
 list     a list of selection key(s) as string."
   :group 'org-mobile
+  :version "24.1"
   :type '(choice
 	  (const :tag "Default Agendas" default)
 	  (const :tag "Custom Agendas" custom)
@@ -224,7 +236,7 @@ by the mobile device, this hook should be used to copy the capture file
 directory `org-mobile-directory'.")
 
 (defvar org-mobile-post-pull-hook nil
-  "Hook run after running `org-mobile-pull'.
+  "Hook run after running `org-mobile-pull', only if new items were found.
 If Emacs does not have direct write access to the WebDAV directory used
 by the mobile device, this hook should be used to copy the emptied
 capture file `mobileorg.org' back to the WebDAV directory, for example
@@ -241,7 +253,8 @@ using `rsync' or `scp'.")
   (setq org-mobile-checksum-files nil))
 
 (defun org-mobile-files-alist ()
-  "Expand the list in `org-mobile-files' to a list of existing files."
+  "Expand the list in `org-mobile-files' to a list of existing files.
+Also exclude files matching `org-mobile-files-exclude-regexp'."
   (let* ((include-archives
 	  (and (member 'org-agenda-text-search-extra-files org-mobile-files)
 	       (member 'agenda-archives	org-agenda-text-search-extra-files)
@@ -263,6 +276,13 @@ using `rsync' or `scp'.")
 		      (list f))
 		     (t nil)))
 		  org-mobile-files)))
+	 (files (delete
+		 nil
+		 (mapcar (lambda (f)
+			   (unless (and (not (string= org-mobile-files-exclude-regexp ""))
+					(string-match org-mobile-files-exclude-regexp f))
+			     (identity f)))
+			 files)))
 	 (orgdir-uname (file-name-as-directory (file-truename org-directory)))
 	 (orgdir-re (concat "\\`" (regexp-quote orgdir-uname)))
 	 uname seen rtn file link-name)
@@ -280,6 +300,8 @@ using `rsync' or `scp'.")
 	(push (cons file link-name) rtn)))
     (nreverse rtn)))
 
+(defvar org-agenda-filter)
+
 ;;;###autoload
 (defun org-mobile-push ()
   "Push the current state of Org affairs to the WebDAV directory.
@@ -288,15 +310,17 @@ create all custom agenda views, for upload to the mobile phone."
   (interactive)
   (let ((a-buffer (get-buffer org-agenda-buffer-name)))
     (let ((org-agenda-buffer-name "*SUMO*")
-	  (org-agenda-filter org-agenda-filter)
+	  (org-agenda-tag-filter org-agenda-tag-filter)
 	  (org-agenda-redo-command org-agenda-redo-command))
       (save-excursion
 	(save-window-excursion
+	  (run-hooks 'org-mobile-pre-push-hook)
 	  (org-mobile-check-setup)
 	  (org-mobile-prepare-file-lists)
-	  (run-hooks 'org-mobile-pre-push-hook)
 	  (message "Creating agendas...")
-	  (let ((inhibit-redisplay t)) (org-mobile-create-sumo-agenda))
+	  (let ((inhibit-redisplay t)
+		(org-agenda-files (mapcar 'car org-mobile-files-alist)))
+	    (org-mobile-create-sumo-agenda))
 	  (message "Creating agendas...done")
 	  (org-save-all-org-buffers) ; to save any IDs created by this process
 	  (message "Copying files...")
@@ -382,7 +406,7 @@ agenda view showing the flagged items."
       (error "Cannot write to encryption tempfile %s"
 	     org-mobile-encryption-tempfile))
     (unless (executable-find "openssl")
-      (error "openssl is needed to encrypt files"))))
+      (error "OpenSSL is needed to encrypt files"))))
 
 (defun org-mobile-create-index-file ()
   "Write the index file in the WebDAV directory."
@@ -394,21 +418,14 @@ agenda view showing the flagged items."
 				       org-mobile-directory))
 	file link-name todo-kwds done-kwds tags drawers entry kwds dwds twds)
 
-    (org-prepare-agenda-buffers (mapcar 'car files-alist))
+    (org-agenda-prepare-buffers (mapcar 'car files-alist))
     (setq done-kwds (org-uniquify org-done-keywords-for-agenda))
     (setq todo-kwds (org-delete-all
 		     done-kwds
 		     (org-uniquify org-todo-keywords-for-agenda)))
     (setq drawers (org-uniquify org-drawers-for-agenda))
-    (setq tags (org-uniquify
-		(delq nil
-		      (mapcar
-		       (lambda (e)
-			 (cond ((stringp e) e)
-			       ((listp e)
-				(if (stringp (car e)) (car e) nil))
-			       (t nil)))
-		       org-tag-alist-for-agenda))))
+    (setq tags (mapcar 'car (org-global-tags-completion-table
+			     (mapcar 'car files-alist))))
     (with-temp-file
 	(if org-mobile-use-encryption
 	    org-mobile-encryption-tempfile
@@ -434,8 +451,7 @@ agenda view showing the flagged items."
 			      ((eq (car x) :startgroup) "{")
 			      ((eq (car x) :endgroup) "}")
 			      ((eq (car x) :newline) nil)
-			      ((listp x) (car x))
-			      (t nil)))
+			      ((listp x) (car x))))
 		      def-tags))
       (setq def-tags (delq nil def-tags))
       (setq tags (org-delete-all def-tags tags))
@@ -484,7 +500,7 @@ agenda view showing the flagged items."
 				 org-mobile-directory))
     (save-excursion
       (setq buf (find-file file))
-      (when (and (= (point-min) (point-max))) 
+      (when (and (= (point-min) (point-max)))
 	(insert "\n")
 	(save-buffer)
 	(when org-mobile-use-encryption
@@ -559,11 +575,12 @@ The table of checksums is written to the file mobile-checksums."
 			  (concat "<after>KEYS=" key " TITLE: "
 				  (if (and (stringp desc) (> (length desc) 0))
 				      desc (symbol-name type))
-				  " " match "</after>"))
+				  "</after>"))
 		    settings))
 	(push (list type match settings) new))
-       ((symbolp (nth 2 e))
-	;; A user-defined function, not sure how to handle that yet
+       ((or (functionp (nth 2 e)) (symbolp (nth 2 e)))
+	;; A user-defined function, which can do anything, so simply
+	;; ignore it.
 	)
        (t
 	;; a block agenda
@@ -575,7 +592,7 @@ The table of checksums is written to the file mobile-checksums."
 	  (setq settings
 		(cons (list 'org-agenda-title-append
 			    (concat "<after>KEYS=" gkey "#" (number-to-string
-						      (setq cnt (1+ cnt)))
+							     (setq cnt (1+ cnt)))
 				    " TITLE: " gdesc " " match "</after>"))
 		      settings))
 	  (push (list type match settings) new)))))
@@ -617,12 +634,12 @@ The table of checksums is written to the file mobile-checksums."
 		      (get-text-property (point) 'org-marker)))
 	  (setq sexp (member (get-text-property (point) 'type)
 			     '("diary" "sexp")))
-	  (if (setq pl (get-text-property (point) 'prefix-length))
+	  (if (setq pl (text-property-any (point) (point-at-eol) 'org-heading t))
 	      (progn
 		(setq prefix (org-trim (buffer-substring
-					(point) (+ (point) pl)))
+					(point) pl))
 		      line (org-trim (buffer-substring
-				      (+ (point) pl)
+				      pl
 				      (point-at-eol))))
 		(delete-region (point-at-bol) (point-at-eol))
 		(insert line "<before>" prefix "</before>")
@@ -660,7 +677,7 @@ The table of checksums is written to the file mobile-checksums."
 	    (org-mobile-escape-olp (nth 4 (org-heading-components))))))
 
 (defun org-mobile-escape-olp (s)
-  (let  ((table '((?: . "%3a") (?\[ . "%5b") (?\] . "%5d") (?/ . "%2f"))))
+  (let  ((table '(?: ?/)))
     (org-link-escape s table)))
 
 ;;;###autoload
@@ -806,107 +823,95 @@ If BEG and END are given, only do this in that region."
 	   (not (equal (downcase (substring (match-string 1) 0 2)) "f("))
 	   (incf cnt-new)))
 
+    ;; Find and apply the edits
     (goto-char beg)
     (while (re-search-forward
 	    "^\\*+[ \t]+F(\\([^():\n]*\\)\\(:\\([^()\n]*\\)\\)?)[ \t]+\\[\\[\\(\\(id\\|olp\\):\\([^]\n]+\\)\\)" end t)
-      (setq id-pos (condition-case msg
-		       (org-mobile-locate-entry (match-string 4))
-		     (error (nth 1 msg))))
-      (when (and (markerp id-pos)
-		 (not (member (marker-buffer id-pos) buf-list)))
-	(org-mobile-timestamp-buffer (marker-buffer id-pos))
-	(push (marker-buffer id-pos) buf-list))
-
-      (if (or (not id-pos) (stringp id-pos))
-	  (progn
-	    (goto-char (+ 2 (point-at-bol)))
-	    (insert id-pos " ")
-	    (incf cnt-error))
-	(add-text-properties (point-at-bol) (point-at-eol)
-			     (list 'org-mobile-marker
-				   (or id-pos "Linked entry not found")))))
-
-    ;; OK, now go back and start applying
-    (goto-char beg)
-    (while (re-search-forward "^\\*+[ \t]+F(\\([^():\n]*\\)\\(:\\([^()\n]*\\)\\)?)" end t)
       (catch 'next
-	(setq id-pos (get-text-property (point-at-bol) 'org-mobile-marker))
-	(if (not (markerp id-pos))
-	    (progn
-	      (incf cnt-error)
-	      (insert "UNKNOWN PROBLEM"))
-	  (let* ((action (match-string 1))
-		 (data (and (match-end 3) (match-string 3)))
-		 (bos (point-at-bol))
-		 (eos (save-excursion (org-end-of-subtree t t)))
-		 (cmd (if (equal action "")
-			  '(progn
-			     (incf cnt-flag)
-			     (org-toggle-tag "FLAGGED" 'on)
-			     (and note
-				  (org-entry-put nil "THEFLAGGINGNOTE" note)))
-			(incf cnt-edit)
-			(cdr (assoc action org-mobile-action-alist))))
-		 (note (and (equal action "")
-			    (buffer-substring (1+ (point-at-eol)) eos)))
-		 (org-inhibit-logging 'note) ;; Do not take notes interactively
-		 old new)
-	    (goto-char bos)
-	    (move-marker bos-marker (point))
-	    (if (re-search-forward "^** Old value[ \t]*$" eos t)
-		(setq old (buffer-substring
-			   (1+ (match-end 0))
-			   (progn (outline-next-heading) (point)))))
-	    (if (re-search-forward "^** New value[ \t]*$" eos t)
-		(setq new (buffer-substring
-			   (1+ (match-end 0))
-			   (progn (outline-next-heading)
-				  (if (eobp) (org-back-over-empty-lines))
-				  (point)))))
-	    (setq old (and old (if (string-match "\\S-" old) old nil)))
-	    (setq new (and new (if (string-match "\\S-" new) new nil)))
-	    (if (and note (> (length note) 0))
-		;; Make Note into a single line, to fit into a property
-		(setq note (mapconcat 'identity
-				      (org-split-string (org-trim note) "\n")
-				      "\\n")))
-	    (unless (equal data "body")
-	      (setq new (and new (org-trim new))
-		    old (and old (org-trim old))))
-	    (goto-char (+ 2 bos-marker))
-	    (unless (markerp id-pos)
-	      (insert "BAD REFERENCE ")
-	      (incf cnt-error)
-	      (throw 'next t))
-	    (unless cmd
-	      (insert "BAD FLAG ")
-	      (incf cnt-error)
-	      (throw 'next t))
-	    ;; Remember this place so that we can return
-	    (move-marker marker (point))
-	    (setq org-mobile-error nil)
-	    (save-excursion
-	      (condition-case msg
-		  (org-with-point-at id-pos
-		    (progn
-		  (eval cmd)
-		  (if (member "FLAGGED" (org-get-tags))
-		      (add-to-list 'org-mobile-last-flagged-files
-				   (buffer-file-name (current-buffer))))))
-		(error (setq org-mobile-error msg))))
-	    (when org-mobile-error
-	      (switch-to-buffer (marker-buffer marker))
-	      (goto-char marker)
-	      (incf cnt-error)
-	      (insert (if (stringp (nth 1 org-mobile-error))
-			  (nth 1 org-mobile-error)
-			"EXECUTION FAILED")
-		      " ")
-	      (throw 'next t))
-	    ;; If we get here, the action has been applied successfully
-	    ;; So remove the entry
-	    (goto-char bos-marker)
-	    (delete-region (point) (org-end-of-subtree t t))))))
+	(let* ((action (match-string 1))
+	       (data (and (match-end 3) (match-string 3)))
+	       (id-pos (condition-case msg
+			   (org-mobile-locate-entry (match-string 4))
+			 (error (nth 1 msg))))
+	       (bos (point-at-bol))
+	       (eos (save-excursion (org-end-of-subtree t t)))
+	       (cmd (if (equal action "")
+			'(progn
+			   (incf cnt-flag)
+			   (org-toggle-tag "FLAGGED" 'on)
+			   (and note
+				(org-entry-put nil "THEFLAGGINGNOTE" note)))
+		      (incf cnt-edit)
+		      (cdr (assoc action org-mobile-action-alist))))
+	       (note (and (equal action "")
+			  (buffer-substring (1+ (point-at-eol)) eos)))
+	       (org-inhibit-logging 'note) ;; Do not take notes interactively
+	       old new)
+
+	  (goto-char bos)
+	  (when (and (markerp id-pos)
+		     (not (member (marker-buffer id-pos) buf-list)))
+	    (org-mobile-timestamp-buffer (marker-buffer id-pos))
+	    (push (marker-buffer id-pos) buf-list))
+	  (unless (markerp id-pos)
+	    (goto-char (+ 2 (point-at-bol)))
+	    (if (stringp id-pos)
+		(insert id-pos " ")
+	      (insert "BAD REFERENCE "))
+	    (incf cnt-error)
+	    (throw 'next t))
+	  (unless cmd
+	    (insert "BAD FLAG ")
+	    (incf cnt-error)
+	    (throw 'next t))
+	  (move-marker bos-marker (point))
+	  (if (re-search-forward "^** Old value[ \t]*$" eos t)
+	      (setq old (buffer-substring
+			 (1+ (match-end 0))
+			 (progn (outline-next-heading) (point)))))
+	  (if (re-search-forward "^** New value[ \t]*$" eos t)
+	      (setq new (buffer-substring
+			 (1+ (match-end 0))
+			 (progn (outline-next-heading)
+				(if (eobp) (org-back-over-empty-lines))
+				(point)))))
+	  (setq old (and old (if (string-match "\\S-" old) old nil)))
+	  (setq new (and new (if (string-match "\\S-" new) new nil)))
+	  (if (and note (> (length note) 0))
+	      ;; Make Note into a single line, to fit into a property
+	      (setq note (mapconcat 'identity
+				    (org-split-string (org-trim note) "\n")
+				    "\\n")))
+	  (unless (equal data "body")
+	    (setq new (and new (org-trim new))
+		  old (and old (org-trim old))))
+	  (goto-char (+ 2 bos-marker))
+	  ;; Remember this place so that we can return
+	  (move-marker marker (point))
+	  (setq org-mobile-error nil)
+	  (save-excursion
+	    (condition-case msg
+		(org-with-point-at id-pos
+		  (progn
+		    (eval cmd)
+		    (unless (member data (list "delete" "archive" "archive-sibling" "addheading"))
+		      (if (member "FLAGGED" (org-get-tags))
+			  (add-to-list 'org-mobile-last-flagged-files
+				       (buffer-file-name (current-buffer)))))))
+	      (error (setq org-mobile-error msg))))
+	  (when org-mobile-error
+	    (org-pop-to-buffer-same-window (marker-buffer marker))
+	    (goto-char marker)
+	    (incf cnt-error)
+	    (insert (if (stringp (nth 1 org-mobile-error))
+			(nth 1 org-mobile-error)
+		      "EXECUTION FAILED")
+		    " ")
+	    (throw 'next t))
+	  ;; If we get here, the action has been applied successfully
+	  ;; So remove the entry
+	  (goto-char bos-marker)
+	  (delete-region (point) (org-end-of-subtree t t)))))
     (save-buffer)
     (move-marker marker nil)
     (move-marker end nil)
@@ -967,13 +972,24 @@ is currently a noop.")
   (if (string-match "\\`id:\\(.*\\)$" link)
       (org-id-find (match-string 1 link) 'marker)
     (if (not (string-match "\\`olp:\\(.*?\\):\\(.*\\)$" link))
-	nil
+					; not found with path, but maybe it is to be inserted
+					; in top level of the file?
+	(if (not (string-match "\\`olp:\\(.*?\\)$" link))
+	    nil
+	  (let ((file (match-string 1 link)))
+	    (setq file (org-link-unescape file))
+	    (setq file (expand-file-name file org-directory))
+	    (save-excursion
+	      (find-file file)
+	      (goto-char (point-max))
+	      (newline)
+	      (goto-char (point-max))
+	      (move-marker (make-marker) (point)))))
       (let ((file (match-string 1 link))
-	    (path (match-string 2 link))
-	    (table '((?: . "%3a") (?\[ . "%5b") (?\] . "%5d") (?/ . "%2f"))))
-	(setq file (org-link-unescape file table))
+	    (path (match-string 2 link)))
+	(setq file (org-link-unescape file))
 	(setq file (expand-file-name file org-directory))
-	(setq path (mapcar (lambda (x) (org-link-unescape x table))
+	(setq path (mapcar 'org-link-unescape
 			   (org-split-string path "/")))
 	(org-find-olp (cons file path))))))
 
@@ -984,7 +1000,7 @@ The edit only takes place if the current value is equal (except for
 white space) the OLD.  If this is so, OLD will be replace by NEW
 and the command will return t.  If something goes wrong, a string will
 be returned that indicates what went wrong."
-  (let (current old1 new1)
+  (let (current old1 new1 level)
     (if (stringp what) (setq what (intern what)))
 
     (cond
@@ -1042,6 +1058,36 @@ be returned that indicates what went wrong."
 	  (org-set-tags nil 'align))
 	 (t (error "Heading changed in MobileOrg and on the computer")))))
 
+     ((eq what 'addheading)
+      (if (org-on-heading-p) ; if false we are in top-level of file
+	  (progn
+	    (end-of-line 1)
+	    (org-insert-heading-respect-content)
+	    (org-demote))
+	(beginning-of-line)
+	(insert "* "))
+      (insert new))
+
+     ((eq what 'refile)
+      (org-copy-subtree)
+      (org-with-point-at (org-mobile-locate-entry new)
+	(if (org-on-heading-p) ; if false we are in top-level of file
+	    (progn
+	      (setq level (org-get-valid-level (funcall outline-level) 1))
+	      (org-end-of-subtree t t)
+	      (org-paste-subtree level))
+	  (org-paste-subtree 1)))
+      (org-cut-subtree))
+
+     ((eq what 'delete)
+      (org-cut-subtree))
+
+     ((eq what 'archive)
+      (org-archive-subtree))
+
+     ((eq what 'archive-sibling)
+      (org-archive-to-archive-sibling))
+
      ((eq what 'body)
       (setq current (buffer-substring (min (1+ (point-at-eol)) (point-max))
 				      (save-excursion (outline-next-heading)
@@ -1083,7 +1129,4 @@ A and B must be strings or nil."
 
 (provide 'org-mobile)
 
-;; arch-tag: ace0e26c-58f2-4309-8a61-05ec1535f658
-
 ;;; org-mobile.el ends here
-

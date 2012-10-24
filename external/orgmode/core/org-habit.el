@@ -1,11 +1,10 @@
 ;;; org-habit.el --- The habit tracking code for Org-mode
 
-;; Copyright (C) 2009, 2010 Free Software Foundation, Inc.
+;; Copyright (C) 2009-2012 Free Software Foundation, Inc.
 
 ;; Author: John Wiegley <johnw at gnu dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 7.4
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -67,6 +66,24 @@ Note that even when shown for future days, the graph is always
 relative to the current effective date."
   :group 'org-habit
   :type 'boolean)
+
+(defcustom org-habit-show-all-today nil
+  "If non-nil, will show the consistency graph of all habits on
+today's agenda, even if they are not scheduled."
+  :group 'org-habit
+  :type 'boolean)
+
+(defcustom org-habit-today-glyph ?!
+  "Glyph character used to identify today."
+  :group 'org-habit
+  :version "24.1"
+  :type 'character)
+
+(defcustom org-habit-completed-glyph ?*
+  "Glyph character used to show completed days on which a task was done."
+  :group 'org-habit
+  :version "24.1"
+  :type 'character)
 
 (defface org-habit-clear-face
   '((((background light)) (:background "#8270f9"))
@@ -170,10 +187,18 @@ This list represents a \"habit\" for the rest of this module."
 		   habit-entry scheduled-repeat))
 	(setq deadline (+ scheduled (- dr-days sr-days))))
       (org-back-to-heading t)
-      (while (re-search-forward "- State \"DONE\".*\\[\\([^]]+\\)\\]" end t)
-	(push (time-to-days
-	       (org-time-string-to-time (match-string-no-properties 1)))
-	      closed-dates))
+      (let* ((maxdays (+ org-habit-preceding-days org-habit-following-days))
+	     (reversed org-log-states-order-reversed)
+	     (search (if reversed 're-search-forward 're-search-backward))
+	     (limit (if reversed end (point)))
+	     (count 0))
+	(unless reversed (goto-char end))
+	(while (and (< count maxdays)
+		    (funcall search "- State \"DONE\".*\\[\\([^]]+\\)\\]" limit t))
+	  (push (time-to-days
+		 (org-time-string-to-time (match-string-no-properties 1)))
+		closed-dates)
+	  (setq count (1+ count))))
       (list scheduled sr-days deadline dr-days closed-dates))))
 
 (defsubst org-habit-scheduled (habit)
@@ -289,7 +314,7 @@ current time."
 			      (days-to-time
 			       (- start (time-to-days starting))))))
 
-	      (aset graph index ?*)
+	      (aset graph index org-habit-completed-glyph)
 	      (setq markedp t)
 	      (put-text-property
 	       index (1+ index) 'help-echo
@@ -299,7 +324,7 @@ current time."
 		(setq last-done-date (car done-dates)
 		      done-dates (cdr done-dates))))
 	  (if todayp
-	      (aset graph index ?!)))
+	      (aset graph index org-habit-today-glyph)))
 	(setq face (if (or in-the-past-p todayp)
 		       (car faces)
 		     (cdr faces)))
@@ -317,7 +342,14 @@ current time."
   (let ((inhibit-read-only t) l c
 	(buffer-invisibility-spec '(org-link))
 	(moment (time-subtract (current-time)
-			       (list 0 (* 3600 org-extend-today-until) 0))))
+			       (list 0 (* 3600 org-extend-today-until) 0)))
+	disabled-overlays)
+    ;; Disable filters; this helps with alignment if there are links.
+    (mapc (lambda (ol)
+	    (when (overlay-get ol 'invisible)
+	      (overlay-put ol 'invisible nil)
+	      (setq disabled-overlays (cons ol disabled-overlays))))
+	  (overlays-in (point-min) (point-max)))
     (save-excursion
       (goto-char (if line (point-at-bol) (point-min)))
       (while (not (eobp))
@@ -327,14 +359,15 @@ current time."
 	    (delete-char (min (+ 1 org-habit-preceding-days
 				 org-habit-following-days)
 			      (- (line-end-position) (point))))
-	    (insert (org-habit-build-graph
-		     habit
-		     (time-subtract moment
-				    (days-to-time org-habit-preceding-days))
-		     moment
-		     (time-add moment
-			       (days-to-time org-habit-following-days))))))
-	(forward-line)))))
+	    (insert-before-markers
+	     (org-habit-build-graph
+	      habit
+	      (time-subtract moment (days-to-time org-habit-preceding-days))
+	      moment
+	      (time-add moment (days-to-time org-habit-following-days))))))
+	(forward-line)))
+    (mapc (lambda (ol) (overlay-put ol 'invisible t))
+	  disabled-overlays)))
 
 (defun org-habit-toggle-habits ()
   "Toggle display of habits in an agenda buffer."
@@ -349,7 +382,5 @@ current time."
 (org-defkey org-agenda-mode-map "K" 'org-habit-toggle-habits)
 
 (provide 'org-habit)
-
-;; arch-tag: 64e070d9-bd09-4917-bd44-44465f5ed348
 
 ;;; org-habit.el ends here

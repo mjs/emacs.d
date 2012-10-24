@@ -1,11 +1,10 @@
 ;;; ob-org.el --- org-babel functions for org code block evaluation
 
-;; Copyright (C) 2010  Free Software Foundation, Inc.
+;; Copyright (C) 2010-2012  Free Software Foundation, Inc.
 
 ;; Author: Eric Schulte
 ;; Keywords: literate programming, reproducible research
 ;; Homepage: http://orgmode.org
-;; Version: 7.4
 
 ;; This file is part of GNU Emacs.
 
@@ -33,20 +32,29 @@
 (declare-function org-export-string "org-exp" (string fmt &optional dir))
 
 (defvar org-babel-default-header-args:org
-  '((:results . "raw silent") (:exports . "results"))
+  '((:results . "raw silent") (:exports . "code"))
   "Default arguments for evaluating a org source block.")
 
 (defvar org-babel-org-default-header
   "#+TITLE: default empty header\n"
   "Default header inserted during export of org blocks.")
 
+(defun org-babel-expand-body:org (body params)
+  (dolist (var (mapcar #'cdr (org-babel-get-header params :var)))
+    (setq body (replace-regexp-in-string
+		(regexp-quote (format "$%s" (car var)))  (cdr var) body
+		nil 'literal)))
+  body)
+
 (defun org-babel-execute:org (body params)
   "Execute a block of Org code with.
 This function is called by `org-babel-execute-src-block'."
   (let ((result-params (split-string (or (cdr (assoc :results params)) "")))
-	(body (replace-regexp-in-string "^," "" body)))
+	(body (org-babel-expand-body:org
+	       (replace-regexp-in-string "^," "" body) params)))
     (cond
-     ((member "latex" result-params) (org-export-string body "latex"))
+     ((member "latex" result-params) (org-export-string
+				      (concat "#+Title: \n" body) "latex"))
      ((member "html" result-params)  (org-export-string body "html"))
      ((member "ascii" result-params) (org-export-string body "ascii"))
      (t body))))
@@ -57,6 +65,6 @@ This function is called by `org-babel-execute-src-block'."
 
 (provide 'ob-org)
 
-;; arch-tag: 130af5fe-cc56-46bd-9508-fa0ebd94cb1f
+
 
 ;;; ob-org.el ends here
