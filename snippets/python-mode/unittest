@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: Python unit test
+# key: unittest
+# --
+from mock import Mock, sentinel, call
+from testfixtures import compare, Replacer, ShouldRaise
+from unittest2 import TestCase
+
+from ecn.testutils.dbseed import getEnvironment, connectAndLoad
+
+
+class Test$1(TestCase):
+
+    def setUp(self):
+        pass
+        
+    def test$2(self):
+        assert False
+
