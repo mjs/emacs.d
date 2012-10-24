@@ -73,13 +73,16 @@
  '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
  '(magit-item-highlight ((((class color) (background dark)) (:background "#070707"))))
  '(org-level-1 ((t (:inherit outline-1))))
- '(org-todo ((t (:foreground "Pink"))))
+ '(org-todo ((t (:foreground "goldenrod"))))
+ '(org-upcoming-deadline ((t (:foreground "dark goldenrod"))))
+ '(org-warning ((t (:foreground "light goldenrod"))))
  '(post-emoticon-face ((t (:background "black" :foreground "white"))))
  '(post-signature-text-face ((((class color) (background dark)) (:foreground "lightblue"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t)
  '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
- '(sml-modeline-vis-face ((t (:inherit region :foreground "white")))))
+ '(sml-modeline-vis-face ((t (:inherit region :foreground "white"))))
+ '(tex-verbatim ((t (:foreground "gray")))))
 
 ;; set true to skip non-essential (and slow) startup items
 ;; useful when restarting Emacs a lot to test some new config
