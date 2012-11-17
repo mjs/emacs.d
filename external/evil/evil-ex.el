@@ -1,20 +1,46 @@
-;;; Ex-mode
+;;; evil-ex.el --- Ex-mode
+
+;; Author: Frank Fischer <frank fischer at mathematik.tu-chemnitz.de>
+;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
+;;
+;; This file is NOT part of GNU Emacs.
+
+;;; License:
+
+;; This file is part of Evil.
+;;
+;; Evil is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Evil is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
 
 ;; Ex is implemented as an extensible minilanguage, whose grammar
-;; is stored in `evil-ex-grammar'. Ex commands are defined with
+;; is stored in `evil-ex-grammar'.  Ex commands are defined with
 ;; `evil-ex-define-cmd', which creates a binding from a string
-;; to an interactive function. It is also possible to define key
+;; to an interactive function.  It is also possible to define key
 ;; sequences which execute a command immediately when entered:
 ;; such shortcuts go in `evil-ex-map'.
 ;;
 ;; To provide buffer and filename completion, as well as interactive
 ;; feedback, Ex defines the concept of an argument handler, specified
-;; with `evil-ex-define-argument-type'. In the case of the
+;; with `evil-ex-define-argument-type'.  In the case of the
 ;; substitution command (":s/foo/bar"), the handler incrementally
 ;; highlights matches in the buffer as the substitution is typed.
 
 (require 'evil-common)
 (require 'evil-states)
+
+;;; Code:
 
 (defconst evil-ex-grammar
   '((expression
@@ -33,11 +59,11 @@
      ((\? space) (\? "\\(?:.\\|\n\\)+") #'$2))
     (range
      ("%" #'(evil-ex-full-range))
-     (address (\? "[,;]" address #'$2) #'evil-ex-range))
-    (address
-     (line (\? offset) #'evil-ex-address)
-     ((\? line) offset #'evil-ex-address))
+     (line (\? "[,;]" line #'$2) #'evil-ex-range))
     (line
+     (base (\? offset) #'evil-ex-line)
+     ((\? base) offset #'evil-ex-line))
+    (base
      number
      marker
      search
@@ -82,9 +108,9 @@
      "(.*)" #'(car-safe (read-from-string $1))))
   "Grammar for Ex.
 An association list of syntactic symbols and their definitions.
-The first entry is the start symbol. A symbol's definition may
+The first entry is the start symbol.  A symbol's definition may
 reference other symbols, but the grammar cannot contain
-left recursion. See `evil-parser' for a detailed explanation
+left recursion.  See `evil-parser' for a detailed explanation
 of the syntax.")
 
 (defun evil-ex-p ()
@@ -171,8 +197,8 @@ Otherwise behaves like `delete-backward-char'."
   "Update Ex variables when the minibuffer changes.
 This function is usually called from `after-change-functions'
 hook. If BEG is non-nil (which is the case when called from
-`after-change-functions', then an error description in case if
-incomplete or unknown commands is show."
+`after-change-functions'), then an error description is shown
+in case of incomplete or unknown commands."
   (let* ((prompt (minibuffer-prompt-end))
          (string (or string (buffer-substring prompt (point-max))))
          arg bang cmd count expr func handler range tree type)
@@ -576,7 +602,6 @@ This function calls `evil-ex-update' explicitly when
   "Execute the given command COMMAND."
   (let* ((count (when (numberp range) range))
          (range (when (evil-range-p range) range))
-         (visual (and range (not (evil-visual-state-p))))
          (bang (and (string-match ".!$" command) t))
          (evil-ex-range
           (or range (and count (evil-ex-range count count))))
@@ -589,18 +614,27 @@ This function calls `evil-ex-update' explicitly when
     (when (stringp evil-ex-argument)
       (set-text-properties
        0 (length evil-ex-argument) nil evil-ex-argument))
-    (when visual
-      (evil-visual-select (evil-range-beginning evil-ex-range)
-                          (evil-range-end evil-ex-range)
-                          (evil-type evil-ex-range 'line) -1))
-    (when (evil-visual-state-p)
-      (evil-visual-pre-command evil-ex-command))
-    (unwind-protect
-        (call-interactively evil-ex-command)
-      (when visual
-        (evil-exit-visual-state)))))
+    (let ((buf (current-buffer)))
+      (unwind-protect
+          (if (not evil-ex-range)
+              (call-interactively evil-ex-command)
+            ;; set visual selection to match the region if an explicit
+            ;; range has been specified
+            (let ((ex-range (evil-copy-range evil-ex-range))
+                  beg end)
+              (evil-expand-range ex-range)
+              (setq beg (evil-range-beginning ex-range)
+                    end (evil-range-end ex-range))
+              (evil-sort beg end)
+              (set-mark end)
+              (goto-char beg)
+              (activate-mark)
+              (call-interactively evil-ex-command)))
+        (when (buffer-live-p buf)
+          (with-current-buffer buf
+            (deactivate-mark)))))))
 
-(defun evil-ex-address (base &optional offset)
+(defun evil-ex-line (base &optional offset)
   "Return the line number of BASE plus OFFSET."
   (+ (or base (line-number-at-pos))
      (or offset 0)))
@@ -626,7 +660,8 @@ This function calls `evil-ex-update' explicitly when
   (evil-range
    (evil-line-position beg-line)
    (evil-line-position (or end-line beg-line) -1)
-   'line))
+   'line
+   :expanded t))
 
 (defun evil-ex-full-range ()
   "Return a range encompassing the whole buffer."
@@ -645,20 +680,28 @@ Signal an error if MARKER is in a different buffer."
 (defun evil-ex-re-fwd (pattern)
   "Search forward for PATTERN.
 Returns the line number of the match."
-  (save-excursion
-    (set-text-properties 0 (length pattern) nil pattern)
-    (evil-move-end-of-line)
-    (and (re-search-forward pattern)
-         (line-number-at-pos (1- (match-end 0))))))
+  (condition-case err
+      (save-excursion
+        (set-text-properties 0 (length pattern) nil pattern)
+        (evil-move-end-of-line)
+        (and (re-search-forward pattern nil t)
+             (line-number-at-pos (1- (match-end 0)))))
+    (invalid-regexp
+     (evil-ex-echo (cadr err))
+     nil)))
 
 (defun evil-ex-re-bwd (pattern)
   "Search backward for PATTERN.
 Returns the line number of the match."
-  (save-excursion
-    (set-text-properties 0 (length pattern) nil pattern)
-    (evil-move-beginning-of-line)
-    (and (re-search-backward pattern)
-         (line-number-at-pos (match-beginning 0)))))
+  (condition-case err
+      (save-excursion
+        (set-text-properties 0 (length pattern) nil pattern)
+        (evil-move-beginning-of-line)
+        (and (re-search-backward pattern nil t)
+             (line-number-at-pos (match-beginning 0))))
+    (invalid-regexp
+     (evil-ex-echo (cadr err))
+     nil)))
 
 (defun evil-ex-prev-search ()
   (error "Previous search not yet implemented"))
@@ -671,7 +714,10 @@ NUMBER defaults to 1."
 (defun evil-ex-eval (string &optional start)
   "Evaluate STRING as an Ex command.
 START is the start symbol, which defaults to `expression'."
-  (let ((form (evil-ex-parse string nil start)))
+  ;; disable the mark before executing, otherwise the visual region
+  ;; may be used as operator range instead of the ex-range
+  (let ((form (evil-ex-parse string nil start))
+        transient-mark-mode deactivate-mark)
     (eval form)))
 
 (defun evil-ex-parse (string &optional syntax start)

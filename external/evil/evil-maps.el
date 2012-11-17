@@ -1,7 +1,31 @@
-;;;; Default keymaps
+;;; evil-maps.el --- Default keymaps
+
+;; Author: Vegard Øye <vegard_oye at hotmail.com>
+;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
+;;
+;; This file is NOT part of GNU Emacs.
+
+;;; License:
+
+;; This file is part of Evil.
+;;
+;; Evil is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Evil is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
 
 (require 'evil-states)
 (require 'evil-ex)
+
+;;; Code:
 
 ;;; Normal state
 
@@ -54,7 +78,6 @@
 (define-key evil-normal-state-map "." 'evil-repeat)
 (define-key evil-normal-state-map "@" 'evil-execute-macro)
 (define-key evil-normal-state-map "\"" 'evil-use-register)
-(define-key evil-normal-state-map "\\" 'evil-execute-in-emacs-state)
 (define-key evil-normal-state-map "~" 'evil-invert-char)
 (define-key evil-normal-state-map "=" 'evil-indent)
 (define-key evil-normal-state-map "<" 'evil-shift-left)
@@ -213,6 +236,7 @@
 (define-key evil-motion-state-map (kbd "C-o") 'evil-jump-backward)
 (define-key evil-motion-state-map (kbd "C-y") 'evil-scroll-line-up)
 (define-key evil-motion-state-map (kbd "RET") 'evil-ret)
+(define-key evil-motion-state-map "\\" 'evil-execute-in-emacs-state)
 (define-key evil-motion-state-map "z^" 'evil-scroll-top-line-to-bottom)
 (define-key evil-motion-state-map "z+" 'evil-scroll-bottom-line-to-top)
 (define-key evil-motion-state-map "zt" 'evil-scroll-line-to-top)
@@ -342,6 +366,12 @@
 (define-key minibuffer-local-map "\C-x\C-p" 'evil-complete-next-line)
 (define-key minibuffer-local-map "\C-x\C-n" 'evil-complete-previous-line)
 
+;;; Mouse
+(define-key evil-motion-state-map [down-mouse-1] 'evil-mouse-drag-region)
+(define-key evil-visual-state-map [mouse-2] 'evil-exit-visual-and-repeat)
+(define-key evil-normal-state-map [mouse-2] 'mouse-yank-primary)
+(define-key evil-insert-state-map [mouse-2] 'mouse-yank-primary)
+
 ;; Ex
 (define-key evil-motion-state-map ":" 'evil-ex)
 
@@ -365,7 +395,7 @@
 (evil-ex-define-cmd "c[hange]" 'evil-change)
 (evil-ex-define-cmd "d[elete]" 'evil-delete)
 (evil-ex-define-cmd "go[to]" 'evil-goto-char)
-(evil-ex-define-cmd "join" 'evil-join)
+(evil-ex-define-cmd "j[oin]" 'evil-join)
 (evil-ex-define-cmd "le[ft]" 'evil-align-left)
 (evil-ex-define-cmd "ri[ght]" 'evil-align-right)
 (evil-ex-define-cmd "ce[nter]" 'evil-align-center)

@@ -1,7 +1,31 @@
-;;;; Search
+;;; evil-search.el --- Search and substitute
+
+;; Author: Vegard Øye <vegard_oye at hotmail.com>
+;; Maintainer: Vegard Øye <vegard_oye at hotmail.com>
+;;
+;; This file is NOT part of GNU Emacs.
+
+;;; License:
+
+;; This file is part of Evil.
+;;
+;; Evil is free software: you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+;;
+;; Evil is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with Evil.  If not, see <http://www.gnu.org/licenses/>.
 
 (require 'evil-common)
 (require 'evil-ex)
+
+;;; Code:
 
 (defun evil-select-search-module (option module)
   "Change the search module according to MODULE.
@@ -34,7 +58,8 @@ search module is used."
   :type '(radio (const :tag "Emacs built-in isearch." :value isearch)
                 (const :tag "Evil interactive search." :value evil-search))
   :group 'evil
-  :set 'evil-select-search-module)
+  :set 'evil-select-search-module
+  :initialize 'evil-custom-initialize-pending-reset)
 
 (defun evil-search-incrementally (forward regexp-p)
   "Search incrementally for user-entered text."
@@ -532,14 +557,13 @@ The following properties are supported:
                         (while (and (not (eobp))
                                     (evil-ex-search-find-next-pattern pattern)
                                     (<= (match-end 0) end))
-                          (when (< (match-beginning 0) (match-end 0))
-                            (let ((ov (or (pop old-ovs) (make-overlay 0 0))))
-                              (move-overlay ov (match-beginning 0) (match-end 0))
-                              (overlay-put ov 'face face)
-                              (overlay-put ov 'evil-ex-hl (evil-ex-hl-name hl))
-                              (overlay-put ov 'priority 1000)
-                              (push ov new-ovs)
-                              (when match-hook (funcall match-hook hl ov))))
+                          (let ((ov (or (pop old-ovs) (make-overlay 0 0))))
+                            (move-overlay ov (match-beginning 0) (match-end 0))
+                            (overlay-put ov 'face face)
+                            (overlay-put ov 'evil-ex-hl (evil-ex-hl-name hl))
+                            (overlay-put ov 'priority 1000)
+                            (push ov new-ovs)
+                            (when match-hook (funcall match-hook hl ov)))
                           (cond
                            ((not (evil-ex-pattern-whole-line pattern))
                             (forward-line))
@@ -596,7 +620,7 @@ Note that this function ignores the whole-line property of PATTERN."
     (when evil-ex-hl-update-timer
       (cancel-timer evil-ex-hl-update-timer))
     (setq evil-ex-hl-update-timer
-          (run-at-time 0.1 nil
+          (run-at-time evil-ex-hl-update-delay nil
                        #'evil-ex-hl-do-update-highlight
                        (current-buffer)))))
 
@@ -988,13 +1012,17 @@ This handler highlights the pattern of the current substitution."
         (condition-case lossage
             (let* ((result (evil-ex-get-substitute-info arg))
                    (pattern (pop result))
-                   (replacement (pop result)))
+                   (replacement (pop result))
+                   (range (or (evil-copy-range evil-ex-range)
+                              (evil-range (line-beginning-position)
+                                          (line-end-position)
+                                          'line
+                                          :expaned t))))
               (setq evil-ex-substitute-current-replacement replacement)
-              (apply #'evil-ex-hl-set-region
-                     'evil-ex-substitute
-                     (or evil-ex-range
-                         (evil-range (line-beginning-position)
-                                     (line-end-position))))
+              (evil-expand-range range)
+              (evil-ex-hl-set-region 'evil-ex-substitute
+                                     (evil-range-beginning range)
+                                     (evil-range-end range))
               (evil-ex-hl-change 'evil-ex-substitute pattern))
           (end-of-file
            (evil-ex-pattern-update-ex-info nil

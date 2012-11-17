@@ -1,4 +1,4 @@
-SHELL = /bin/bash
+SHELL = /bin/sh
 EMACS = emacs
 FILES = $(filter-out evil-tests.el,$(filter-out evil-pkg.el,$(wildcard evil*.el)))
 VERSION := $(shell sed -n '3s/.*"\(.*\)".*/\1/p' evil-pkg.el)
@@ -53,14 +53,14 @@ clean:
 #       make test TAG=repeat
 # This will only run tests pertaining to the repeat system.
 test:
-	$(EMACS) --batch -Q -L . $(LIBS) -l evil-tests.el \
+	$(EMACS) -nw -Q -L . $(LIBS) -l evil-tests.el \
 --eval "(evil-tests-initialize '(${TAG}) '(${PROFILER}))"
 
 # Byte-compile Evil and run all tests.
 tests: compile
-	$(EMACS) --batch -Q -L . $(LIBS) -l evil-tests.el \
+	$(EMACS) -nw -Q -L . $(LIBS) -l evil-tests.el \
 --eval "(evil-tests-initialize '(${TAG}) '(${PROFILER}))"
-	rm -f *.elc
+	rm -f *.elc .depend
 
 # Load Evil in a fresh instance of Emacs and run all tests.
 emacs:
@@ -110,5 +110,5 @@ elpa:
 
 # Change the version using make VERSION=x.y.z
 version:
-	cat evil-pkg.el | sed "3s/\".*\"/\"${VERSION}\"/" > evil-pkg.el
+	cat evil-pkg.el | sed "3s/\".*\"/\"${VERSION}\"/" > evil-pkg.el.new && mv evil-pkg.el.new evil-pkg.el
 
