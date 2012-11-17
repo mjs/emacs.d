@@ -15,7 +15,6 @@
 ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
 (global-set-key (kbd "C-p") 'universal-argument)
 
-;; Useful bindings
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
@@ -27,13 +26,17 @@
         (etags-select-find tag)
       (etags-select-find-tag))))
 
+;; Useful bindings
+
 (define-key evil-normal-state-map (kbd "C-]") 'etags-select-ultimate-find-tag)
 (define-key evil-normal-state-map (kbd "M-]") 'etags-select-find-tag)
 
 (require 'text-misc)
 (define-key evil-normal-state-map "S" 'replace-symbol-at-point)
-;; (define-key evil-normal-state-map "=" 'increment-number-at-point)
-;; (define-key evil-normal-state-map "-" 'decrement-number-at-point)
+
+(require 'evil-numbers)
+(define-key evil-normal-state-map "=" 'evil-numbers/inc-at-pt)
+(define-key evil-normal-state-map "-" 'evil-numbers/dec-at-pt)
 
 (require 'elemental)
 (define-key evil-normal-state-map ")" 'elem/forward-one)

@@ -1,10 +1,10 @@
 ;;; org-velocity.el --- something like Notational Velocity for Org.
 
-;; Copyright (C) 2010 Paul M. Rodriguez
+;; Copyright (C) 2010-2012 Paul M. Rodriguez
 
 ;; Author: Paul M. Rodriguez <paulmrodriguez@gmail.com>
 ;; Created: 2010-05-05
-;; Version: 2.2
+;; Version: 3.0
 
 ;; This file is not part of GNU Emacs.
 
@@ -22,87 +22,113 @@
 ;; Suite 330, Boston, MA 02111-1307 USA
 
 ;;; Commentary:
-;; Org-Velocity.el implements an interface for Org inspired by the
-;; minimalist notetaking program Notational Velocity.  The idea is to
-;; allow you to maintain, amass and access brief notes on many
-;; subjects with minimal fuss.
+;; Org-Velocity.el is an interface for Org inspired by the minimalist
+;; notetaking program Notational Velocity. The idea is to let you
+;; amass and access brief notes on many subjects with minimal fuss.
+;; Each note is an entry in an ordinary Org file.
 
-;; It can be used in two ways: to store and access notes from any
-;; buffer a universal bucket file; or as a method for navigating any
-;; Org file.
+;; Org-Velocity can be used in two ways: when called outside Org, to
+;; store and access notes in a designated bucket file; or, when called
+;; inside Org, as a method for navigating any Org file. (Setting the
+;; option `org-velocity-always-use-bucket' disables navigation inside
+;; Org files by default, although you can still force this behavior by
+;; calling `org-velocity-read' with an argument.)
 
-;; The name of the bucket-file (`org-velocity-bucket') and whether to
-;; always use it (`org-velocity-always-use-bucket-file') are set
-;; through Customize.  If the bucket file is set but not always to be
-;; used, then calling Org-Velocity outside of Org-mode uses the bucket
-;; file; calling it in Org mode uses the current buffer.  If no bucket
-;; file is set then Org-Velocity only works when called from Org.
-;; Even if the bucket file is always to be used, calling
-;; `org-velocity-read' with an argument will use the current file.
+;; Org-Velocity prompts for search terms in the minibuffer. A list of
+;; headings of entries whose text matches your search is updated as
+;; you type; you can end the search and visit an entry at any time by
+;; clicking on its heading.
 
-;; The interface, unlike its inspiration, is not incremental.
-;; Org-Velocity prompts for search terms in the usual way; if the user
-;; has customized `org-velocity-use-completion', completion is offered
-;; on the headings in the target file.  If the search multiple times
-;; in the target file, a buffer containing a buttonized list of the
-;; headings where it occurs is displayed.  Results beyond what can be
-;; indexed are discarded.  After clicking on a heading, or typing a
-;; character associated with it, the user is taken to the heading.
-;; (Typing 0 forces a new heading to be created.)  If
-;; `org-velocity-edit-indirectly' is so set, the heading and its
-;; subtree are displayed in an indirect buffer.  Otherwise the user is
-;; simply taken to the proper buffer and position.
+;; RET displays the results. If there are no matches, Org-Velocity
+;; offers to create a new entry with your search string as its
+;; heading. If there are matches, it displays a list of results where
+;; the heading of each matching entry is hinted with a number or
+;; letter; clicking a result, or typing the matching hint, opens the
+;; entry for editing in an indirect buffer. 0 forces a new entry; RET
+;; reopens the search for editing.
 
-;; If the user simply hits RET at the prompt, without making a choice,
-;; then the search is restored for editing.  A blank search quits.
-;; This method of selection is obviously not as slick as the original,
-;; but probably more useful for a keyboard-driven interface.
+;; You can customize every step in this process, including the search
+;; method, completion for search terms, and templates for creating new
+;; entries; M-x customize-group RET org-velocity RET to see all the
+;; options.
 
-;; If the search does not occur in the file the user is offered a
-;; choice to create a new heading named with the search.  Org-Velocity
-;; will use `org-capture' or `org-remember' if they are loaded,
-;; preferring `org-capture'.  Otherwise the user is simply taken to a
-;; new heading at the end of the file.
-
-;; Thanks to Richard Riley, Carsten Dominik, and Bastien Guerry for
-;; their suggestions.
+;; Thanks to Richard Riley, Carsten Dominik, Bastien Guerry, and Jeff
+;; Horn for their suggestions.
 
 ;;; Usage:
 ;; (require 'org-velocity)
-;; (setq org-velocity-bucket (concat org-directory "/bucket.org"))
-;; (global-set-key (kbd "C-c v") 'org-velocity-read)
+;; (setq org-velocity-bucket (expand-file-name "bucket.org" org-directory))
+;; (global-set-key (kbd "C-c v") 'org-velocity)
 
 ;;; Code:
 (require 'org)
 (require 'button)
 (require 'electric)
+(require 'dabbrev)
 (eval-when-compile (require 'cl))
 
 (defgroup org-velocity nil
   "Notational Velocity-style interface for Org."
   :tag "Org-Velocity"
   :group 'outlines
-  :group 'hypermedia)
+  :group 'hypermedia
+  :group 'org)
 
 (defcustom org-velocity-bucket ""
   "Where is the bucket file?"
   :group 'org-velocity
   :type 'file)
 
+(defcustom org-velocity-search-is-incremental t
+  "Show results incrementally when possible?"
+  :group 'org-velocity
+  :type 'boolean
+  :safe 'booleanp)
+
+(defcustom org-velocity-show-previews t
+  "Show previews of the text of each heading?"
+  :group 'velocity
+  :type 'boolean
+  :safe 'booleanp)
+
+(defcustom org-velocity-exit-on-match nil
+  "When searching incrementally, exit on a single match?"
+  :group 'org-velocity
+  :type 'boolean
+  :safe 'booleanp)
+
+(defcustom org-velocity-force-new nil
+  "Should exiting the minibuffer with C-j force a new entry?"
+  :group 'org-velocity
+  :type 'boolean
+  :safe 'booleanp)
+
+(defcustom org-velocity-use-search-ring t
+  "Push search to `search-ring' when visiting an entry?
+
+This means that C-s C-s will take you directly to the first
+instance of the search string."
+  :group 'org-velocity
+  :type 'boolean
+  :safe 'booleanp)
+
 (defcustom org-velocity-always-use-bucket nil
   "Use bucket file even when called from an Org buffer?"
   :group 'org-velocity
-  :type 'boolean)
+  :type 'boolean
+  :safe 'booleanp)
 
 (defcustom org-velocity-use-completion nil
-  "Complete on heading names?"
-  :group 'org-velocity
-  :type 'boolean)
+  "Use completion?
 
-(defcustom org-velocity-edit-indirectly t
-  "Edit entries in an indirect buffer or just visit the file?"
+Notwithstanding the value of this option, calling
+`dabbrev-expand' always completes against the text of the bucket
+file."
   :group 'org-velocity
-  :type 'boolean)
+  :type '(choice
+          (const :tag "Do not use completion" nil)
+          (const :tag "Use completion" t))
+  :safe 'booleanp)
 
 (defcustom org-velocity-search-method 'phrase
   "Match on whole phrase, any word, or all words?"
@@ -110,303 +136,370 @@
   :type '(choice
 	  (const :tag "Match whole phrase" phrase)
 	  (const :tag "Match any word" any)
-	  (const :tag "Match all words" all)))
+	  (const :tag "Match all words" all)
+          (const :tag "Match a regular expression" regexp))
+  :safe (lambda (v) (memq v '(phrase any all regexp))))
 
-(defcustom org-velocity-create-method 'capture
-  "Prefer `org-capture', `org-remember', or neither?"
+(defcustom org-velocity-capture-templates
+  '(("v"
+     "Velocity entry"
+     entry
+     (file "")
+     "* %:search\n\n%i%?"))
+  "Use these template with `org-capture'.
+Meanwhile `org-default-notes-file' is bound to `org-velocity-bucket-file'.
+The keyword :search inserts the current search.
+See the documentation for `org-capture-templates'."
   :group 'org-velocity
-  :type '(choice
-	  (const :tag "Prefer capture > remember > default." capture)
-	  (const :tag "Prefer remember > default." remember)
-	  (const :tag "Edit in buffer." buffer)))
+  :type (or (get 'org-capture-templates 'custom-type) 'list))
 
-(defcustom org-velocity-allow-regexps nil
-  "Allow searches to use regular expressions?"
-  :group 'org-velocity
-  :type 'boolean)
+(defsubst org-velocity-grab-preview ()
+  "Grab preview of a subtree.
+The length of the preview is determined by `window-width'.
 
-(defstruct (org-velocity-heading
-	    (:constructor org-velocity-make-heading)
-	    (:type list))
-  (marker (point-marker))
-  (name (substring-no-properties
-	 (org-get-heading))))
+Replace all contiguous whitespace with single spaces."
+  (let ((start (progn
+                 (forward-line 1)
+                 (if (looking-at org-property-start-re)
+                     (re-search-forward org-property-end-re)
+                   (1- (point))))))
+    (mapconcat
+     #'identity
+     (split-string
+      (buffer-substring-no-properties
+       start
+       (min
+        (+ start (window-width))
+        (point-max))))
+     " ")))
 
-(defconst org-velocity-index
-  (eval-when-compile
-   (nconc (number-sequence 49 57) 	;numbers
-	  (number-sequence 97 122)	;lowercase letters
-	  (number-sequence 65 90)))	;uppercase letters
-  "List of chars for indexing results.")
+(defstruct org-velocity-heading buffer position name level preview)
 
-(defun org-velocity-use-file ()
-  "Return the proper file for Org-Velocity to search.
-If `org-velocity-always-use-bucket' is t, use bucket file; complain
-if missing.  Otherwise if this is an Org file, use it."
-  (let ((org-velocity-bucket
-	 (and org-velocity-bucket (expand-file-name org-velocity-bucket))))
-    (if org-velocity-always-use-bucket
-	(or org-velocity-bucket (error "Bucket required but not defined"))
-      (if (and (eq major-mode 'org-mode)
-	       (buffer-file-name))
-	  (buffer-file-name)
-	(or org-velocity-bucket
-	    (error "No bucket and not an Org file"))))))
-
-(defsubst org-velocity-display-buffer ()
-  "Return the proper buffer for Org-Velocity to display in."
-  (get-buffer-create "*Velocity headings*"))
-
-(defsubst org-velocity-bucket-buffer ()
-  "Return proper buffer for bucket operations."
-  (find-file-noselect (org-velocity-use-file)))
-
-(defun org-velocity-quote (search)
-  "Quote SEARCH as a regexp if `org-velocity-allow-regexps' is non-nil.
-Acts like `regexp-quote' on a string, `regexp-opt' on a list."
-  (if org-velocity-allow-regexps
-      search
-    (if (listp search)
-	(regexp-opt search)
-      (regexp-quote search))))
-
-(defun org-velocity-nearest-heading (position)
+(defsubst org-velocity-nearest-heading (position)
   "Return last heading at POSITION.
 If there is no last heading, return nil."
   (save-excursion
     (goto-char position)
-    (unless (org-before-first-heading-p)
-      (org-back-to-heading)
-      (org-velocity-make-heading))))
+    (re-search-backward org-velocity-heading-regexp)
+    (let ((components (org-heading-components)))
+      (make-org-velocity-heading
+       :buffer (current-buffer)
+       :position (point)
+       :name (nth 4 components)
+       :level (nth 0 components)
+       :preview (if org-velocity-show-previews
+                    (org-velocity-grab-preview))))))
 
-(defun org-velocity-make-button-action (heading)
-  "Return a form to visit HEADING."
-  `(lambda (button)
-    (run-hooks 'mouse-leave-buffer-hook) ;turn off temporary modes
-    (if org-velocity-edit-indirectly
-	(org-velocity-edit-entry ',heading)
-      (progn
-	(message "%s" ,(org-velocity-heading-name heading))
-	(switch-to-buffer (marker-buffer
-			   ,(org-velocity-heading-marker heading)))
-	(goto-char (marker-position
-		    ,(org-velocity-heading-marker heading)))))))
+(defconst org-velocity-index
+  (eval-when-compile
+    (nconc (number-sequence 49 57) 	;numbers
+           (number-sequence 97 122)	;lowercase letters
+           (number-sequence 65 90)))	;uppercase letters
+  "List of chars for indexing results.")
+
+(defconst org-velocity-match-buffer-name "*Velocity matches*")
+
+(defconst org-velocity-heading-regexp "^\\* "
+  "Regexp to match only top-level headings.")
+
+(defvar org-velocity-search nil
+  "Variable to bind to current search.")
+
+(defun org-velocity-buffer-file-name (&optional buffer)
+  "Return the name of the file BUFFER saves to.
+Same as function `buffer-file-name' unless BUFFER is an indirect
+buffer or a minibuffer. In the former case, return the file name
+of the base buffer; in the latter, return the file name of
+`minibuffer-selected-window' (or its base buffer)."
+  (let ((buffer (if (minibufferp buffer)
+                    (window-buffer (minibuffer-selected-window))
+                  buffer)))
+    (buffer-file-name
+     (or (buffer-base-buffer buffer)
+         buffer))))
+
+(defun org-velocity-minibuffer-contents ()
+  "Return the contents of the minibuffer when it is active."
+  (if (active-minibuffer-window)
+      (with-current-buffer (window-buffer (active-minibuffer-window))
+        (minibuffer-contents))))
+
+(defsubst org-velocity-singlep (object)
+  "Return t when OBJECT is a list or sequence of one element."
+  (if (consp object)
+      (null (cdr object))
+    (= (length object) 1)))
+
+(defun org-velocity-bucket-file ()
+  "Return the proper file for Org-Velocity to search.
+If `org-velocity-always-use-bucket' is t, use bucket file;
+complain if missing. Otherwise, if an Org file is current, then
+use it."
+  (let ((org-velocity-bucket
+         (when org-velocity-bucket (expand-file-name org-velocity-bucket)))
+        (buffer
+         (let ((buffer-file (org-velocity-buffer-file-name)))
+           (when buffer-file
+             ;; Use the target in capture buffers.
+             (org-find-base-buffer-visiting buffer-file)))))
+    (if org-velocity-always-use-bucket
+        (or org-velocity-bucket (error "Bucket required but not defined"))
+      (if (and (eq (buffer-local-value 'major-mode (or buffer (current-buffer)))
+                   'org-mode)
+               (org-velocity-buffer-file-name))
+          (org-velocity-buffer-file-name)
+        (or org-velocity-bucket
+            (error "No bucket and not an Org file"))))))
+
+(defvar org-velocity-bucket-buffer nil)
+
+(defsubst org-velocity-bucket-buffer ()
+  (or org-velocity-bucket-buffer
+      (find-file-noselect (org-velocity-bucket-file))))
+
+(defsubst org-velocity-match-buffer ()
+  "Return the proper buffer for Org-Velocity to display in."
+  (get-buffer-create org-velocity-match-buffer-name))
+
+(defun org-velocity-beginning-of-headings ()
+  "Goto the start of the first heading."
+  (goto-char (point-min))
+  ;; If we are before the first heading we could still be at the
+  ;; first heading.
+  (or (looking-at org-velocity-heading-regexp)
+      (re-search-forward org-velocity-heading-regexp)))
+
+(defun org-velocity-make-indirect-buffer (heading)
+  "Make or switch to an indirect buffer visiting HEADING."
+
+  (let* ((bucket (org-velocity-heading-buffer heading))
+         (name (org-velocity-heading-name heading))
+         (existing (get-buffer name)))
+    (if (and existing (buffer-base-buffer existing)
+             (equal (buffer-base-buffer existing) bucket))
+        existing
+      (make-indirect-buffer
+       bucket
+       (generate-new-buffer-name (org-velocity-heading-name heading))))))
+
+(defun org-velocity-capture ()
+  "Record a note with `org-capture'."
+  (let ((org-capture-templates
+         org-velocity-capture-templates))
+    (org-capture nil
+                 ;; This is no longer automatically selected.
+                 (when (org-velocity-singlep org-capture-templates)
+                   (caar org-capture-templates)))
+    (if org-capture-mode (rename-buffer org-velocity-search t))))
+
+(defvar org-velocity-saved-winconf nil)
+(make-variable-buffer-local 'org-velocity-saved-winconf)
 
 (defun org-velocity-edit-entry (heading)
   "Edit entry at HEADING in an indirect buffer."
-  (let ((buffer (make-indirect-buffer
-		 (marker-buffer (org-velocity-heading-marker heading))
-		 (generate-new-buffer-name
-		  (org-velocity-heading-name heading)))))
-    (with-current-buffer buffer
-      (let ((org-inhibit-startup t))
-	(org-mode))
-      (goto-char (marker-position (org-velocity-heading-marker heading)))
-      (narrow-to-region (point)
-			(save-excursion
-			  (org-end-of-subtree)
-			  (point)))
-      (goto-char (point-min))
-      (add-hook 'org-ctrl-c-ctrl-c-hook 'org-velocity-dismiss nil t))
-    (pop-to-buffer buffer)
-    (set (make-local-variable 'header-line-format)
-	 (format "%s Use C-c C-c to finish."
-		 (abbreviate-file-name
-		  (buffer-file-name
-		   (marker-buffer
-		    (org-velocity-heading-marker heading))))))))
+  (let ((winconf (current-window-configuration)))
+    (let ((buffer (org-velocity-make-indirect-buffer heading)))
+      (with-current-buffer buffer
+        (let ((org-inhibit-startup t))
+          (org-mode))
+        (setq org-velocity-saved-winconf winconf)
+        (goto-char (org-velocity-heading-position heading))
+        (narrow-to-region (point)
+                          (save-excursion
+                            (org-end-of-subtree t)
+                            (point)))
+        (goto-char (point-min))
+        (add-hook 'org-ctrl-c-ctrl-c-hook 'org-velocity-dismiss nil t))
+      (pop-to-buffer buffer)
+      (set (make-local-variable 'header-line-format)
+           (format "%s Use C-c C-c to finish."
+                   (abbreviate-file-name
+                    (buffer-file-name
+                     (org-velocity-heading-buffer heading))))))))
 
 (defun org-velocity-dismiss ()
   "Save current entry and close indirect buffer."
-  (progn
-    (save-buffer)
-    (kill-buffer)))
+  (let ((winconf org-velocity-saved-winconf))
+    (prog1 t                            ;Tell hook we're done.
+      (save-buffer)
+      (kill-buffer)
+      (when (window-configuration-p winconf)
+        (set-window-configuration winconf)))))
 
-(defun org-velocity-buttonize (heading)
-  "Insert HEADING as a text button."
-  (insert (format "#%c " (nth (1- (line-number-at-pos))
-			      org-velocity-index)))
-  (let ((action (org-velocity-make-button-action heading)))
-   (insert-text-button
-    (org-velocity-heading-name heading)
-    'action action))
-  (newline))
+(defun org-velocity-visit-button (button)
+  (run-hooks 'mouse-leave-buffer-hook)
+  (if org-velocity-use-search-ring
+      (add-to-history 'search-ring
+                      (button-get button 'search)
+                      search-ring-max))
+  (org-velocity-edit-entry (button-get button 'match)))
 
-(defun org-velocity-remember (heading &optional region)
-  "Use `org-remember' to record a note to HEADING.
-If there is a REGION that will be inserted."
-  (let ((org-remember-templates
-	 (list (list
-		"Velocity entry"
-		?v
-		(format "* %s\n\n%%?%s" heading (or region ""))
-		(org-velocity-use-file)
-		'bottom))))
-    (org-remember nil ?v)))
+(define-button-type 'org-velocity-button
+  'action #'org-velocity-visit-button)
 
-(defun org-velocity-capture (heading &optional region)
-  "Use `org-capture' to record a note to HEADING.
-If there is a REGION that will be inserted."
-  (let ((org-capture-templates
-	 (list `("v"
-		 "Velocity entry"
-		 entry
-		 (file ,(org-velocity-use-file))
-		 ,(format "* %s\n\n%%?%s" heading (or region ""))))))
-    (if (fboundp 'org-capture) ;; quiet compiler
-     (org-capture nil "v"))))
+(defsubst org-velocity-buttonize (heading)
+  "Insert HEADING as a text button with no hints."
+  (insert-text-button
+   (propertize (org-velocity-heading-name heading) 'face 'link)
+   :type 'org-velocity-button
+   'match heading
+   'search org-velocity-search))
 
-(defun org-velocity-insert-heading (heading)
-  "Add a new heading named HEADING."
-  (with-current-buffer (org-velocity-bucket-buffer)
-    (goto-char (point-max))
-    (newline)
-    (org-insert-heading) (insert heading)
-    (newline)
-    (goto-char (point-max))))
+(defsubst org-velocity-insert-preview (heading)
+  (when org-velocity-show-previews
+    (insert-char ?\  1)
+    (insert
+     (propertize
+      (org-velocity-heading-preview heading)
+      'face 'shadow))))
 
-(defun org-velocity-create-heading (search region)
-  "Add and visit a new heading named SEARCH.
-If REGION is non-nil insert as the contents of the heading."
-  (org-velocity-insert-heading search)
-  (switch-to-buffer (org-velocity-bucket-buffer))
-  (when region (insert region)))
+(defsubst* org-velocity-present-match (&key hint match)
+  (with-current-buffer (org-velocity-match-buffer)
+    (when hint (insert "#" hint " "))
+    (org-velocity-buttonize match)
+    (org-velocity-insert-preview match)
+    (newline)))
 
-(defun org-velocity-all-search (search)
-  "Return entries containing all words in SEARCH."
-  (when (file-exists-p (org-velocity-use-file))
-   (save-excursion
-     (delq nil
-	   (let ((keywords
-		  (mapcar 'org-velocity-quote
-			  (split-string search)))
-		 (case-fold-search t))
-	     (org-map-entries
-	      (lambda ()
-		(if (loop with limit = (save-excursion
-					 (org-end-of-subtree)
-					 (point))
-			  for word in keywords
-			  always (save-excursion
-				   (re-search-forward word limit t)))
-		    (org-velocity-nearest-heading
-		     (match-beginning 0))))))))))
+(defun org-velocity-generic-search (search &optional hide-hints)
+  "Display any entry containing SEARCH."
+  (let ((hints org-velocity-index) matches)
+    (block nil
+      (while (and hints (re-search-forward search nil t))
+        (let ((match (org-velocity-nearest-heading (point))))
+          (org-velocity-present-match
+           :hint (unless hide-hints (car hints))
+           :match match)
+          (push match matches))
+        (setq hints (cdr hints))
+        (unless (re-search-forward org-velocity-heading-regexp nil t)
+          (return))))
+    (nreverse matches)))
 
-(defun org-velocity-generic-search (search)
-  "Return entries containing SEARCH."
-  (save-excursion
-    (delq nil
-	  (nreverse
-	   (let (matches (case-fold-search t))
-	     (goto-char (point-min))
-	     (while (re-search-forward search
-				       (point-max) t)
-	       (push (org-velocity-nearest-heading (match-beginning 0))
-		     matches)
-	       (outline-next-heading))
-	     matches)))))
+(defun* org-velocity-all-search (search &optional hide-hints max)
+  "Display only entries containing every word in SEARCH."
+  (let ((keywords (mapcar 'regexp-quote (split-string search)))
+        (hints org-velocity-index)
+        matches)
+    (org-map-entries
+     (lambda ()
+       ;; Return if we've run out of hints.
+       (when (null hints)
+         (return-from org-velocity-all-search (nreverse matches)))
+       ;; Only search the subtree once.
+       (setq org-map-continue-from
+             (save-excursion
+               (goto-char (line-end-position))
+               (if (re-search-forward org-velocity-heading-regexp nil t)
+                   (line-end-position)
+                 (point-max))))
+       (when (loop for word in keywords
+                   always (save-excursion
+                            (re-search-forward
+                             (concat "\\<" word "\\>")
+                             org-map-continue-from t)))
+         (let ((match (org-velocity-nearest-heading (match-end 0))))
+           (org-velocity-present-match
+            :hint (unless hide-hints (car hints))
+            :match match)
+           (push match matches)
+           (setq hints (cdr hints))))))
+    (nreverse matches)))
 
-(defsubst org-velocity-phrase-search (search)
-  "Return entries containing SEARCH as a phrase."
-  (org-velocity-generic-search (org-velocity-quote search)))
+(defun* org-velocity-present (search &key hide-hints)
+  "Buttonize matches for SEARCH in `org-velocity-match-buffer'.
+If HIDE-HINTS is non-nil, display entries without indices. SEARCH
+binds `org-velocity-search'.
 
-(defsubst org-velocity-any-search (search)
-  "Return entries containing any word in SEARCH."
-  (org-velocity-generic-search (org-velocity-quote (split-string search))))
+Return matches."
+  (if (and (stringp search) (not (string= "" search)))
+      ;; Fold case when the search string is all lowercase.
+      (let ((case-fold-search (equal search (downcase search)))
+            (truncate-partial-width-windows t))
+        (with-current-buffer (org-velocity-match-buffer)
+          (erase-buffer)
+          ;; Permanent locals.
+          (setq cursor-type nil
+                truncate-lines t))
+        (prog1
+            (with-current-buffer (org-velocity-bucket-buffer)
+              (let ((inhibit-point-motion-hooks t)
+                    (inhibit-field-text-motion t))
+                (save-excursion
+                  (org-velocity-beginning-of-headings)
+                  (case org-velocity-search-method
+                    (all (org-velocity-all-search search hide-hints))
+                    (phrase (org-velocity-generic-search
+                             (concat "\\<" (regexp-quote search))
+                             hide-hints))
+                    (any (org-velocity-generic-search
+                          (concat "\\<"
+                                  (regexp-opt (split-string search)))
+                          hide-hints))
+                    (regexp (condition-case lossage
+                                (org-velocity-generic-search
+                                 search hide-hints)
+                              (invalid-regexp
+                               (minibuffer-message "%s" lossage))))))))
+          (with-current-buffer (org-velocity-match-buffer)
+            (goto-char (point-min)))))
+    (with-current-buffer (org-velocity-match-buffer)
+      (erase-buffer))))
 
-(defun org-velocity-present (headings)
-  "Buttonize HEADINGS in `org-velocity-display-buffer'."
-  (and (listp headings) (delete-dups headings))
-  (let ((cdr (nthcdr
-	      (1- (length org-velocity-index))
-	      headings)))
-    (and (consp cdr) (setcdr cdr nil)))
-  (with-current-buffer (org-velocity-display-buffer)
-    (mapc
-     'org-velocity-buttonize
-     headings)
-    (goto-char (point-min))))
+(defun org-velocity-store-link ()
+  "Function for `org-store-link-functions'."
+  (if org-velocity-search
+      (org-store-link-props
+       :search org-velocity-search)))
 
-(defun org-velocity-create-1 (search region)
-  "Create a new heading named SEARCH.
-If REGION is non-nil insert as contents of new heading.
-The possible methods are `org-velocity-capture',
-`org-velocity-remember', or `org-velocity-create-heading', in
-that order.  Which is preferred is determined by
-`org-velocity-create-method'."
-  (funcall
-   (ecase org-velocity-create-method
-     (capture (or (and (featurep 'org-capture) 'org-velocity-capture)
-		  (and (featurep 'org-remember) 'org-velocity-remember)
-		  'org-velocity-create-heading))
-     (remember (or (and (featurep 'org-remember) 'org-velocity-remember)
-		   'org-velocity-create-heading))
-     (buffer 'org-velocity-create-heading))
-   search region))
+(add-hook 'org-store-link-functions 'org-velocity-store-link)
 
-(defun org-velocity-create (search &optional ask)
+(defun* org-velocity-create (search &key ask)
   "Create new heading named SEARCH.
 If ASK is non-nil, ask first."
-  (if (or (null ask)
-	  (y-or-n-p "No match found, create? "))
-      ;; if there's a region, we want to insert it
-      (let ((region (if (use-region-p)
-			(buffer-substring
-			 (region-beginning)
-			 (region-end)))))
-	(with-current-buffer (org-velocity-bucket-buffer)
-	 (org-velocity-create-1 search region))
-	(when region (message "%s" "Inserted region"))
-	search)))
-
-(defun org-velocity-get-matches (search)
-  "Return matches for SEARCH in current bucket.
-Use method specified by `org-velocity-search-method'."
-  (with-current-buffer (org-velocity-bucket-buffer)
-   (case org-velocity-search-method
-     ('phrase (org-velocity-phrase-search search))
-     ('any    (org-velocity-any-search search))
-     ('all    (org-velocity-all-search search)))))
+  (when (or (null ask) (y-or-n-p "No match found, create? "))
+    (let ((org-velocity-search search)
+	  (org-default-notes-file (org-velocity-bucket-file))
+	  ;; save a stored link
+	  org-store-link-plist)
+      (org-velocity-capture))
+    search))
 
 (defun org-velocity-engine (search)
   "Display a list of headings where SEARCH occurs."
-  (with-current-buffer (org-velocity-display-buffer)
-    (erase-buffer)
-    (setq cursor-type nil))
-  (unless (or
-	   (not (stringp search))
-	   (string-equal "" search))	;exit on empty string
-    (case
-	(with-current-buffer (org-velocity-bucket-buffer)
-	  (save-excursion
-	    (let ((matches (org-velocity-get-matches search)))
-	      (org-velocity-present matches)
-	      (cond ((zerop (length matches)) 'new)
-		    ((= (length matches) 1)   'follow)
-		    ((> (length matches) 1)   'prompt)))))
-      ('prompt (progn
-		 (Electric-pop-up-window (org-velocity-display-buffer))
-		 (let ((hint (org-velocity-electric-follow-hint)))
-		   (if hint
-		       (case hint
-			 (edit (org-velocity-read nil search))
-			 (new (org-velocity-create search))
-			 (otherwise (org-velocity-activate-button hint)))))))
-      ('new (unless (org-velocity-create search t)
-	      (org-velocity-read nil search)))
-      ('follow (if (y-or-n-p "One match, follow? ")
-		   (progn
-		     (set-buffer (org-velocity-display-buffer))
-		     (goto-char (point-min))
-		     (button-activate (next-button (point))))
-		 (org-velocity-read nil search))))))
+  (let ((org-velocity-search search))
+    (unless (or
+             (not (stringp search))
+             (string= "" search))	;exit on empty string
+      (case
+          (if (and org-velocity-force-new (eq last-command-event ?\C-j))
+              :force
+            (let ((matches (org-velocity-present search)))
+              (cond ((null matches) :new)
+                    ((org-velocity-singlep matches) :follow)
+                    (t :prompt))))
+        (:prompt (progn
+                   (pop-to-buffer (org-velocity-match-buffer))
+                   (let ((hint (org-velocity-electric-read-hint)))
+                     (when hint (case hint
+                                  (:edit (org-velocity-read nil search))
+                                  (:force (org-velocity-create search))
+                                  (otherwise (org-velocity-activate-button hint)))))))
+        (:new (unless (org-velocity-create search :ask t)
+                (org-velocity-read nil search)))
+        (:force (org-velocity-create search))
+        (:follow (if (y-or-n-p "One match, follow? ")
+                     (progn
+                       (set-buffer (org-velocity-match-buffer))
+                       (goto-char (point-min))
+                       (button-activate (next-button (point))))
+                   (org-velocity-read nil search)))))))
 
 (defun org-velocity-position (item list)
   "Return first position of ITEM in LIST."
   (loop for elt in list
-	for i from 0
-	if (equal elt item)
-	return i))
+        for i from 0
+        when (equal elt item)
+        return i))
 
 (defun org-velocity-activate-button (char)
   "Go to button on line number associated with CHAR in `org-velocity-index'."
@@ -423,14 +516,18 @@ Use method specified by `org-velocity-search-method'."
   (interactive)
   (message "%s"
 	   (substitute-command-keys
-	    "\\[org-velocity-electric-new] for new entry, \\[org-velocity-electric-edit] to edit search, \\[scroll-up] to scroll."))
+	    "\\[org-velocity-electric-new] for new entry,
+\\[org-velocity-electric-edit] to edit search,
+\\[scroll-up] to scroll up,
+\\[scroll-down] to scroll down,
+\\[keyboard-quit] to quit."))
   (sit-for 4))
 
 (defun org-velocity-electric-follow (ev)
   "Follow a hint indexed by keyboard event EV."
   (interactive (list last-command-event))
   (if (not (> (org-velocity-position ev org-velocity-index)
-	   (1- (count-lines (point-min) (point-max)))))
+              (1- (count-lines (point-min) (point-max)))))
       (throw 'org-velocity-select ev)
     (call-interactively 'org-velocity-electric-undefined)))
 
@@ -446,43 +543,109 @@ Use method specified by `org-velocity-search-method'."
 (defun org-velocity-electric-edit ()
   "Edit the search string."
   (interactive)
-  (throw 'org-velocity-select 'edit))
+  (throw 'org-velocity-select :edit))
 
 (defun org-velocity-electric-new ()
   "Force a new entry."
   (interactive)
-  (throw 'org-velocity-select 'new))
+  (throw 'org-velocity-select :force))
 
 (defvar org-velocity-electric-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [t] 'org-velocity-electric-undefined)    (loop for c in org-velocity-index
+    (define-key map [t] 'org-velocity-electric-undefined)
+    (loop for c in org-velocity-index
 	  do (define-key map (char-to-string c) 'org-velocity-electric-follow))
     (define-key map "0" 'org-velocity-electric-new)
-    (define-key map [tab] 'scroll-up)
-    (define-key map [return] 'org-velocity-electric-edit)
+    (define-key map "\C-v" 'scroll-up)
+    (define-key map "\M-v" 'scroll-down)
+    (define-key map (kbd "RET") 'org-velocity-electric-edit)
     (define-key map [mouse-1] 'org-velocity-electric-click)
     (define-key map [mouse-2] 'org-velocity-electric-click)
-    (define-key map [escape escape escape] 'keyboard-quit)
+    (define-key map [escape] 'keyboard-quit)
     (define-key map "\C-h" 'help-command)
     map))
 
-(defun org-velocity-electric-follow-hint ()
+(defun org-velocity-electric-read-hint ()
   "Read index of button electrically."
-  (with-current-buffer (org-velocity-display-buffer)
+  (with-current-buffer (org-velocity-match-buffer)
     (use-local-map org-velocity-electric-map)
     (catch 'org-velocity-select
-      (Electric-command-loop 'org-velocity-select
-			     "Follow: "))))
+      (Electric-command-loop 'org-velocity-select "Follow: "))))
+
+(defvar org-velocity-incremental-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map [mouse-1] 'org-velocity-click-for-incremental)
+    (define-key map [mouse-2] 'org-velocity-click-for-incremental)
+    (define-key map "\C-v" 'scroll-up)
+    (define-key map "\M-v" 'scroll-down)
+    map))
+
+(defun org-velocity-click-for-incremental ()
+  "Jump out of search and select hint clicked on."
+  (interactive)
+  (let ((ev last-command-event))
+    (org-velocity-activate-button
+     (nth (- (count-lines
+              (point-min)
+              (posn-point (event-start ev))) 2)
+          org-velocity-index)))
+  (throw 'click (current-buffer)))
+
+(defun org-velocity-displaying-completions-p ()
+  "Is there a *Completions* buffer showing?"
+  (get-window-with-predicate
+   (lambda (w)
+     (eq (buffer-local-value 'major-mode (window-buffer w))
+         'completion-list-mode))))
+
+(defun org-velocity-update ()
+  "Display results of search without hinting.
+Stop searching once there are more matches than can be displayed."
+  (unless (org-velocity-displaying-completions-p)
+    (let* ((search (org-velocity-minibuffer-contents))
+           (matches (org-velocity-present search :hide-hints t)))
+      (cond ((null matches)
+             (select-window (active-minibuffer-window))
+             (unless (or (null search) (string= "" search))
+               (minibuffer-message "No match; RET to create")))
+            ((and (org-velocity-singlep matches)
+                  org-velocity-exit-on-match)
+             (throw 'click search))
+            (t
+             (with-current-buffer (org-velocity-match-buffer)
+               (use-local-map org-velocity-incremental-keymap)))))))
+
+(defvar dabbrev--last-abbrev)
+
+(defun org-velocity-dabbrev-completion-list (abbrev)
+  "Return all dabbrev completions for ABBREV."
+  ;; This is based on `dabbrev-completion'.
+  (dabbrev--reset-global-variables)
+  (setq dabbrev--last-abbrev abbrev)
+  (dabbrev--find-all-expansions abbrev case-fold-search))
+
+(defvar org-velocity-local-completion-map
+  (let ((map (make-sparse-keymap)))
+    (set-keymap-parent map minibuffer-local-completion-map)
+    (define-key map " " 'self-insert-command)
+    (define-key map [remap minibuffer-complete] 'minibuffer-complete-word)
+    map)
+  "Keymap for completion with `completing-read'.")
 
 (defun org-velocity-read-with-completion (prompt)
-  "Like `completing-read' on entries with PROMPT.
-Use `minibuffer-local-filename-completion-map'."
+  "Completing read with PROMPT."
   (let ((minibuffer-local-completion-map
-	 minibuffer-local-filename-completion-map))
-    (completing-read
+         org-velocity-local-completion-map)
+        (completion-no-auto-exit t)
+        (crm-separator " "))
+    (funcall
+     (case org-velocity-search-method
+       (phrase #'completing-read)
+       (any    #'completing-read-multiple)
+       (all    #'completing-read-multiple))
      prompt
-     (mapcar 'substring-no-properties
-	     (org-map-entries 'org-get-heading)))))
+     (completion-table-dynamic
+      'org-velocity-dabbrev-completion-list))))
 
 (defun org-velocity-read-string (prompt &optional initial-input)
   "Read string with PROMPT followed by INITIAL-INPUT."
@@ -491,16 +654,41 @@ Use `minibuffer-local-filename-completion-map'."
   ;; thing to do.
   (minibuffer-with-setup-hook
       (lexical-let ((initial-input initial-input))
-	(lambda ()
-	  (and initial-input (insert initial-input))
-	  (goto-char (point-max))))
-    (if (and org-velocity-use-completion
-	     ;; map-entries complains for nonexistent files
-	     (file-exists-p (org-velocity-use-file)))
-	(org-velocity-read-with-completion prompt)
-      (read-string prompt))))
+        (lambda ()
+          (and initial-input (insert initial-input))
+          (goto-char (point-max))))
+    (if (eq org-velocity-search-method 'regexp)
+	(read-regexp prompt)
+      (if org-velocity-use-completion
+	  (org-velocity-read-with-completion prompt)
+	(read-string prompt)))))
 
-(defun org-velocity-read (arg &optional search)
+(defun org-velocity-incremental-read (prompt)
+  "Read string with PROMPT and display results incrementally."
+  (let ((res
+         (unwind-protect
+             (let* ((match-window (display-buffer (org-velocity-match-buffer)))
+                    (org-velocity-index
+                     ;; Truncate the index to the size of the buffer to be
+                     ;; displayed.
+                     (with-selected-window match-window
+                       (if (> (window-height) (length org-velocity-index))
+                           ;; (subseq org-velocity-index 0 (window-height))
+                           (let ((hints (copy-sequence org-velocity-index)))
+                             (setcdr (nthcdr (window-height) hints) nil)
+                             hints)
+                         org-velocity-index))))
+               (catch 'click
+                 (add-hook 'post-command-hook 'org-velocity-update)
+                 (if (eq org-velocity-search-method 'regexp)
+                     (read-regexp prompt)
+                   (if org-velocity-use-completion
+                       (org-velocity-read-with-completion prompt)
+                     (read-string prompt)))))
+           (remove-hook 'post-command-hook 'org-velocity-update))))
+    (if (bufferp res) (org-pop-to-buffer-same-window res) res)))
+
+(defun org-velocity (arg &optional search)
   "Read a search string SEARCH for Org-Velocity interface.
 This means that a buffer will display all headings where SEARCH
 occurs, where one can be selected by a mouse click or by typing
@@ -510,18 +698,27 @@ created named SEARCH.
 If `org-velocity-bucket' is defined and
 `org-velocity-always-use-bucket' is non-nil, then the bucket file
 will be used; otherwise, this will work when called in any Org
-file.  Calling with ARG forces current file."
+file. Calling with ARG forces current file."
   (interactive "P")
   (let ((org-velocity-always-use-bucket
 	 (if arg nil org-velocity-always-use-bucket)))
     ;; complain if inappropriate
-    (assert (org-velocity-use-file))
-    (unwind-protect
-	(org-velocity-engine
-	 (org-velocity-read-string "Velocity search: " search))
-      (progn
-	(kill-buffer (org-velocity-display-buffer))
-	(delete-other-windows)))))
+    (assert (org-velocity-bucket-file))
+    (let ((org-velocity-bucket-buffer
+           (find-file-noselect (org-velocity-bucket-file))))
+      (unwind-protect
+          (let ((dabbrev-search-these-buffers-only
+                 (list (org-velocity-bucket-buffer))))
+            (org-velocity-engine
+             (if org-velocity-search-is-incremental
+                 (org-velocity-incremental-read "Velocity search: ")
+               (org-velocity-read-string "Velocity search: " search))))
+        (progn
+          (kill-buffer (org-velocity-match-buffer))
+          (delete-other-windows))))))
+
+(defalias 'org-velocity-read 'org-velocity)
 
 (provide 'org-velocity)
+
 ;;; org-velocity.el ends here

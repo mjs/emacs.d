@@ -125,4 +125,13 @@ Arg is passed through to `org-deadline'."
 
 (setq appt-disp-window-function 'my-appt-disp-window)
 
+; Babel setup
+(setq org-confirm-babel-evaluate nil)
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+  '((sh . t)
+    (python . t)
+    (emacs-lisp . t)))
+
 (provide 'org-config)

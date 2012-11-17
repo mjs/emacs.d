@@ -26,18 +26,6 @@ for C/C++ #include lines"
       (beginning-of-buffer)
       (query-replace sym with))))
 
-(defun increment-number-at-point (&optional how-much)
-  (interactive)
-  (skip-chars-backward "0123456789")
-  (or (looking-at "[0123456789]+")
-      (error "No number at point"))
-  (let ((inc-by (if how-much how-much 1)))
-    (replace-match (number-to-string (+ inc-by (string-to-number (match-string 0)))))))
-
-(defun decrement-number-at-point ()
-  (interactive)
-  (increment-number-at-point -1))
-
 ;; Add a per-buffer hook to automatically remove trailing whitespace on write
 (defun auto-del-trailing-whitespace ()
   (interactive)

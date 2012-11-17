@@ -1,13 +1,11 @@
 ;;; org-gnus.el --- Support for links to Gnus groups and messages from within Org-mode
 
-;; Copyright (C) 2004, 2005, 2006, 2007, 2008, 2009, 2010
-;;   Free Software Foundation, Inc.
+;; Copyright (C) 2004-2012 Free Software Foundation, Inc.
 
 ;; Author: Carsten Dominik <carsten at orgmode dot org>
 ;;         Tassilo Horn <tassilo at member dot fsf dot org>
 ;; Keywords: outlines, hypermedia, calendar, wp
 ;; Homepage: http://orgmode.org
-;; Version: 7.4
 ;;
 ;; This file is part of GNU Emacs.
 ;;
@@ -34,6 +32,7 @@
 ;;; Code:
 
 (require 'org)
+(require 'gnus-util)
 (eval-when-compile (require 'gnus-sum))
 
 ;; Declare external functions and variables
@@ -64,6 +63,7 @@ configured) IMAP servers don't support this operation quickly.
 So if following a link to a Gnus article takes ages, try setting
 this variable to `t'."
   :group 'org-link-store
+  :version "24.1"
   :type 'boolean)
 
 
@@ -101,11 +101,11 @@ If `org-store-link' was called with a prefix arg the meaning of
     (if (and (string-match "^nntp" group) ;; Only for nntp groups
 	     (org-xor current-prefix-arg
 		      org-gnus-prefer-web-links))
-	(org-make-link (if (string-match "gmane" unprefixed-group)
-			   "http://news.gmane.org/"
-			 "http://groups.google.com/group/")
-		       unprefixed-group)
-      (org-make-link "gnus:" group))))
+	(concat (if (string-match "gmane" unprefixed-group)
+		    "http://news.gmane.org/"
+		  "http://groups.google.com/group/")
+		unprefixed-group)
+      (concat "gnus:" group))))
 
 (defun org-gnus-article-link (group newsgroups message-id x-no-archive)
   "Create a link to a Gnus article.
@@ -126,7 +126,7 @@ If `org-store-link' was called with a prefix arg the meaning of
 		  "http://mid.gmane.org/%s"
 		"http://groups.google.com/groups/search?as_umsgid=%s")
 	      (org-fixup-message-id-for-http message-id))
-    (org-make-link "gnus:" group "#" message-id)))
+    (concat "gnus:" group "#" message-id)))
 
 (defun org-gnus-store-link ()
   "Store a link to a Gnus folder or message."
@@ -151,12 +151,17 @@ If `org-store-link' was called with a prefix arg the meaning of
 		     (gnus-summary-article-header)))
 	   (from (mail-header-from header))
 	   (message-id (org-remove-angle-brackets (mail-header-id header)))
-	   (date (mail-header-date header))
-	   (date-ts (and date (format-time-string
-			       (org-time-stamp-format t) (date-to-time date))))
-	   (date-ts-ia (and date (format-time-string
-				  (org-time-stamp-format t t)
-				  (date-to-time date))))
+	   (date (org-trim (mail-header-date header)))
+	   (date-ts (and date
+			 (ignore-errors
+			   (format-time-string
+			    (org-time-stamp-format t)
+			    (date-to-time date)))))
+	   (date-ts-ia (and date
+			    (ignore-errors
+			      (format-time-string
+			       (org-time-stamp-format t t)
+			       (date-to-time date)))))
 	   (subject (copy-sequence (mail-header-subject header)))
 	   (to (cdr (assq 'To (mail-header-extra header))))
 	   newsgroups x-no-archive desc link)
@@ -172,7 +177,7 @@ If `org-store-link' was called with a prefix arg the meaning of
 	(setq to (or to (gnus-fetch-original-field "To"))
 	      newsgroups (gnus-fetch-original-field "Newsgroups")
 	      x-no-archive (gnus-fetch-original-field "x-no-archive")))
-      (org-store-link-props :type "gnus" :from from :subject subject 
+      (org-store-link-props :type "gnus" :from from :subject subject
 			    :message-id message-id :group group :to to)
       (when date
 	(org-add-link-props :date date :date-timestamp date-ts
@@ -181,7 +186,35 @@ If `org-store-link' was called with a prefix arg the meaning of
 	    link (org-gnus-article-link
 		  group	newsgroups message-id x-no-archive))
       (org-add-link-props :link link :description desc)
-      link))))
+      link))
+   ((eq major-mode 'message-mode)
+    (setq org-store-link-plist nil)  ; reset
+    (save-excursion
+      (save-restriction
+        (message-narrow-to-headers)
+        (and (not (message-fetch-field "Message-ID"))
+             (message-generate-headers '(Message-ID)))
+        (goto-char (point-min))
+        (re-search-forward "^Message-ID: *.*$" nil t)
+        (put-text-property (match-beginning 0) (match-end 0) 'message-deletable nil)
+        (let ((gcc (car (last
+                         (message-unquote-tokens
+                          (message-tokenize-header (mail-fetch-field "gcc" nil t) " ,")))))
+              (id (org-remove-angle-brackets (mail-fetch-field "Message-ID")))
+              (to (mail-fetch-field "To"))
+              (from (mail-fetch-field "From"))
+              (subject (mail-fetch-field "Subject"))
+              desc link
+              newsgroup xarchive)       ; those are always nil for gcc
+          (and (not gcc)
+               (error "Can not create link: No Gcc header found"))
+          (org-store-link-props :type "gnus" :from from :subject subject
+                                :message-id id :group gcc :to to)
+          (setq desc (org-email-link-description)
+                link (org-gnus-article-link
+                      gcc newsgroup id xarchive))
+          (org-add-link-props :link link :description desc)
+          link))))))
 
 (defun org-gnus-open-nntp (path)
   "Follow the nntp: link specified by PATH."
@@ -201,9 +234,9 @@ If `org-store-link' was called with a prefix arg the meaning of
     (setq group (match-string 1 path)
 	  article (match-string 3 path))
     (when group
-      (setq group (org-substring-no-properties group)))
+      (setq group (org-no-properties group)))
     (when article
-      (setq article (org-substring-no-properties article)))
+      (setq article (org-no-properties article)))
     (org-gnus-follow-link group article)))
 
 (defun org-gnus-follow-link (&optional group article)
@@ -212,11 +245,11 @@ If `org-store-link' was called with a prefix arg the meaning of
   (funcall (cdr (assq 'gnus org-link-frame-setup)))
   (if gnus-other-frame-object (select-frame gnus-other-frame-object))
   (when group
-    (setq group (org-substring-no-properties group)))
+    (setq group (org-no-properties group)))
   (when article
-    (setq article (org-substring-no-properties article)))
+    (setq article (org-no-properties article)))
   (cond ((and group article)
-	 (gnus-activate-group group t)
+	 (gnus-activate-group group)
 	 (condition-case nil
 	     (let* ((method (gnus-find-method-for-group group))
 		    (backend (car method))
@@ -240,7 +273,7 @@ If `org-store-link' was called with a prefix arg the meaning of
 			       ;; stop on integer overflows
 			       (> articles 0))
 		     (setq group-opened (gnus-group-read-group
-					 articles nil group)
+					 articles t group)
 			   articles (if (< articles 16)
 					(1+ articles)
 				      (* articles 2))))
@@ -258,6 +291,5 @@ If `org-store-link' was called with a prefix arg the meaning of
 
 (provide 'org-gnus)
 
-;; arch-tag: 512e0840-58fa-45b3-b456-71e10fa2376d
 
 ;;; org-gnus.el ends here
