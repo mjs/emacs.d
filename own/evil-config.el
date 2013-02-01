@@ -10,6 +10,9 @@
 (require 'evil)
 (evil-mode 1)
 
+;; Use hippie-expand instead of evil's own completion for C-n
+(setq evil-complete-next-func 'hippie-expand)
+
 (define-key evil-normal-state-map (kbd "H-i") 'evil-jump-forward)   ; Now set up C-i / H-i
 
 ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
