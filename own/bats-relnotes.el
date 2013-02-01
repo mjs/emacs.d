@@ -15,7 +15,6 @@
 ============
 
 
-
 ============
  SQL Deltas
 ============
@@ -71,7 +70,7 @@ None
     (forward-line -2)
     (insert (format "\nPoint %d\n-------\n\n" release))
     (end-of-buffer)
-    (insert (format "\n\nPoint %d\n-------\n\n" release)))  ; XXX ugly
+    (insert (format "\nPoint %d\n-------\n\n" release)))  ; XXX ugly
   (end-of-buffer))
 
 (defun bats-relnotes-create-next-point-release ()
