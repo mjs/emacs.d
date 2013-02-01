@@ -6,14 +6,14 @@ from mock import Mock, sentinel, call
 from testfixtures import compare, Replacer, ShouldRaise
 from unittest2 import TestCase
 
-from ecn.testutils.dbseed import getEnvironment, connectAndLoad
+from ecn.testutils.mixins import Base
 
 
-class Test$1(TestCase):
+class Test$1(Base, TestCase):
 
     def setUp(self):
-        pass
+        super(Test$2, self).setUp()
         
-    def test$2(self):
+    def test$3(self):
         assert False
 
