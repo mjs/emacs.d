@@ -15,7 +15,7 @@
 (defun refresh-file-cache ()
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (file-cache-add-directory-using-find "~/ecn/0/source")
+  (file-cache-add-directory-using-find "~/scohome/git.0/source")
   (file-cache-add-directory-using-find "~/puppet-trunk")
   (file-cache-add-directory-using-find "~/Notes")
   (file-cache-add-directory-using-find "~/config"))
