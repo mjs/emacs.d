@@ -118,6 +118,9 @@
 (require 'lua-mode)
 (require 'org-config)
 
+(require 'idomenu)
+(global-set-key (kbd "C-c i") 'idomenu)
+
 (require 'package)
 (package-initialize)
 
