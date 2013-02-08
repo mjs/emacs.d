@@ -12,16 +12,21 @@
 ;; ignore pyc directories in my file cache
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
 
+; Directories we expect to exist and indexed on all hosts
+(setq file-cache-common-directories '("~/Dropbox/Notes"
+                                      "~/config"))
+
+; site specific configuration can set file-cache-site-directories
+(unless (boundp 'file-cache-site-directories)
+  (setq file-cache-site-directories ()))
+
 (defun refresh-file-cache ()
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (file-cache-add-directory-using-find "~/scohome/git.0/source")
-  (file-cache-add-directory-using-find "~/puppet-trunk")
-  (file-cache-add-directory-using-find "~/Notes")
-  (file-cache-add-directory-using-find "~/config"))
+  (loop for dir in (append file-cache-site-directories file-cache-common-directories)
+        do (file-cache-add-directory-using-find dir)))
 
-(eval-after-load "filecache" '(refresh-file-cache))
-
+(refresh-file-cache)
 
 (defun file-cache-ido-find-file (file)
   "Using ido, interactively open file from file cache'.

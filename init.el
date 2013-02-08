@@ -117,8 +117,6 @@
 (require 'insert-timestamp)
 (require 'lua-mode)
 (require 'org-config)
-(unless quick-start
-  (require 'filecache-config))
 
 (require 'package)
 (package-initialize)
@@ -306,7 +304,10 @@
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (unless quick-start
+  (require 'filecache-config)    ; load after site config
+
   (server-start)
+
   ;; Allow editing from Chrome
   (require 'edit-server)
   (edit-server-start))
