@@ -10,6 +10,8 @@
  '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
+ '(compilation-scroll-output t)
+ '(compile-command "waf-build.sh")
  '(cua-enable-cua-keys nil)
  '(cua-mode t nil (cua-base))
  '(cua-remap-control-v nil)
@@ -167,9 +169,6 @@
 
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
-
-;; Essential for C/C++ programming
-(global-set-key (kbd "C-c o") 'ff-find-other-file)
 
 ;; Keep temporary and backup files in a sane place
 (setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
