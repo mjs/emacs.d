@@ -29,6 +29,11 @@
         (org-archive-tag "ARCH"))
     (org-archive-to-archive-sibling)))
 
+(defun org-mark-done-and-move ()
+  (interactive)
+  (org-todo 'done)
+  (org-move-to-done-tree))
+
 ; Modified version that takes a time to pass to org-deadline as well as the "remove" argument
 ; Note: this advice doesn't call the original org-agenda-deadline
 (defadvice org-agenda-deadline (around org-agenda-deadline-around first (arg &optional time) activate)
@@ -68,7 +73,7 @@ Arg is passed through to `org-deadline'."
             (define-key org-mode-map (kbd "C-c D") 'org-deadline-today)
             (define-key org-mode-map (kbd "<tab>") 'org-cycle)
             (define-key org-mode-map (kbd "<M-S-return>") 'my-org-insert-todo-heading)
-            (define-key org-mode-map (kbd "C-c C-0") 'org-move-to-done-tree)
+            (define-key org-mode-map (kbd "C-c #") 'org-mark-done-and-move)
             (define-key org-mode-map (kbd "C-c t t") 'org-table-inplace-to-tsv)
             (define-key org-mode-map (kbd "C-c t c") 'org-table-inplace-to-csv)))
 
