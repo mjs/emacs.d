@@ -16,4 +16,9 @@
 ;; Allow emacsclient to work from remote hosts (really just scomslin)
 (setq server-host "10.64.15.188")
 (setq server-use-tcp t)
-; XXX need to post advise server-start to copy the server auth file to scohome
+(setq server-window 'switch-to-buffer-other-frame)  ; open in new frame
+
+(defadvice server-start (after copy-server-file activate)
+  "Copy the server file to scomslin once the server has started"
+  (interactive)
+  (copy-file "~/.emacs.d/server/server" "~/scohome/tmp/server" t))
