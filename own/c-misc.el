@@ -11,4 +11,11 @@
                         (awk-mode . "awk") 
                         (other . "gnu")))
 
+
+(defun c-customizations ()
+  "Additional customizations for C like modes"
+  (define-key c-mode-base-map (kbd "<f9>") 'compile))
+
+(eval-after-load 'cc-mode '(c-customizations))
+  
 (provide 'c-misc)
