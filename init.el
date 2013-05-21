@@ -12,10 +12,6 @@
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
  '(compilation-scroll-output t)
  '(compile-command "waf-build.sh")
- '(cua-enable-cua-keys nil)
- '(cua-mode t nil (cua-base))
- '(cua-remap-control-v nil)
- '(cua-remap-control-z nil)
  '(dabbrev-case-fold-search nil)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
@@ -119,6 +115,7 @@
 (require 'insert-timestamp)
 (require 'lua-mode)
 (require 'org-config)
+(require 'calc)
 
 (require 'idomenu)
 (global-set-key (kbd "C-c i") 'idomenu)
@@ -185,9 +182,12 @@
 (put 'narrow-to-region 'disabled nil)
 
 ;; Interaction with the system clipboard
-(global-set-key "\C-cc" 'clipboard-kill-ring-save)
-(global-set-key "\C-cx" 'clipboard-kill-region)
-(global-set-key "\C-cv" 'clipboard-yank)
+;; (setq x-select-enable-clipboard t)
+;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
+
+;; (global-set-key "\C-cc" 'clipboard-kill-ring-save)
+;; (global-set-key "\C-cx" 'clipboard-kill-region)
+;; (global-set-key "\C-cv" 'clipboard-yank)
 
 (global-set-key "\C-x9" 'bury-buffer)
 
@@ -199,9 +199,6 @@
 (require 'grep-a-lot)
 (grep-a-lot-setup-keys)
 
-;; Possibly useful
-;; (setq x-select-enable-clipboard t)
-;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
 
 ;; highlighting to see all occurrences of a word in the buffer
 (setq highlighted-word "")
