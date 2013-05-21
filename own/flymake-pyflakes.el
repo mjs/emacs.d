@@ -18,15 +18,8 @@
 
 (defun flymake-pyflakes-load ()
   (let ((file-name (buffer-file-name (current-buffer))))
-    ; Don't start flymake when a symlink is being followed as the
-    ; buffer gets killed immediately leading to a "Buffer has a
-    ; running process" warning.
-    (when (string= file-name (file-truename file-name))
-      ; flymake-pyflakes-load will be called for all files that
-      ; trigger python-mode so don't be specific about the file name
-      ; mask.
-      (set (make-local-variable 'flymake-allowed-file-name-masks) '((".+" flymake-pyflakes-init)))
-      (flymake-mode t))))
+    (set (make-local-variable 'flymake-allowed-file-name-masks) '((".+" flymake-pyflakes-init)))
+    (flymake-mode t)))
 
 (add-hook 'python-mode-hook 'flymake-pyflakes-load)
 
