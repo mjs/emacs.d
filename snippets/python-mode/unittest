@@ -3,17 +3,16 @@
 # key: unittest
 # --
 from mock import Mock, sentinel, call
-from testfixtures import compare, Replacer, ShouldRaise
+from testfixtures import compare, ShouldRaise
 from unittest2 import TestCase
 
 from ecn.testutils.mixins import Base
 
 
-class Test$1(Base, TestCase):
+class Test${1:Class}(Base, TestCase):
 
     def setUp(self):
-        super(Test$2, self).setUp()
-        
-    def test$3(self):
-        assert False
+        super(Test$1, self).setUp()
 
+    def test$2(self):
+        $0assert False
