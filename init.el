@@ -303,6 +303,10 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
+;; (defun vc-git-annotate-command (file buf &optional rev)
+;;   (let ((name (file-relative-name file)))
+;;     (vc-git-command buf 'async nil "blame" "--date=iso" rev "--" name)))
+
 (unless quick-start
   (require 'filecache-config)    ; load after site config
 
