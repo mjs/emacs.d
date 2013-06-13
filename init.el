@@ -82,6 +82,8 @@
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white"))))
  '(tex-verbatim ((t (:foreground "gray")))))
 
+(setq temporary-file-directory "~/.emacs.d/tmp/")
+
 ;; set true to skip non-essential (and slow) startup items
 ;; useful when restarting Emacs a lot to test some new config
 (setq quick-start nil)
