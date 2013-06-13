@@ -3,14 +3,10 @@
 (require 'filecache)
 (require 'text-misc)
 
-;; ignore git directories in my file cache
-(add-to-list 'file-cache-filter-regexps "/[.]git")
-
-;; ignore svn directories in my file cache
-(add-to-list 'file-cache-filter-regexps "/[.]svn")
-
-;; ignore pyc directories in my file cache
+(add-to-list 'file-cache-filter-regexps "/[.]git")  ;; git directories
+(add-to-list 'file-cache-filter-regexps "/[.]svn")  ;; svn directories 
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
+(add-to-list 'file-cache-filter-regexps "[.]i$")    ;; hg files
 
 ; Directories we expect to exist and indexed on all hosts
 (setq file-cache-common-directories '("~/Dropbox/Notes"
