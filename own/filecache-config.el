@@ -21,6 +21,7 @@
   (setq file-cache-site-directories ()))
 
 (defun refresh-file-cache ()
+  (interactive)
   (message "Loading file cache...")
   (file-cache-clear-cache)
   (loop for dir in (append file-cache-site-directories file-cache-common-directories)
