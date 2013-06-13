@@ -6,4 +6,6 @@
 (visit-tags-table "~/source/TAGS")
 
 (setq file-cache-site-directories '("~/git.0/source"
-                                    "~/puppet-trunk"))
+                                    "~/puppet-trunk"
+                                    "~/Notes"
+                                    "~/config"))

@@ -9,9 +9,7 @@
 ;; Turn off vc-mode on this host. Doesn't work well over NFS
 (setq vc-handled-backends nil)
 
-(setq file-cache-site-directories '("~/scohome/git.0/source"
-                                    "~/puppet-trunk"
-                                    "~/Notes"))
+(setq file-cache-site-directories '("~/config"))
 
 ;; Allow emacsclient to work from remote hosts (really just scomslin)
 (setq server-host "10.64.15.188")
