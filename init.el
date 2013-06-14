@@ -27,6 +27,7 @@
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
+ '(midnight-hook (quote (refresh-file-cache recentf-save-list clean-buffer-list tramp-cleanup-all-connections)))
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
  '(org-agenda-files nil)
