@@ -27,6 +27,7 @@
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
+ '(midnight-hook (quote (refresh-file-cache recentf-save-list clean-buffer-list tramp-cleanup-all-connections)))
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
  '(org-agenda-files nil)
@@ -81,6 +82,8 @@
  '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white"))))
  '(tex-verbatim ((t (:foreground "gray")))))
+
+(setq temporary-file-directory "~/.emacs.d/tmp/")
 
 ;; set true to skip non-essential (and slow) startup items
 ;; useful when restarting Emacs a lot to test some new config
@@ -283,6 +286,7 @@
 (add-to-list 'load-path "~/.emacs.d/external/yasnippet")
 (require 'yasnippet)
 (yas/global-mode 1)
+(setf yas/indent-line nil)  ; prevent annoying auto-indent behaviour
 
 ;; Haskell support
 ;; TODO: autoload
@@ -301,6 +305,10 @@
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
+
+;; (defun vc-git-annotate-command (file buf &optional rev)
+;;   (let ((name (file-relative-name file)))
+;;     (vc-git-command buf 'async nil "blame" "--date=iso" rev "--" name)))
 
 (unless quick-start
   (require 'filecache-config)    ; load after site config
