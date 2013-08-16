@@ -22,6 +22,8 @@
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
  '(ispell-program-name "/usr/bin/ispell")
+ '(jedi:complete-on-dot nil)
+ '(jedi:tooltip-method nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
