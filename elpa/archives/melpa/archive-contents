@@ -524,7 +524,7 @@
 		[(20120312 1325)
 		 nil "Tango 2 color theme for GNU Emacs 24 [github]" single])
  (tagedit .
-	  [(20130815 2253)
+	  [(20130816 1410)
 	   ((s
 	     (1 3 1))
 	    (dash
@@ -974,6 +974,9 @@
  (rvm .
       [(20130521 902)
        nil "Emacs integration for rvm [github]" single])
+ (rust-mode .
+	    [(20130808 1925)
+	     nil "A major emacs mode for editing Rust source code [github]" single])
  (ruby-tools .
 	     [(20121008 1851)
 	      nil "Collection of handy functions for ruby-mode. [github]" tar])
@@ -1259,7 +1262,7 @@
 	[(20130707 1516)
 	 nil "A plenv wrapper for Emacs [github]" single])
  (pkgbuild-mode .
-		[(20130813 1716)
+		[(20130816 1020)
 		 nil "Interface to the ArchLinux package manager [github]" single])
  (pivotal-tracker .
 		  [(20130319 2233)
@@ -1605,7 +1608,7 @@
 		 [(20130131 720)
 		  nil "Open a junk (memo) file to try-and-error [wiki]" single])
  (omnisharp .
-	    [(20130815 2143)
+	    [(20130816 1500)
 	     ((json
 	       (1 2))
 	      (dash
@@ -3167,13 +3170,13 @@
 		  ((flymake-easy
 		    (0 1)))
 		  "A flymake handler for coffee script [github]" single])
- (flycheck-d .
-	     [(20130816 1351)
-	      ((flycheck
-		(0 14))
-	       (dash
-		(1 4 0)))
-	      "Add D unittest support to flycheck [github]" single])
+ (flycheck-d-unittest .
+		      [(20130816 1717)
+		       ((flycheck
+			 (0 14))
+			(dash
+			 (1 4 0)))
+		       "Add D unittest support to flycheck [github]" single])
  (flycheck-color-mode-line .
 			   [(20130604 2321)
 			    ((flycheck
@@ -3184,7 +3187,7 @@
 			      (24 1)))
 			    "Change mode line color with Flycheck status [github]" single])
  (flycheck .
-	   [(20130815 2323)
+	   [(20130816 1041)
 	    ((s
 	      (1 6 0))
 	     (dash
@@ -3498,7 +3501,7 @@
        [(20130813 1955)
 	nil "The Emacs Multimedia System [git]" tar])
  (emmet-mode .
-	     [(20130806 1047)
+	     [(20130816 1530)
 	      nil "Unofficial Emmet's support for emacs [github]" single])
  (emamux-ruby-test .
 		   [(20130811 1203)
@@ -4501,8 +4504,5 @@
 	    nil "Python TDD minor mode [github]" single])
  (abc-mode .
 	   [(20130607 917)
-	    nil "Major mode for editing abc music files [github]" single])
- (rust-mode .
-	    [(20130808 1925)
-	     nil "A major emacs mode for editing Rust source code [github]" single]))
+	    nil "Major mode for editing abc music files [github]" single]))
 
