@@ -96,6 +96,13 @@
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
 
+;; Allow the reset of setup to use ELPA packages
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+(setq package-enable-at-startup nil)
+(package-initialize)
+
 ;; get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -122,9 +129,6 @@
 
 (require 'idomenu)
 (global-set-key (kbd "C-c i") 'idomenu)
-
-(require 'package)
-(package-initialize)
 
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
