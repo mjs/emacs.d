@@ -4,8 +4,6 @@
 ; - SQL delta helpers
 ; - basic syntax highlighting
 
-(defconst bats-relnotes-title-regex "^ *[0-9]+ |")
-
 (defun bats-relnotes-add-titles ()
   (unless (bats-relnotes-has-titles)
     (goto-char 1)
@@ -36,18 +34,30 @@ None
     (goto-line 2)
     (string= (current-word) "Highlights")))
 
-(defun bats-relnotes-next-rev ()
-  (interactive)
-  (re-search-forward bats-relnotes-title-regex)
-  (bats-relnotes-rev-sync))
+(defconst bats-relnotes-poi-regex
+  (concat
+   "^\\("
+   " *[0-9]+ |\\|"
+   "Point [0-9]+\\|"
+   " SQL Deltas\\|"
+   " Crontab Updates"
+  "\\)"
+  )
+  "A regex that will land on points of interest within a release notes file"
+)
 
-(defun bats-relnotes-prev-rev ()
+(defun bats-relnotes-next-poi ()
+  (interactive)
+  (re-search-forward bats-relnotes-poi-regex)
+  (bats-relnotes-poi-sync))
+
+(defun bats-relnotes-prev-poi ()
   (interactive)
   (re-search-backward "^$")
-  (re-search-backward bats-relnotes-title-regex)
-  (bats-relnotes-rev-sync))
+  (re-search-backward bats-relnotes-poi-regex)
+  (bats-relnotes-poi-sync))
 
-(defun bats-relnotes-rev-sync ()
+(defun bats-relnotes-poi-sync ()
   (beginning-of-line)
   (next-line)
   (next-line)
@@ -77,31 +87,10 @@ None
   (interactive)
   (bats-relnotes-add-point-release (+ (bats-relnotes-find-max-point-release) 1)))
 
-
-;; (defun bats-relnotes-prev-release ()
-;;   (interactive)
-;;   (let* ((parts (bats-relnotes-split-filename (buffer-file-name)))
-;;          (new-filename (format "%s_%s_%d_%s.txt"
-;;                            (car parts) (cadr parts)
-;;                            (+ (string-to-number (caddr parts)) 1)
-;;                            (cadddr parts))))
-;;        (write-file new-filename t)))
-
-
-;; (defun bats-relnotes-bump ()
-;;   "Bump minor version in release notes file"
-;;   (interactive)
-;;   (let* ((parts (bats-relnotes-split-filename (buffer-file-name)))
-;;          (new-filename (format "%s_%s_%d_%s.txt"
-;;                            (car parts) (cadr parts)
-;;                            (+ (string-to-number (caddr parts)) 1)
-;;                            (cadddr parts))))
-;;        (write-file new-filename t)))
-
 (defvar bats-relnotes-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "M-n") 'bats-relnotes-next-rev)
-    (define-key map (kbd "M-p") 'bats-relnotes-prev-rev)
+    (define-key map (kbd "M-n") 'bats-relnotes-next-poi)
+    (define-key map (kbd "M-p") 'bats-relnotes-prev-poi)
     (define-key map (kbd "C-c C-c") 'bats-relnotes-create-next-point-release)
     map)
   "Keymap for bats-relnotes-mode")

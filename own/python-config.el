@@ -10,6 +10,9 @@
 (require 'flymake-pyflakes)
 (require 'python-pylint)
 
+(autoload 'jedi:setup "jedi" nil t)
+(add-hook 'python-mode-hook 'jedi:setup)
+
 ;; Pymacs and ropemacs
 (require 'pymacs)
 (pymacs-load "ropemacs" "rope-")

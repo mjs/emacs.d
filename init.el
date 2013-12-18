@@ -20,9 +20,10 @@
  '(ido-default-buffer-method (quote selected-window))
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
- '(inferior-lisp-program "java -cp /home/msmits/downloads/clojure-1.1.0/clojure.jar clojure.main")
  '(initial-buffer-choice t)
  '(ispell-program-name "/usr/bin/ispell")
+ '(jedi:complete-on-dot nil)
+ '(jedi:tooltip-method nil)
  '(js2-auto-indent-flag nil)
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
@@ -70,7 +71,7 @@
  '(magit-diff-add ((((class color) (background dark)) (:foreground "lime green"))))
  '(magit-diff-del ((((class color) (background dark)) (:foreground "IndianRed"))))
  '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
- '(magit-item-highlight ((((class color) (background dark)) (:background "#070707"))))
+ '(magit-item-highlight ((t (:background "#333333"))))
  '(org-level-1 ((t (:inherit outline-1))))
  '(org-todo ((t (:foreground "goldenrod"))))
  '(org-upcoming-deadline ((t (:foreground "dark goldenrod"))))
@@ -95,6 +96,13 @@
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 (add-to-list 'load-path "~/.emacs.d/elpa")
+
+;; Allow the reset of setup to use ELPA packages
+(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
+                         ("marmalade" . "http://marmalade-repo.org/packages/")
+                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+(setq package-enable-at-startup nil)
+(package-initialize)
 
 ;; get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
@@ -122,9 +130,6 @@
 
 (require 'idomenu)
 (global-set-key (kbd "C-c i") 'idomenu)
-
-(require 'package)
-(package-initialize)
 
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
