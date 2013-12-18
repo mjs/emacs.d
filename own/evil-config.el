@@ -16,8 +16,9 @@
 (define-key evil-normal-state-map (kbd "H-i") 'evil-jump-forward)   ; Now set up C-i / H-i
 
 ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
-(global-set-key (kbd "C-p") 'universal-argument)
-
+(define-key evil-normal-state-map (kbd "C-p") 'universal-argument)
+(define-key evil-insert-state-map (kbd "C-p") 'universal-argument)
+(define-key evil-visual-state-map (kbd "C-p") 'universal-argument)
 
 ;; Provide a menu of tags when there's multiple matches
 (require 'etags-select)
