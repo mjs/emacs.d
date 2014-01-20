@@ -135,12 +135,13 @@
 (defalias 'tt 'toggle-truncate-lines)
 
 (defun email-config ()
-  (text-mode)
-  (set-fill-column 72)
+  (mail-mode)
+  (set-fill-column 80)
   (longlines-mode)
   (flyspell-mode))
 
 (add-to-list 'auto-mode-alist '("\\.eml$" . email-config))
+(add-to-list 'auto-mode-alist '("mutt-.+-.+$" . email-config))
 
 ;; Crontab support
 (autoload 'crontab-mode "crontab-mode")
