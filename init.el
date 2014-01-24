@@ -136,8 +136,8 @@
 
 (defun email-config ()
   (mail-mode)
-  (set-fill-column 80)
-  (longlines-mode)
+  (set-fill-column 72)
+  (auto-fill-mode)
   (flyspell-mode))
 
 (add-to-list 'auto-mode-alist '("\\.eml$" . email-config))
