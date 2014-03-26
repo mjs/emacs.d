@@ -1,6 +1,8 @@
 (add-to-list 'load-path "~/.emacs.d/external/evil")
 
-(keyboard-translate ?\C-i ?\H-i)       ; map C-i to Hyper-i to avoid conflict with TAB
+(setq evil-esc-delay 0.001)           ; avoid ESC/meta mixups
+
+(keyboard-translate ?\C-i ?\H-i)      ; map C-i to Hyper-i to avoid conflict with TAB
 
 (setq evil-want-C-i-jump nil)         ; don't let Evil set the binding, we'll do this ourselves
 (setq evil-want-C-u-scroll t)
@@ -30,8 +32,11 @@
         (etags-select-find tag)
       (etags-select-find-tag))))
 
-;; Useful bindings
+;; Alternate escape to normal mode
+(define-key evil-insert-state-map (kbd "C-k") 'evil-force-normal-state)
+(define-key evil-normal-state-map (kbd "C-k") 'evil-force-normal-state)
 
+;; Useful bindings
 (define-key evil-normal-state-map (kbd "C-]") 'etags-select-ultimate-find-tag)
 (define-key evil-normal-state-map (kbd "M-]") 'etags-select-find-tag)
 
