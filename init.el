@@ -54,7 +54,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil))))
+ '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "xos4" :family "Terminus"))))
  '(cursor ((t (:background "yellow"))))
  '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
@@ -119,6 +119,7 @@
 (require 'uniquify)
 (require 'flymake-config)
 (require 'python-config)
+(require 'go-config)
 (require 'js-config)
 (require 'c-misc)
 (require 'file-misc)
