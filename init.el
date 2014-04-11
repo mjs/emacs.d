@@ -54,7 +54,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 120 :width normal :foundry "xos4" :family "Terminus"))))
+ '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 117 :width normal :foundry "*" :family "proggyclean"))))
  '(cursor ((t (:background "yellow"))))
  '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
@@ -104,16 +104,7 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
-;; get rid of useless chrome
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-
-;; Add some useful chrome
-(require 'sml-modeline)
-(sml-modeline-mode t)
-
-;; TODO: more autoloads!
+(require 'gui-config)
 (require 'tramp)
 (require 'evil-config)   ; Become like Vim!
 (require 'uniquify)
@@ -128,9 +119,6 @@
 (require 'lua-mode)
 (require 'org-config)
 (require 'calc)
-
-(require 'idomenu)
-(global-set-key (kbd "C-c i") 'idomenu)
 
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
@@ -162,20 +150,6 @@
   (message (buffer-file-name)))
 (global-set-key (kbd "C-c g") 'show-file-name)
 (global-set-key (kbd "C-c C-g") 'show-file-name)
-
-;; make switch buffer and find file much nicer
-(ido-mode 1)
-(ido-everywhere 1)
-
-;; Set up smex
-(require 'smex)
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)    ;; This is the default M-x.
-
-;; buffer list on crank
-(global-set-key (kbd "C-x C-b") 'ibuffer)
 
 ;; Keep temporary and backup files in a sane place
 (setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
@@ -246,28 +220,11 @@
 ;; tabs are for babies and Aztecs (and Makefiles, I guess)
 (setq-default indent-tabs-mode nil)
 
-;; Show the column number in the mode line and line numbers down the side
-(column-number-mode)
-
 ;; Get OCD about whitespace
 (setq ethan-wspace-face '(t (:background "#05ff00")))
 (setq ethan-wspace-face-customized t)
 (require 'ethan-wspace)
 (global-ethan-wspace-mode 1)
-
-;; Make window sizing saner
-(defun enlarge-window-horiz-quick (arg)
-  (interactive "P")
-  (enlarge-window-horizontally 3))
-
-(defun shrink-window-horiz-quick (arg)
-  (interactive "P")
-  (shrink-window-horizontally 3))
-
-(global-set-key (kbd "C-_") 'shrink-window-horiz-quick)
-(global-set-key (kbd "C-+") 'enlarge-window-horiz-quick)
-(global-set-key (kbd "C--") 'shrink-window)
-(global-set-key (kbd "C-=") 'enlarge-window)
 
 ;; get rid of the multiple dired buffer problem
 (require 'dired-single)
