@@ -23,6 +23,8 @@
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
+(winner-mode)
+
 ;; Make window sizing saner
 (defun enlarge-window-horiz-quick (arg)
   (interactive "P")
