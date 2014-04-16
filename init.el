@@ -111,6 +111,7 @@
 (require 'flymake-config)
 (require 'python-config)
 (require 'go-config)
+(require 'yaml-config)
 (require 'js-config)
 (require 'c-misc)
 (require 'file-misc)
