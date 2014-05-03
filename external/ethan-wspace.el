@@ -123,7 +123,7 @@
 (defmacro ethan-wspace-declare-type (name &rest args)
   "Declare a whitespace type.
 
-Options recognized: :find :clean :highlight :description
+Options recognized: :find :clean :clean-fixup :highlight :description
 :description is used in docstrings and should be plural."
 
    (let* ((name-str (symbol-name name))
@@ -140,10 +140,12 @@ Options recognized: :find :clean :highlight :description
   `(progn
      (ethan-wspace-add-type ',name ',args)
      (define-minor-mode ,clean-mode
-       ,(format "Verify that %s are clean in this buffer.
+       ,(format "Verify that this buffer is cleaned of %s.
 
-Works as a save-file hook that cleans %s.
-Turning this mode on turns off highlighting %s, and vice versa." description description description)
+Works as a save-file hook that cleans %s; that is, makes
+sure that the buffer never has %s.
+
+Turning this mode on turns off highlighting %s, and vice versa." description description description description)
        :init-value nil :lighter nil :keymap nil
        ;; FIXME: Body goes here
 )
@@ -194,6 +196,15 @@ If absent, use the whole buffer."
          (real-begin (or begin (point-min)))
          (real-end (or end (point-max))))
     (apply clean-func (list real-begin real-end))))
+
+(defun ethan-wspace-type-clean-fixup (type-or-name)
+  "Calls the after-cleaning fixups function for wspace type `type-or-name`."
+  (let* ((type (if (symbolp type-or-name)
+                  (ethan-wspace-get-type type-or-name)
+                type-or-name))
+         (clean-fixup-func (ethan-wspace-type-get-field type :clean-fixup)))
+    (if clean-fixup-func
+        (funcall clean-fixup-func))))
 
 (defun ethan-wspace-type-clean-mode-symbol (type-name)
   "Return the symbol-name of the variable for the clean-mode for `type-name'.
@@ -257,6 +268,10 @@ Set `value' to -1 to deactivate a highlight-mode."
     (let ((pos (re-search-forward ethan-wspace-type-tabs-regexp nil t)))
       (when pos (cons (match-beginning 0) (match-end 0))))))
 
+(defun ethan-wspace-inside-string-p ()
+  "T if point is inside a string, NIL otherwise."
+  (nth 3 (syntax-ppss)))
+
 (defun ethan-wspace-untabify (start end)
   "Like `untabify', but be more respectful of point.
 The standard `untabify' does not keep track of point when
@@ -286,7 +301,8 @@ For details on how we accomplish this, see the source."
     (save-restriction
       (narrow-to-region (point-min) end)
       (goto-char start)
-      (while (search-forward "\t" nil t)        ; faster than re-search
+      (while (and (search-forward "\t" nil t)   ; faster than re-search
+                  (not (ethan-wspace-inside-string-p)))
         (forward-char -1)
         (let ((tab-start (point))
               (column-start (current-column)))
@@ -363,13 +379,46 @@ This internally uses `show-trailing-whitespace'."
   :init-value nil :lighter nil :keymap nil
   (setq show-trailing-whitespace ethan-wspace-highlight-eol-mode))
 
+(defvar ethan-wspace-type-eol-clean-fixup-stash nil
+  "Internal variable storing fixup information for eol cleaning")
+(make-variable-buffer-local 'ethan-wspace-type-eol-clean-fixup-stash)
+
+(defun ethan-wspace-delete-trailing-whitespace (begin end)
+  "Internal function to call delete-trailing-whitespace correctly.
+
+In emacs23, delete-trailing-whitespace does not take any
+arguments, whereas in emacs24 the same function will remove extra
+lines at EOF unless you explicitly pass begin and end.
+FIXME: maybe we should just write our own."
+  (if (< emacs-major-version 24)
+      (delete-trailing-whitespace)
+    (delete-trailing-whitespace begin end)))
+
 (defun ethan-wspace-type-eol-clean (begin end)
-  (save-restriction
-    (narrow-to-region begin end)
-    (delete-trailing-whitespace)))
+  ;(message "eol-clean")
+  (let ((line-before-point
+         (buffer-substring (line-beginning-position) (point))))
+    ;; It's critical to specify begin and end explicitly, because
+    ;; delete-trailing-whitespace has a special case: if 'end' is nil, it also
+    ;; deletes eof trailing newlines.
+    (ethan-wspace-delete-trailing-whitespace begin end)
+    ;; Save the whitespace that was removed immediately before point; we'll
+    ;; restore it in the :fixup function.
+    (let* ((new-line-len (- (point) (line-beginning-position)))
+           (removed-ws (substring line-before-point new-line-len)))
+      (setq ethan-wspace-type-eol-clean-fixup-stash removed-ws))))
+
+(defun ethan-wspace-type-eol-clean-fixup ()
+  (let ((whitespace-to-add ethan-wspace-type-eol-clean-fixup-stash)
+        (was-modified (buffer-modified-p)))
+    ;(message "eol-clean-fixup: restoring '%s'" whitespace-to-add)
+    (when whitespace-to-add
+        (insert whitespace-to-add))
+    (set-buffer-modified-p was-modified)))
 
 (ethan-wspace-declare-type eol :find ethan-wspace-type-eol-find
                            :clean ethan-wspace-type-eol-clean
+                           :clean-fixup ethan-wspace-type-eol-clean-fixup
                            :highlight ethan-wspace-highlight-eol-mode
                            :letter "l" )   ; for "lines"
 
@@ -476,7 +525,7 @@ With arg, turn highlighting on if arg is positive, off otherwise."
 (ethan-wspace-declare-type no-nl-eof :find ethan-wspace-type-no-nl-eof-find
                            :clean ethan-wspace-type-no-nl-eof-clean
                            :highlight ethan-wspace-highlight-no-nl-eof-mode
-                           :description "trailing newlines")
+                           :description "no trailing newlines")
 
 
 ;;; More than one newline at end of file: symbol `many-nls-eof'
@@ -487,14 +536,35 @@ With arg, turn highlighting on if arg is positive, off otherwise."
         (cons (- max (1- trailing-newlines)) max)
       nil)))
 
+(defvar ethan-wspace-type-many-nls-eof-clean-fixup-stash 0
+  "Internal variable storing fixup information for many-nls-eof cleaning")
+(make-variable-buffer-local 'ethan-wspace-type-nls-eof-clean-fixup-stash)
+
 (defun ethan-wspace-type-many-nls-eof-clean (begin end)
-  (save-match-data
-    (save-excursion
-      (goto-char (point-max))
-      (skip-chars-backward "\n")
-      (when (looking-at "\n")                  ; If no \n, nothing to clean.
-        (forward-char)                         ; skip a newline
-        (delete-region (point) (point-max)))))) ; delete others
+  ;(message "many-nls-clean")
+  (let ((orig-line-number (line-number-at-pos (point))))
+    (save-match-data
+      (save-excursion
+        (goto-char (point-max))
+        (skip-chars-backward "\n")
+        (when (looking-at "\n")                  ; If no \n, nothing to clean.
+          (forward-char)                         ; skip a newline
+          (delete-region (point) (point-max))))) ; delete others
+    ;; Save the number of lines that point was moved backwards by our removal
+    ;; of trailing newlines; in the :fixup function we'll restore this many
+    ;; newlines.
+    (setq ethan-wspace-type-many-nls-eof-clean-fixup-stash
+          (- orig-line-number (line-number-at-pos (point))))))
+
+(defun ethan-wspace-type-many-nls-eof-clean-fixup ()
+  (let ((newlines-to-add ethan-wspace-type-many-nls-eof-clean-fixup-stash)
+        (was-modified (buffer-modified-p))
+        (orig-point (point)))
+    ;(message "many-nls-clean-fixup, restoring %d" newlines-to-add)
+    (beginning-of-line)
+    (insert (make-string newlines-to-add ?\n))
+    (goto-char (+ orig-point newlines-to-add))
+    (set-buffer-modified-p was-modified)))
 
 (defvar ethan-wspace-highlight-many-nls-eof-overlay nil
   "The overlay to use when highlighting too-many-newlines.")
@@ -532,8 +602,9 @@ With arg, turn highlighting on if arg is positive, off otherwise."
 
 (ethan-wspace-declare-type many-nls-eof :find ethan-wspace-type-many-nls-eof-find
                            :clean ethan-wspace-type-many-nls-eof-clean
+                           :clean-fixup ethan-wspace-type-many-nls-eof-clean-fixup
                            :highlight ethan-wspace-highlight-many-nls-eof-mode
-                           :description "trailing newlines")
+                           :description "many trailing newlines")
 
 
 ;;; Mode-Line stuff
@@ -735,6 +806,7 @@ This just activates each whitespace type in this buffer."
   (when (buffer-file-name)
     (ethan-wspace-mode 1)))
 
+;;;###autoload
 (define-global-minor-mode global-ethan-wspace-mode
   ethan-wspace-mode ethan-wspace-is-buffer-appropriate
   :init-value t)
@@ -746,6 +818,14 @@ This just activates each whitespace type in this buffer."
           (ethan-wspace-type-clean type)))))
 
 (add-hook 'before-save-hook 'ethan-wspace-clean-before-save-hook)
+
+(defun ethan-wspace-clean-after-save-hook ()
+  (when ethan-wspace-mode
+    (dolist (type ethan-wspace-errors)
+      (when (ethan-wspace-type-clean-mode-active type)
+          (ethan-wspace-type-clean-fixup type)))))
+
+(add-hook 'after-save-hook 'ethan-wspace-clean-after-save-hook)
 
 (defun ethan-wspace-hack-local-variables-hook ()
         (ethan-wspace-update-buffer))
