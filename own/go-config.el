@@ -1,5 +1,9 @@
 (require 'go-mode)
 
+(setenv "PATH" (format "%s:%s"
+                       (expand-file-name "~/go/bin")
+                       (getenv "PATH")))
+
 (defun my-go-mode-hook ()
   (add-hook 'before-save-hook 'gofmt-before-save)
   (setq tab-width 4)
