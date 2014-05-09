@@ -34,6 +34,19 @@
        (set-buffer-modified-p nil)
        t))))
 
+(defun delete-buffer-file ()
+  "Deletes the file associated with the current buffer and kills the buffer"
+  (interactive)
+  (let ((name (buffer-name))
+        (filename (buffer-file-name)))
+    (if (not filename)
+        (message "Buffer '%s' is not visiting a file!" name)
+      (if (yes-or-no-p (format "Are you sure you wish to delete %s? " filename))
+          (progn
+            (save-buffer)
+            (delete-file filename)
+            (kill-buffer)
+            (message "%s deleted" filename))))))
 
 (defun copy-buffer-file (new-filename)
  "Copies the file in the current buffer to a new location."
