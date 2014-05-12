@@ -6,13 +6,14 @@
 
 (defun my-go-mode-hook ()
   (add-hook 'before-save-hook 'gofmt-before-save)
+  (flycheck-mode)
   (setq tab-width 4)
   (ethan-wspace-mode -1))
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(require 'go-flymake)
-;(require 'go-flycheck)
+;(require 'go-flymake)
+(require 'go-flycheck)
 
 (require 'go-autocomplete)
 (require 'auto-complete-config)

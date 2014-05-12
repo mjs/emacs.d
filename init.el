@@ -13,6 +13,7 @@
  '(compilation-scroll-output t)
  '(compile-command "waf-build.sh")
  '(dabbrev-case-fold-search nil)
+ '(flycheck-disabled-checkers (quote (go-test go-gofmt go-golint go-build go-vet)))
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
  '(grep-files-aliases (quote (("all" . "* .*") ("el" . "*.el") ("c" . "*.cc *.[ch]xx *.[ch]pp *.[cChH] *.CC *.HH *.[ch]++ *.inc") ("h" . "*.h") ("l" . "[Cc]hange[Ll]og*") ("m" . "[Mm]akefile*") ("tex" . "*.tex") ("texi" . "*.texi") ("asm" . "*.[sS]"))))
