@@ -65,5 +65,6 @@
           (select-window first-win)
           (if this-win-2nd (other-window 1))))))
 
+(global-set-key (kbd "<f12>") 'toggle-window-split)
 
 (provide 'gui-config)
