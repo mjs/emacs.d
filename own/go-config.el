@@ -1,8 +1,10 @@
-(require 'go-mode)
-
 (setenv "PATH" (format "%s:%s"
                        (expand-file-name "~/go/bin")
                        (getenv "PATH")))
+
+(setenv "GOPATH" (expand-file-name "~/go"))
+
+(require 'go-mode)
 
 (defun my-go-mode-hook ()
   (add-hook 'before-save-hook 'gofmt-before-save)
@@ -16,5 +18,9 @@
 (require 'go-autocomplete)
 (require 'auto-complete-config)
 (ac-config-default)
+
+(require 'go-oracle)
+(setq go-oracle-command "~/go/bin/oracle")
+(setq go-oracle-scope "github.com/juju/juju/cmd/juju github.com/juju/juju/cmd/jujud")
 
 (provide 'go-config)
