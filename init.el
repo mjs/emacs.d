@@ -181,10 +181,14 @@
 (global-set-key "\M-n" 'next-error)
 (global-set-key "\M-p" 'previous-error)
 
+(defun ff-find-other-file-other-window ()
+  (interactive)
+  (ff-find-other-file t))
+(global-set-key "\C-cO" 'ff-find-other-file-other-window)
+
 ;; Unique grep buffer per search
 (require 'grep-a-lot)
 (grep-a-lot-setup-keys)
-
 
 ;; highlighting to see all occurrences of a word in the buffer
 (setq highlighted-word "")
