@@ -139,4 +139,16 @@ Arg is passed through to `org-deadline'."
     (python . t)
     (emacs-lisp . t)))
 
+;; (defun org-meeting-timeline ()
+;;   (interactive)
+;;   (org-timeline)
+;;   (universal-argument)
+;;   (universal-argument)
+;;   (org-agenda-log-mode)
+;;   (end-of-buffer))
+
+;; (add-hook 'org-mode-hook
+;;           (lambda ()
+;;             (define-key org-mode-map (kbd "C-c M-m") 'org-meeting-timeline)))
+
 (provide 'org-config)
