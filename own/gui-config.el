@@ -67,4 +67,35 @@
 
 (global-set-key (kbd "<f12>") 'toggle-window-split)
 
+
+;; Default window splitting behaviour to suit wide monitors
+
+(setq split-height-threshold 45)
+(setq split-width-threshold 160)
+
+(defun split-window-sensibly-prefering-horizontal (&optional window)
+  "Same as split-window-sensibly but tries a width-wise split first
+ (better for wide monitors)"
+  (let ((window (or window (selected-window))))
+    (or (and (window-splittable-p window t)
+             ;; Split window horizontally.
+             (with-selected-window window
+               (split-window-right)))
+        (and (window-splittable-p window)
+             ;; Split window vertically.
+             (with-selected-window window
+               (split-window-below)))
+        (and (eq window (frame-root-window (window-frame window)))
+             (not (window-minibuffer-p window))
+             ;; If WINDOW is the only window on its frame and is not the
+             ;; minibuffer window, try to split it vertically disregarding
+             ;; the value of `split-height-threshold'.
+             (let ((split-height-threshold 0))
+               (when (window-splittable-p window)
+                 (with-selected-window window
+                   (split-window-below))))))))
+
+(setq split-window-preferred-function
+      'split-window-sensibly-prefering-horizontal)
+
 (provide 'gui-config)
