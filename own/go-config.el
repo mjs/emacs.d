@@ -13,8 +13,6 @@
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(require 'go-flymake)
-
 (require 'go-autocomplete)
 (require 'auto-complete-config)
 (ac-config-default)
