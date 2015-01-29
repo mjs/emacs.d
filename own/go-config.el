@@ -6,7 +6,13 @@
 
 (require 'go-mode)
 
+; Use goimports instead of go-fmt
+(setq gofmt-command "goimports")
+
 (defun my-go-mode-hook ()
+  (if (not (string-match "go" compile-command))
+      (set (make-local-variable 'compile-command)
+           "gotest -v"))
   (add-hook 'before-save-hook 'gofmt-before-save)
   (setq tab-width 4)
   (ethan-wspace-mode -1))
