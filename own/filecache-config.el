@@ -10,7 +10,6 @@
 
 ; Directories we expect to exist and indexed on all hosts
 (setq file-cache-common-directories '("~/Dropbox/Notes"
-                                      "~/go/src"
                                       "~/config"))
 
 ; site specific configuration can set file-cache-site-directories
