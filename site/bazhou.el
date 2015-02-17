@@ -6,4 +6,4 @@
 (setq midnight-period (* 6 60 60))
 
 (setq file-cache-site-directories '("~/go/src"
-                                    "~/canonical"))
+                                    "~/canonical/notes"))
