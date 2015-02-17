@@ -76,6 +76,7 @@
  '(magit-diff-hunk-header ((t (:inherit magit-header :foreground "yellow" :slant italic))))
  '(magit-item-highlight ((t (:background "#333333"))))
  '(org-level-1 ((t (:inherit outline-1))))
+ '(org-level-2 ((t (:inherit outline-2 :foreground "gold"))))
  '(org-todo ((t (:foreground "goldenrod"))))
  '(org-upcoming-deadline ((t (:foreground "dark goldenrod"))))
  '(org-warning ((t (:foreground "light goldenrod"))))
@@ -112,6 +113,7 @@
 (require 'evil-config)   ; Become like Vim!
 (require 'uniquify)
 (require 'flymake-config)
+(require 'lisp-config)
 (require 'python-config)
 (require 'go-config)
 (require 'yaml-config)
@@ -164,18 +166,21 @@
 ;; remember what I was doing before
 (recentf-mode 1)
 (defalias 'rf 'recentf-open-files)
+(global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 (defalias 'rb 'revert-buffer)
 
 (put 'narrow-to-region 'disabled nil)
 
-;; Interaction with the system clipboard
-;; (setq x-select-enable-clipboard t)
-;; (setq interprogram-paste-function 'x-cut-buffer-or-selection-value)
+;; Use the primary selection by default
+(setq x-select-enable-clipboard nil)
+(setq x-select-enable-primary t)
+(setq mouse-drag-copy-region t)
 
-;; (global-set-key "\C-cc" 'clipboard-kill-ring-save)
-;; (global-set-key "\C-cx" 'clipboard-kill-region)
-;; (global-set-key "\C-cv" 'clipboard-yank)
+;; Bindings for clipboard interaction
+(global-set-key "\C-cc" 'clipboard-kill-ring-save)
+(global-set-key "\C-cx" 'clipboard-kill-region)
+(global-set-key "\C-cv" 'clipboard-yank)
 
 (global-set-key "\C-x9" 'bury-buffer)
 
@@ -274,11 +279,6 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
-(defun eval-buffer-and-run-ert ()
-  (interactive)
-  (eval-buffer)
-  (ert "t"))
-(global-set-key [f5] 'eval-buffer-and-run-ert)
 
 (let ((site-lib "~/.emacs.d/site.el"))
   (message "loading site.el")
@@ -291,6 +291,7 @@
 (unless quick-start
   (require 'filecache-config)    ; load after site config
 
+  (setq server-socket-dir "~/.emacs.d/server")
   (server-start)
 
   ;; Allow editing from Chrome
