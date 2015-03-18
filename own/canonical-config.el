@@ -26,6 +26,9 @@
     (call-interactively 'compile))
   (setq go-compile-command compile-command))
 
+;; Have compile save automatically
+(setq compilation-ask-about-save nil)
+
 (defun refresh-juju-bits ()
   (interactive)
   (revert-all-buffers)
