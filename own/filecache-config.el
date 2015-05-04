@@ -20,8 +20,9 @@
   (interactive)
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (loop for dir in (append file-cache-site-directories file-cache-common-directories)
-        do (file-cache-add-directory-using-find dir)))
+  (with-demoted-errors "Error: %S"
+      (loop for dir in (append file-cache-site-directories file-cache-common-directories)
+            do (file-cache-add-directory-using-find dir))))
 
 (refresh-file-cache)
 
