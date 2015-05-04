@@ -143,11 +143,11 @@
 (add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
 
 ;; Git support
-(add-to-list 'load-path "~/.emacs.d/external/magit")
-(require 'magit)
-(require 'magit-svn)
-(global-set-key (kbd "C-x g") 'magit-status)
-(global-set-key (kbd "C-x l") 'magit-log)
+;(add-to-list 'load-path "~/.emacs.d/external/magit")
+;(require 'magit)
+;(require 'magit-svn)
+;(global-set-key (kbd "C-x g") 'magit-status)
+;(global-set-key (kbd "C-x l") 'magit-log)
 (require 'gitk)         ;; spawn gitk for the current file etc
 
 (defun show-file-name ()
@@ -291,7 +291,6 @@
 (unless quick-start
   (require 'filecache-config)    ; load after site config
 
-  (setq server-socket-dir "~/.emacs.d/server")
   (server-start)
 
   ;; Allow editing from Chrome
