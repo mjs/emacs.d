@@ -1,7 +1,7 @@
 SHELL = /bin/sh
 EMACS = emacs
 FILES = $(filter-out evil-tests.el,$(filter-out evil-pkg.el,$(wildcard evil*.el)))
-VERSION := $(shell sed -n '3s/.*"\(.*\)".*/\1/p' evil-pkg.el)
+VERSION := $(shell sed -ne '/define-package/,$$p' evil-pkg.el | sed -ne '/^\s*"[[:digit:]]\+\(\.[[:digit:]]\+\)*"\s*$$/ s/^.*"\(.*\)".*$$/\1/p')
 ELPAPKG = evil-$(VERSION)
 PROFILER =
 DOC = doc
@@ -34,7 +34,9 @@ compile-batch: clean
 	$(EMACS) --batch -Q -L . $(LIBS) -f batch-byte-compile ${FILES}
 
 # Documentation.
-info: clean pdf
+doc: info pdf
+
+info: clean
 	cd $(DOC) && makeinfo evil.texi
 
 pdf: clean
@@ -104,11 +106,15 @@ elpa:
 	@echo "Creating ELPA package $(ELPAPKG).tar"
 	@rm -rf ${ELPAPKG}
 	@mkdir ${ELPAPKG}
-	@cp $(FILES) evil-pkg.el ${ELPAPKG}
+	@cp $(FILES) COPYING evil-pkg.el ${ELPAPKG}
 	@tar cf ${ELPAPKG}.tar ${ELPAPKG}
 	@rm -rf ${ELPAPKG}
 
 # Change the version using make VERSION=x.y.z
 version:
-	cat evil-pkg.el | sed "3s/\".*\"/\"${VERSION}\"/" > evil-pkg.el.new && mv evil-pkg.el.new evil-pkg.el
+	@$(EMACS) --script scripts/evilupdate "${VERSION}"
+
+# Change the version using make VERSION=x.y.z, but do not post to the newsgroup
+nversion:
+	@$(EMACS) --script scripts/evilupdate nonews "${VERSION}"
 
