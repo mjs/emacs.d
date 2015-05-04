@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# key: _jujuconnsuite
+# --
+// Copyright `(nth 5 (decode-time))` Canonical Ltd.
+// Licensed under the AGPLv3, see LICENCE file for details.
+
+package $1_test
+
+import (
+	gc "gopkg.in/check.v1"
+
+	jujutesting "github.com/juju/juju/juju/testing"
+)
+
+type ${2:Suite} struct {
+	jujutesting.JujuConnSuite
+}
+
+var _ = gc.Suite(&$2{})
+
+func (s *$2) SetUpTest(c *gc.C) {
+     s.JujuConnSuite.SetUpTest(c)
+}
+
+func (s *$2) Test$3(c *gc.C) {
+     $0
+}
+
