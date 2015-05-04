@@ -4,7 +4,7 @@
 (require 'text-misc)
 
 (add-to-list 'file-cache-filter-regexps "/[.]git")  ;; git directories
-(add-to-list 'file-cache-filter-regexps "/[.]svn")  ;; svn directories 
+(add-to-list 'file-cache-filter-regexps "/[.]svn")  ;; svn directories
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
 (add-to-list 'file-cache-filter-regexps "[.]i$")    ;; hg files
 
@@ -20,9 +20,15 @@
   (interactive)
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (with-demoted-errors "Error: %S"
-      (loop for dir in (append file-cache-site-directories file-cache-common-directories)
-            do (file-cache-add-directory-using-find dir))))
+  (loop for dir in (append file-cache-site-directories file-cache-common-directories)
+        do (file-cache-add-directory-using-find dir)))
+
+; Prevent file-cache-add-file from blowing up on dangling symlinks
+; and deleted files.
+(defadvice file-cache-add-file (around file-cache-add-file-noerr activate)
+  (condition-case nil
+      ad-do-it
+    (error nil)))
 
 (refresh-file-cache)
 
@@ -47,15 +53,15 @@ directory, select directory. Lastly the file is opened."
 
 (defun file-cache-ido-read (prompt choices)
   (let ((ido-make-buffer-list-hook
-	 (lambda ()
-	   (setq ido-temp-list choices))))
+         (lambda ()
+           (setq ido-temp-list choices))))
     (ido-read-buffer prompt)))
 
 (defun file-cache-find-file-at-point ()
   "Using the filename at the point, open it using the file cache"
   (interactive)
   (let ((filename (filename-near-point)))
-    (if (string= filename "") 
+    (if (string= filename "")
         (message "No filename at point")
       (file-cache-ido-find-file filename))))
 
