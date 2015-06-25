@@ -9,4 +9,12 @@
 (add-hook 'midnight-hook 'recentf-save-list)
 (add-hook 'midnight-hook 'refresh-file-cache)
 
+;; If the compilation buffer is displayed already, keep using that
+;; frame and window. If it isn't displayed, pop it up in a new frame.
+(add-to-list
+ 'display-buffer-alist
+  '("\\*compilation\\*"
+    (display-buffer-reuse-window display-buffer-pop-up-frame)
+    (reusable-frames . t)))
+
 (provide 'misc-misc)
