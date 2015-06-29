@@ -13,6 +13,9 @@
 (autoload 'jedi:setup "jedi" nil t)
 (add-hook 'python-mode-hook 'jedi:setup)
 
+;; Include underscores when matching words (not sure why this isn't the default)
+(modify-syntax-entry ?_ "w" python-mode-syntax-table)
+
 ;; Pymacs and ropemacs
 (require 'pymacs)
 (pymacs-load "ropemacs" "rope-")
