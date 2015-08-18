@@ -7,8 +7,12 @@
  '(appt-display-format (quote window))
  '(browse-url-browser-function (quote browse-url-generic))
  '(browse-url-generic-program "run-chrome")
- '(clean-buffer-list-kill-buffer-names (quote ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
- '(clean-buffer-list-kill-never-buffer-names (quote ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
+ '(clean-buffer-list-kill-buffer-names
+   (quote
+    ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
+ '(clean-buffer-list-kill-never-buffer-names
+   (quote
+    ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
  '(compilation-scroll-output t)
  '(compile-command "waf-build.sh")
@@ -16,10 +20,23 @@
  '(flymake-number-of-errors-to-display 3)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
- '(grep-files-aliases (quote (("all" . "* .*") ("el" . "*.el") ("c" . "*.cc *.[ch]xx *.[ch]pp *.[cChH] *.CC *.HH *.[ch]++ *.inc") ("h" . "*.h") ("l" . "[Cc]hange[Ll]og*") ("m" . "[Mm]akefile*") ("tex" . "*.tex") ("texi" . "*.texi") ("asm" . "*.[sS]"))))
- '(grep-find-template "find . <X> -type f <F> -print0 | xargs -0 grep <C> -EnH -e <R>")
+ '(grep-files-aliases
+   (quote
+    (("all" . "* .*")
+     ("el" . "*.el")
+     ("c" . "*.cc *.[ch]xx *.[ch]pp *.[cChH] *.CC *.HH *.[ch]++ *.inc")
+     ("h" . "*.h")
+     ("l" . "[Cc]hange[Ll]og*")
+     ("m" . "[Mm]akefile*")
+     ("tex" . "*.tex")
+     ("texi" . "*.texi")
+     ("asm" . "*.[sS]"))))
+ '(grep-find-template
+   "find . <X> -type f <F> -print0 | xargs -0 grep <C> -EnH -e <R>")
  '(grep-template "grep <X> <C> -EnH -e <R> <F>")
- '(hippie-expand-try-functions-list (quote (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
+ '(hippie-expand-try-functions-list
+   (quote
+    (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
  '(ido-default-buffer-method (quote selected-window))
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
@@ -31,7 +48,9 @@
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
- '(midnight-hook (quote (refresh-file-cache recentf-save-list clean-buffer-list tramp-cleanup-all-connections)))
+ '(midnight-hook
+   (quote
+    (refresh-file-cache recentf-save-list clean-buffer-list tramp-cleanup-all-connections)))
  '(midnight-mode t nil (midnight))
  '(mouse-avoidance-mode nil nil (avoid))
  '(org-agenda-files nil)
