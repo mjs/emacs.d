@@ -144,6 +144,7 @@
 (require 'lua-mode)
 (require 'org-config)
 (require 'calc)
+(require 'php-mode)
 
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
