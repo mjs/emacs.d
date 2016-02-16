@@ -76,4 +76,22 @@
         (revert-buffer t t t))))
     (message "Reverted all unmodified buffers"))
 
+(defun sudo-edit (&optional arg)
+  "Edit currently visited file as root.
+
+With a prefix ARG prompt for a file to visit.
+Will also prompt for a file to visit if current
+buffer is not visiting a file."
+  (interactive "P")
+  (if (or arg (not buffer-file-name))
+      (find-file (concat "/sudo::"
+                         (ido-read-file-name "Find file(as root): ")))
+    (cond ((string-prefix-p "/sudo:" buffer-file-name)
+           (error "can't sudo an already sudo'ed file"))
+          ((string-prefix-p "/ssh:" buffer-file-name)
+           (error "can't sudo a remote file"))
+          (t (progn
+               (find-alternate-file (concat "/sudo::" buffer-file-name))
+               (rename-buffer (concat (buffer-name) "(root)")))))))
+
 (provide 'file-misc)
