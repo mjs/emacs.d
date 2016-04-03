@@ -20,8 +20,10 @@
   (interactive)
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (loop for dir in (append file-cache-site-directories file-cache-common-directories)
-        do (file-cache-add-directory-using-find dir)))
+  (let ((all-cache-directories (append file-cache-site-directories file-cache-common-directories)))
+    (print all-cache-directories)
+    (loop for dir in all-cache-directories
+	  do (file-cache-add-directory-using-find dir))))
 
 ; Prevent file-cache-add-file from blowing up on dangling symlinks
 ; and deleted files.
