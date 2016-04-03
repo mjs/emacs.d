@@ -56,6 +56,12 @@
  '(org-agenda-files nil)
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
+ '(pastebin-default-domain "paste.ubuntu.com")
+ '(pastebin-domain-versions
+   (quote
+    (("pastebin.com" "/api_public.php")
+     ("pastebin.example.com" "/pastebin.php")
+     ("paste.ubuntu.com" ""))))
  '(recentf-max-saved-items 100)
  '(ropemacs-enable-shortcuts nil)
  '(shell-file-name "/bin/bash")
@@ -146,6 +152,7 @@
 (require 'calc)
 (require 'php-mode)
 
+(require 'longlines)
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
 
@@ -218,13 +225,13 @@
 (defun ff-find-other-file-other-window ()
   (interactive)
   (ff-find-other-file t))
-(global-set-key (kbd "C-c O") 'ff-find-other-file-other-window)
+(global-set-key (kbd "C-c M-o") 'ff-find-other-file-other-window)
 
 (defun ff-delete-windows-and-find-other-file-other-window ()
   (interactive)
   (delete-other-windows)
   (ff-find-other-file-other-window))
-(global-set-key (kbd "C-c C-o") 'ff-delete-windows-and-find-other-file-other-window)
+(global-set-key (kbd "C-c O") 'ff-delete-windows-and-find-other-file-other-window)
 
 ;; Unique grep buffer per search
 (require 'grep-a-lot)
@@ -306,8 +313,7 @@
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
 ;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
 
-
-(let ((site-lib "~/.emacs.d/site.el"))
+(let ((site-lib (expand-file-name "~/.emacs.d/site.el")))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
