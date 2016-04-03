@@ -48,4 +48,8 @@ by using nxml's indentation rules."
         (backward-char) (insert "\n"))
       (indent-region begin end)))
 
+(setq synonyms-file (expand-file-name "~/.emacs.d/mthesaur.txt"))
+(setq synonyms-cache-file (expand-file-name "~/.emacs.d/tmp/mthesaur.txt.cache"))
+(require 'synonyms)
+
 (provide 'text-misc)
