@@ -6,7 +6,7 @@
  '(appt-display-duration 30)
  '(appt-display-format (quote window))
  '(browse-url-browser-function (quote browse-url-generic))
- '(browse-url-generic-program "run-chrome")
+ '(browse-url-generic-program "browser-nw")
  '(clean-buffer-list-kill-buffer-names
    (quote
     ("*Help*" "*Apropos*" "*Man " "*Buffer List*" "*Compile-Log*" "*info*" "*vc*" "*vc-diff*" "*diff*" "*Org Agenda*")))
