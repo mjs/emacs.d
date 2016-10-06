@@ -14,6 +14,7 @@
    (quote
     ("*scratch*" "*Messages*" "*server*" "TODO.org" "*Org Agenda*")))
  '(clean-buffer-list-kill-never-regexps (quote ("^ \\*Minibuf-.*\\*$")))
+ '(column-number-mode t)
  '(compilation-scroll-output t)
  '(compile-command "waf-build.sh")
  '(dabbrev-case-fold-search nil)
@@ -72,6 +73,8 @@
  '(sml-modeline-mode t)
  '(sml-modeline-numbers (quote line-numbers))
  '(tags-revert-without-query t)
+ '(tool-bar-mode nil)
+ '(transient-mark-mode (quote (only . t)))
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
  '(visible-bell t)
@@ -82,7 +85,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 100 :width normal :foundry "unknown" :family "DejaVu Sans Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "PfEd" :family "DejaVu Sans Mono"))))
  '(cursor ((t (:background "yellow"))))
  '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
@@ -129,7 +132,7 @@
 ;; Allow the reset of setup to use ELPA packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
                          ("marmalade" . "http://marmalade-repo.org/packages/")
-                         ("melpa" . "http://melpa.milkbox.net/packages/")))
+                         ("melpa" . "http://melpa.org/packages/")))
 (setq package-enable-at-startup nil)
 (package-initialize)
 
@@ -156,15 +159,6 @@
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
 
-(defun email-config ()
-  (mail-mode)
-  (set-fill-column 72)
-  (auto-fill-mode)
-  (flyspell-mode))
-
-(add-to-list 'auto-mode-alist '("\\.eml$" . email-config))
-(add-to-list 'auto-mode-alist '("mutt-.+-.+$" . email-config))
-
 ;; Crontab support
 (autoload 'crontab-mode "crontab-mode")
 (add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
@@ -176,12 +170,6 @@
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
 
-;; Git support
-;(add-to-list 'load-path "~/.emacs.d/external/magit")
-;(require 'magit)
-;(require 'magit-svn)
-;(global-set-key (kbd "C-x g") 'magit-status)
-;(global-set-key (kbd "C-x l") 'magit-log)
 (require 'gitk)         ;; spawn gitk for the current file etc
 
 (defun show-file-name ()
@@ -225,13 +213,13 @@
 (defun ff-find-other-file-other-window ()
   (interactive)
   (ff-find-other-file t))
-(global-set-key (kbd "C-c M-o") 'ff-find-other-file-other-window)
+(global-set-key (kbd "C-c O") 'ff-find-other-file-other-window)
 
 (defun ff-delete-windows-and-find-other-file-other-window ()
   (interactive)
   (delete-other-windows)
   (ff-find-other-file-other-window))
-(global-set-key (kbd "C-c O") 'ff-delete-windows-and-find-other-file-other-window)
+(global-set-key (kbd "C-c C-o") 'ff-delete-windows-and-find-other-file-other-window)
 
 ;; Unique grep buffer per search
 (require 'grep-a-lot)
