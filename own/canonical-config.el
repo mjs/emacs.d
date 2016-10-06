@@ -15,7 +15,7 @@
 
 
 ;; This tracks the compile command used for any .go file
-(setq go-compile-command "gotest -v")
+(setq go-compile-command "gochecker -v")
 
 ;; TODO make this non-juju specific by hunting back towards $GOPATH for the root of the repo
 (defun compile-juju ()
