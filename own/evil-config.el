@@ -1,5 +1,3 @@
-(add-to-list 'load-path "~/.emacs.d/external/evil")
-
 (setq evil-esc-delay 0.001)           ; avoid ESC/meta mixups
 
 (keyboard-translate ?\C-i ?\H-i)      ; map C-i to Hyper-i to avoid conflict with TAB
@@ -35,6 +33,10 @@
 ;; Alternate escape to normal mode
 (define-key evil-insert-state-map (kbd "C-k") 'evil-force-normal-state)
 (define-key evil-normal-state-map (kbd "C-k") 'evil-force-normal-state)
+
+;; Not sure why this is necessary but various insert mode keys don't work
+;; without it.
+(evil-update-insert-state-bindings nil nil t)
 
 ;; Useful bindings
 (define-key evil-normal-state-map (kbd "C-]") 'etags-select-ultimate-find-tag)

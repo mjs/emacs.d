@@ -50,6 +50,8 @@
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
+ '(magit-push-arguments (quote ("--force-with-lease")))
+ '(menu-bar-mode nil)
  '(midnight-hook
    (quote
     (refresh-file-cache recentf-save-list clean-buffer-list tramp-cleanup-all-connections)))
@@ -137,9 +139,10 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
-(require 'gui-config)
-(require 'tramp)
 (require 'evil-config)   ; Become like Vim!
+(require 'gui-config)
+(require 'magit-config)
+(require 'tramp)
 (require 'uniquify)
 (require 'flymake-config)
 (require 'lisp-config)
