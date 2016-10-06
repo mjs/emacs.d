@@ -21,6 +21,7 @@
  '(flymake-number-of-errors-to-display 3)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
+ '(grep-command "pt --nogroup -e")
  '(grep-files-aliases
    (quote
     (("all" . "* .*")
@@ -33,8 +34,8 @@
      ("texi" . "*.texi")
      ("asm" . "*.[sS]"))))
  '(grep-find-template
-   "find . <X> -type f <F> -print0 | xargs -0 grep <C> -EnH -e <R>")
- '(grep-template "grep <X> <C> -EnH -e <R> <F>")
+   "find . <X> -type f <F> -print0 | xargs -0 pt <C> --nogroup --depth 0 -e <R>")
+ '(grep-template "pt <C> --nogroup --depth 0 -e <R> <F>")
  '(hippie-expand-try-functions-list
    (quote
     (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
