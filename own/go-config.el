@@ -13,7 +13,7 @@
 (defun my-go-mode-hook ()
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
-           "gotest -v"))
+           "gochecker -v"))
   (add-hook 'before-save-hook 'gofmt-before-save)
   (setq tab-width 4)
   (ethan-wspace-mode -1))
@@ -24,7 +24,7 @@
 (require 'auto-complete-config)
 (ac-config-default)
 
-;; Seems to cause startup to abort early
+;; Seems to cause startup to abort early and the keybindings suck
 ;; (require 'oracle)
 ;; (setq go-oracle-command "~/go/bin/oracle")
 ;; (setq go-oracle-scope "github.com/juju/juju/cmd/juju github.com/juju/juju/cmd/jujud")
