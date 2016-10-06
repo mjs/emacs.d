@@ -163,6 +163,9 @@
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
 
+(require 'rg)
+(defalias 'rg 'ripgrep-regexp)
+
 ;; Crontab support
 (autoload 'crontab-mode "crontab-mode")
 (add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
