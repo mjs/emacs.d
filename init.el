@@ -21,7 +21,7 @@
  '(flymake-number-of-errors-to-display 3)
  '(frame-background-mode (quote dark))
  '(global-hl-line-mode t)
- '(grep-command "pt --nogroup -e")
+ '(grep-command "rg --no-heading -e")
  '(grep-files-aliases
    (quote
     (("all" . "* .*")
@@ -34,8 +34,8 @@
      ("texi" . "*.texi")
      ("asm" . "*.[sS]"))))
  '(grep-find-template
-   "find . <X> -type f <F> -print0 | xargs -0 pt <C> --nogroup --depth 0 -e <R>")
- '(grep-template "pt <C> --nogroup --depth 0 -e <R> <F>")
+   "find . <X> -type f <F> -print0 | xargs -0 rg <C> --no-heading --maxdepth 1 -e <R>")
+ '(grep-template "rg <C> --no-heading --maxdepth 1 -e <R> <F>")
  '(hippie-expand-try-functions-list
    (quote
     (try-expand-dabbrev try-expand-dabbrev-all-buffers try-expand-dabbrev-from-kill try-complete-file-name-partially try-complete-file-name try-expand-all-abbrevs try-expand-list try-complete-lisp-symbol-partially try-complete-lisp-symbol try-expand-line)))
@@ -89,6 +89,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(default ((t (:inherit nil :stipple nil :background "#000000" :foreground "#eeeeee" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 98 :width normal :foundry "PfEd" :family "DejaVu Sans Mono"))))
+ '(compilation-line-number ((t (:inherit font-lock-keyword-face :underline nil))))
  '(cursor ((t (:background "yellow"))))
  '(diff-added ((t (:inherit diff-changed :foreground "#00dd00"))))
  '(diff-file-header ((((class color) (min-colors 88) (background dark)) (:weight bold))))
@@ -115,6 +116,7 @@
  '(post-signature-text-face ((((class color) (background dark)) (:foreground "lightblue"))))
  '(py-builtins-face ((t (:foreground "orange red"))) t)
  '(py-pseudo-keyword-face ((t (:foreground "dark orange"))) t)
+ '(ripgrep-hit-face ((t (:inherit compilation-info :underline nil))))
  '(sml-modeline-end-face ((t (:inherit match :foreground "white"))))
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white"))))
  '(tex-verbatim ((t (:foreground "gray")))))
@@ -169,7 +171,6 @@
 ;; Crontab support
 (autoload 'crontab-mode "crontab-mode")
 (add-to-list 'auto-mode-alist '("\\.crontab$" . crontab-mode))
-
 
 (autoload 'markdown-mode "markdown-mode"
    "Major mode for editing Markdown files" t)
