@@ -121,6 +121,9 @@
  '(sml-modeline-vis-face ((t (:inherit region :foreground "white"))))
  '(tex-verbatim ((t (:foreground "gray")))))
 
+;; Switch to the home directory (no matter where the daemon starts from)
+(cd (expand-file-name "~"))
+
 (setq temporary-file-directory "~/.emacs.d/tmp/")
 
 ;; set true to skip non-essential (and slow) startup items
@@ -141,6 +144,7 @@
 (setq package-enable-at-startup nil)
 (package-initialize)
 
+(require 'elisp-utils)
 (require 'evil-config)   ; Become like Vim!
 (require 'gui-config)
 (require 'magit-config)
@@ -160,12 +164,12 @@
 (require 'org-config)
 (require 'calc)
 (require 'php-mode)
+(require 'pastebinit)
 
 (require 'longlines)
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
 
-(require 'rg)
 (defalias 'rg 'ripgrep-regexp)
 
 ;; Crontab support
