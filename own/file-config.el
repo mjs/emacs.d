@@ -1,3 +1,29 @@
+;; remember what I was doing before
+(recentf-mode 1)
+(defalias 'rf 'recentf-open-files)
+(global-set-key (kbd "C-x C-r") 'recentf-open-files)
+
+(defalias 'rb 'revert-buffer)
+
+(defun show-file-name ()
+  "Show the full path file name in the minibuffer."
+  (interactive)
+  (message (buffer-file-name)))
+(global-set-key (kbd "C-c g") 'show-file-name)
+(global-set-key (kbd "C-c C-g") 'show-file-name)
+
+(defun ff-find-other-file-other-window ()
+  (interactive)
+  (ff-find-other-file t))
+(global-set-key (kbd "C-c O") 'ff-find-other-file-other-window)
+
+(defun ff-delete-windows-and-find-other-file-other-window ()
+  (interactive)
+  (delete-other-windows)
+  (ff-find-other-file-other-window))
+(global-set-key (kbd "C-c C-o") 'ff-delete-windows-and-find-other-file-other-window)
+
+
 ;; modified from: http://steve.yegge.googlepages.com/my-dot-emacs-file
 (defun rename-file-and-buffer ()
   "Renames both current buffer and file it's visiting to NEW-NAME."
@@ -94,4 +120,4 @@ buffer is not visiting a file."
                (find-alternate-file (concat "/sudo::" buffer-file-name))
                (rename-buffer (concat (buffer-name) "(root)")))))))
 
-(provide 'file-misc)
+(provide 'file-config)
