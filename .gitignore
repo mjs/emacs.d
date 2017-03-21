@@ -1,0 +1,4 @@
+*.elc
+*.pyc
+/tmp/
+ac-comphist.dat
