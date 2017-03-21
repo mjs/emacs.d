@@ -1,6 +1,6 @@
-;; set true to skip non-essential (and slow) startup items
-;; useful when restarting Emacs a lot to test some new config
-(setq quick-start nil)
+;; Set true to skip non-essential (and slow) startup items
+;; useful when restarting Emacs a lot to test some new config.
+(defvar quick-start nil)
 
 ;; Move all the customize stuff elsewhere to reduce clutter.
 (setq custom-file "~/.emacs.d/custom.el")
@@ -9,15 +9,18 @@
 ;; Switch to the home directory (no matter where the daemon starts from)
 (cd (expand-file-name "~"))
 
-(setq temporary-file-directory "~/.emacs.d/tmp/")
-
-;; make more elisp mods available
+;; Make more elisp mods available.
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 ;; TODO: use officially packaged orgmode
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
-(add-to-list 'load-path "~/.emacs.d/elpa")
+
+; XXX is this necessary?
+(add-to-list 'load-path "~/.emacs.d/elpa") 
+
+;; Put temporary files in sane locations.
+(require 'temp-config)
 
 ;; Allow the reset of setup to use elpa packages
 (setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
@@ -27,7 +30,6 @@
 
 (require 'elisp-utils)
 (require 'evil-config)   ; Become like Vim!
-(require 'tramp)
 (require 'gui-config)
 (require 'clipboard-config)
 (require 'magit-config)
@@ -56,11 +58,6 @@
    "Major mode for editing Markdown files" t)
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
-;; Keep temporary and backup files in a sane place
-(setq backup-directory-alist '(("." . "~/.emacs.d/tmp/backup")))
-(setq tramp-auto-save-directory "~/.emacs.d/tmp/autosave")
-(setq tramp-backup-directory-alist backup-directory-alist)
 
 ;; TODO: remove?
 (autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
