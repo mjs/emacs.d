@@ -47,41 +47,14 @@
 (require 'php-mode)
 (require 'pastebinit)
 (require 'dired-config)
+(require 'gpg-config)
+(require 'yasnippet-config)
+(require 'csharp-config)
+(require 'markdown-config)
 (require 'text-config)
 (require 'grep-config)
 (require 'file-config)
-
-(autoload 'markdown-mode "markdown-mode"
-   "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
-;; TODO: remove?
-(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
-(setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-
-;; GPG assistant
-(require 'epa-file)
-(epa-file-enable)
-
-(global-set-key "\C-x9" 'bury-buffer)
-
-;; nice completion
-(global-set-key (kbd "M-/") 'hippie-expand)
-
-;; yasnippet
-(yas-global-mode 1)
-(setf yas/indent-line nil)  ; prevent annoying auto-indent behaviour
-
-;; C#
-(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
-(setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
-
-;; Markdown
-(autoload 'markdown-mode "markdown-mode"
-   "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+(require 'misc-config)
 
 (let ((site-lib (expand-file-name "~/.emacs.d/site.el")))
   (message "loading site.el")
