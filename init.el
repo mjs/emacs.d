@@ -16,9 +16,6 @@
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
 (add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 
-; XXX is this necessary?
-(add-to-list 'load-path "~/.emacs.d/elpa") 
-
 ;; Put temporary files in sane locations.
 (require 'temp-config)
 
