@@ -76,6 +76,16 @@
 (yas-global-mode 1)
 (setf yas/indent-line nil)  ; prevent annoying auto-indent behaviour
 
+;; C#
+(autoload 'csharp-mode "csharp-mode" "Major mode for editing C# code." t)
+(setq auto-mode-alist (append '(("\\.cs$" . csharp-mode)) auto-mode-alist))
+
+;; Markdown
+(autoload 'markdown-mode "markdown-mode"
+   "Major mode for editing Markdown files" t)
+(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
+(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
+
 ;; Haskell support
 ;; XXX: remove
 (load "~/.emacs.d/external/haskell/haskell-site-file")
