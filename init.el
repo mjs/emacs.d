@@ -86,21 +86,9 @@
 (add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
 (add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
 
-;; Haskell support
-;; XXX: remove
-(load "~/.emacs.d/external/haskell/haskell-site-file")
-(add-hook 'haskell-mode-hook 'turn-on-haskell-doc-mode)
-(add-hook 'haskell-mode-hook 'turn-on-haskell-indentation)
-;;(add-hook 'haskell-mode-hook 'turn-on-haskell-indent)
-;;(add-hook 'haskell-mode-hook 'turn-on-haskell-simple-indent)
-
 (let ((site-lib (expand-file-name "~/.emacs.d/site.el")))
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
-
-;; (defun vc-git-annotate-command (file buf &optional rev)
-;;   (let ((name (file-relative-name file)))
-;;     (vc-git-command buf 'async nil "blame" "--date=iso" rev "--" name)))
 
 (unless quick-start
   (require 'filecache-config)    ; load after site config
