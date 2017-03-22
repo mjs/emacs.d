@@ -73,10 +73,7 @@
 (global-set-key (kbd "M-/") 'hippie-expand)
 
 ;; yasnippet
-;; TODO: use package
-(add-to-list 'load-path "~/.emacs.d/external/yasnippet")
-(require 'yasnippet)
-(yas/global-mode 1)
+(yas-global-mode 1)
 (setf yas/indent-line nil)  ; prevent annoying auto-indent behaviour
 
 ;; Haskell support
