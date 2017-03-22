@@ -6,7 +6,8 @@
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
 
-;; Switch to the home directory (no matter where the daemon starts from)
+;; Switch to sane starting directory (no matter where the daemon
+;; starts from)
 (cd (expand-file-name "~"))
 
 ;; Make more elisp mods available.
@@ -32,8 +33,8 @@
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc
 (require 'uniquify)
-(require 'flymake-config)
 (require 'lisp-config)
+(require 'flymake-config)
 (require 'python-config)
 (require 'go-config)
 (require 'yaml-config)
@@ -69,4 +70,3 @@
   (require 'edit-server)
   (edit-server-start))
 
-(message "init.el: end")

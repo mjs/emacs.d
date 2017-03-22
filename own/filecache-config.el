@@ -9,6 +9,7 @@
 (add-to-list 'file-cache-filter-regexps "[.]i$")    ;; hg files
 
 ; Directories we expect to exist and indexed on all hosts
+; XXX why not just have one that gets appended to?
 (setq file-cache-common-directories '("~/Dropbox/Notes"
                                       "~/config"))
 
@@ -21,9 +22,8 @@
   (message "Loading file cache...")
   (file-cache-clear-cache)
   (let ((all-cache-directories (append file-cache-site-directories file-cache-common-directories)))
-    (print all-cache-directories)
     (loop for dir in all-cache-directories
-	  do (file-cache-add-directory-using-find dir))))
+          do (file-cache-add-directory-using-find dir))))
 
 ; Prevent file-cache-add-file from blowing up on dangling symlinks
 ; and deleted files.
