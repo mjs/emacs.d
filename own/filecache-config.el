@@ -11,7 +11,9 @@
 ; Directories we expect to exist and indexed on all hosts
 ; XXX why not just have one that gets appended to?
 (setq file-cache-common-directories '("~/Dropbox/Notes"
-                                      "~/config"))
+                                      "~/config"
+                                      "~/.emacs.d"
+                                      ))
 
 ; site specific configuration can set file-cache-site-directories
 (unless (boundp 'file-cache-site-directories)
