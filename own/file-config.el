@@ -15,13 +15,13 @@
 (defun ff-find-other-file-other-window ()
   (interactive)
   (ff-find-other-file t))
-(global-set-key (kbd "C-c O") 'ff-find-other-file-other-window)
 
 (defun ff-delete-windows-and-find-other-file-other-window ()
   (interactive)
   (delete-other-windows)
   (ff-find-other-file-other-window))
-(global-set-key (kbd "C-c C-o") 'ff-delete-windows-and-find-other-file-other-window)
+
+(global-set-key (kbd "C-c SPC") 'ff-delete-windows-and-find-other-file-other-window)
 
 
 ;; modified from: http://steve.yegge.googlepages.com/my-dot-emacs-file
