@@ -1,8 +1,6 @@
 (setenv "PATH" (format "%s:%s"
                        (expand-file-name "~/go/bin")
                        (getenv "PATH")))
-
-(setenv "GOROOT" "/snap/go/current") ; XXX not ideal
 (setenv "GOPATH" (expand-file-name "~/go"))
 
 
