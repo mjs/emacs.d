@@ -3,10 +3,11 @@
 (require 'filecache)
 (require 'text-misc)
 
-(add-to-list 'file-cache-filter-regexps "/[.]git")  ;; git directories
-(add-to-list 'file-cache-filter-regexps "/[.]svn")  ;; svn directories
+(add-to-list 'file-cache-filter-regexps "/[.]git")
+(add-to-list 'file-cache-filter-regexps "/[.]svn")
+(add-to-list 'file-cache-filter-regexps "/[.]hg")
+(add-to-list 'file-cache-filter-regexps "[.]i$")    ;; created by hg
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
-(add-to-list 'file-cache-filter-regexps "[.]i$")    ;; hg files
 
 ; Directories we expect to exist and indexed on all hosts
 ; XXX why not just have one that gets appended to?
