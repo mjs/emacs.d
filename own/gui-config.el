@@ -1,3 +1,22 @@
+
+;; Colour theme
+; (load-theme 'kosmos)
+; (load-theme 'distinguished)
+; (load-theme 'danneskjold)
+; (load-theme 'gruber-darker)
+(load-theme 'metalspleen)
+
+(defun disable-all-themes ()
+  "Turn off all enabled colour themes"
+  (interactive)
+  (dolist (sometheme custom-enabled-themes)
+    (disable-theme sometheme)))
+
+(defun replace-theme ()
+  (interactive)
+  (disable-all-themes)
+  (call-interactively 'load-theme))
+
 ;; Get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
