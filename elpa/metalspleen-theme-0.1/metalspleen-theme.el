@@ -32,6 +32,7 @@
        (fg2 "#7b87a0")
        (fg3 "#717b92")
        (fg4 "#667084")
+       (bg0 "#141818")
        (bg1 "#020a07")
        (bg2 "#2a3235")
        (bg3 "#3d4446")
@@ -62,11 +63,11 @@
         `(font-lock-variable-name-face ((,class (:foreground ,var))))
         `(font-lock-warning-face ((,class (:foreground ,warning :background ,bg2))))
         `(region ((,class (:background ,fg1 :foreground ,bg1))))
-        `(highlight ((,class (:foreground ,fg3 :background ,bg3))))
-        `(hl-line ((,class (:background  ,bg2))))
-        `(fringe ((,class (:background ,bg2 :foreground ,fg4))))
-        `(cursor ((,class (:background ,bg3))))
-        `(show-paren-match-face ((,class (:background ,warning))))
+        `(highlight ((,class (:foreground ,fg3 :background ,bg2))))
+        `(hl-line ((,class (:background  "#1f1f1f"))))
+        `(fringe ((,class (:background ,bg1 :foreground ,warning2))))
+        `(cursor ((,class (:background ,bg4))))
+        `(show-paren-match-face ((,class (:foreground ,warning :background ,bg2))))
         `(isearch ((,class (:bold t :foreground ,warning :background ,bg3))))
 
         ;; Mode-line
@@ -80,8 +81,8 @@
                                               :box ,(list
                                                      :line-width 4
                                                      :color bg2)))))
-        `(mode-line-highlight ((,class (:foreground ,keyword :box nil :weight bold))))
-        `(mode-line-emphasis ((,class (:foreground ,fg3))))
+        `(mode-line-highlight ((,class (:foreground ,keyword :box nil))))
+        `(mode-line-emphasis ((,class (:foreground ,keyword))))
 
         `(sml-modeline-end-face ((,class (:foreground ,fg1 :background ,bg3))))
         `(sml-modeline-vis-face ((,class (:foreground ,fg1 :background ,bg4))))
@@ -170,7 +171,8 @@
         `(magit-hunk-heading           ((,class (:background ,bg3))))
         `(magit-section-highlight      ((,class (:background ,bg2))))
         `(magit-hunk-heading-highlight ((,class (:background ,bg3))))
-        `(magit-diff-context-highlight ((,class (:background ,bg3 :foreground ,fg3))))
+        `(magit-diff-context ((,class (:background ,bg1 :foreground ,fg3))))
+        `(magit-diff-context-highlight ((,class (:background ,bg0 :foreground ,fg3))))
         `(magit-diffstat-added   ((,class (:foreground ,type))))
         `(magit-diffstat-removed ((,class (:foreground ,var))))
         `(magit-process-ok ((,class (:foreground ,func :weight bold))))
