@@ -66,8 +66,8 @@
         `(highlight ((,class (:foreground ,fg3 :background ,bg2))))
         `(hl-line ((,class (:background  "#1f1f1f"))))
         `(fringe ((,class (:background ,bg1 :foreground ,warning2))))
-        `(cursor ((,class (:background ,bg4))))
-        `(show-paren-match-face ((,class (:foreground ,warning :background ,bg2))))
+        `(cursor ((,class (:background ,warning2))))
+        `(show-paren-match-face ((,class (:foreground ,warning2 :background ,bg2))))
         `(isearch ((,class (:bold t :foreground ,warning :background ,bg3))))
 
         ;; Mode-line
@@ -166,6 +166,7 @@
         `(rainbow-delimiters-depth-6-face ((,class :foreground ,fg1)))
         `(rainbow-delimiters-depth-7-face ((,class :foreground ,type)))
         `(rainbow-delimiters-depth-8-face ((,class :foreground ,var)))
+
         `(magit-item-highlight ((,class :background ,bg3)))
         `(magit-section-heading        ((,class (:foreground ,keyword :weight bold))))
         `(magit-hunk-heading           ((,class (:background ,bg3))))
@@ -181,6 +182,9 @@
         `(magit-log-author ((,class (:foreground ,fg3))))
         `(magit-hash ((,class (:foreground ,fg2))))
         `(magit-diff-file-header ((,class (:foreground ,fg2 :background ,bg3))))
+
+        `(smerge-refined-added ((,class (:foreground ,warning2))))
+
         `(lazy-highlight ((,class (:foreground ,fg2 :background ,bg3))))
         `(term ((,class (:foreground ,fg1 :background ,bg1))))
         `(term-color-black ((,class (:foreground ,bg3 :background ,bg3))))
