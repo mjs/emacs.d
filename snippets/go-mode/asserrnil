@@ -1,0 +1,4 @@
+# key: aerrnil
+# name: Assert error is nil
+# --
+c.Assert(err, jc.ErrorIsNil)

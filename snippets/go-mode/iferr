@@ -1,0 +1,6 @@
+# key: iferr
+# name: if err
+# --
+if err != nil {
+	return $1
+}
