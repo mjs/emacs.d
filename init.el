@@ -38,6 +38,7 @@
 (require 'flymake-config)
 (require 'python-config)
 (require 'go-config)
+(require 'rust-config)
 (require 'yaml-config)
 (require 'js-config)
 (require 'c-misc)
