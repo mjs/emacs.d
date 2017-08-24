@@ -17,6 +17,11 @@
   (disable-all-themes)
   (call-interactively 'load-theme))
 
+(defun refresh-theme ()
+  (interactive)
+  (disable-all-themes)
+  (load-theme 'metalspleen t))
+
 ;; Get rid of useless chrome
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
