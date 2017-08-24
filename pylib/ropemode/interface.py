@@ -1,7 +1,7 @@
 import os
 
 import rope.base.change
-from rope.base import libutils
+from rope.base import libutils, utils, exceptions
 from rope.contrib import codeassist, generate, autoimport, findit
 
 from ropemode import refactor, decorators, dialog
@@ -84,6 +84,13 @@ class RopeMode(object):
             root = self.env.ask_directory('Rope project root folder: ')
         if self.project is not None:
             self.close_project()
+        address = rope.base.project._realpath(os.path.join(root,
+                                                           '.ropeproject'))
+        if not os.path.exists(address):
+            if not self.env.y_or_n('Project not exists in %s, ' \
+                                   'create one?' % root):
+                self.env.message("Project creation aborted")
+                return
         progress = self.env.create_progress('Opening [%s] project' % root)
         self.project = rope.base.project.Project(root)
         if self.env.get('enable_autoimport'):
@@ -139,24 +146,44 @@ class RopeMode(object):
 
     @decorators.local_command('a g', shortcut='C-c g')
     def goto_definition(self):
-        self._check_project()
-        resource, offset = self._get_location()
-        maxfixes = self.env.get('codeassist_maxfixes')
-        definition = codeassist.get_definition_location(
-            self.project, self._get_text(), offset, resource, maxfixes)
-        if tuple(definition) != (None, None):
+        definition = self._base_definition_location()
+        if definition:
             self.env.push_mark()
             self._goto_location(definition[0], definition[1])
         else:
             self.env.message('Cannot find the definition!')
 
+    @decorators.local_command()
+    def pop_mark(self):
+        self.env.pop_mark()
+
+    @decorators.local_function()
+    def definition_location(self):
+        definition = self._base_definition_location()
+        if definition:
+            return str(definition[0].real_path), definition[1]
+        return None
+
+    def _base_definition_location(self):
+        self._check_project()
+        resource, offset = self._get_location()
+        maxfixes = self.env.get('codeassist_maxfixes')
+        try:
+            definition = codeassist.get_definition_location(
+                self.project, self._get_text(), offset, resource, maxfixes)
+        except exceptions.BadIdentifierError:
+            return None
+        if tuple(definition) != (None, None):
+            return definition
+        return None
+
     @decorators.local_command('a d', 'P', 'C-c d')
     def show_doc(self, prefix):
         self._check_project()
-        self._base_show_doc(prefix, codeassist.get_doc)
+        self._base_show_doc(prefix, self._base_get_doc(codeassist.get_doc))
 
-    @decorators.local_command('a c', 'P')
-    def show_calltip(self, prefix):
+    @decorators.local_function()
+    def get_calltip(self):
         self._check_project()
         def _get_doc(project, text, offset, *args, **kwds):
             try:
@@ -164,21 +191,37 @@ class RopeMode(object):
             except ValueError:
                 return None
             return codeassist.get_calltip(project, text, offset, *args, **kwds)
-        self._base_show_doc(prefix, _get_doc)
+        return self._base_get_doc(_get_doc)
 
-    def _base_show_doc(self, prefix, get_doc):
+    @decorators.local_command('a c', 'P')
+    def show_calltip(self, prefix):
+        self._base_show_doc(prefix, self.get_calltip())
+
+    def _base_show_doc(self, prefix, docs):
+        if docs:
+            self.env.show_doc(docs, prefix)
+        else:
+            self.env.message('No docs available!')
+
+    @decorators.local_function()
+    def get_doc(self):
+        self._check_project()
+        return self._base_get_doc(codeassist.get_doc)
+
+    def _base_get_doc(self, get_doc):
         maxfixes = self.env.get('codeassist_maxfixes')
         text = self._get_text()
         offset = self.env.get_offset()
-        docs = get_doc(self.project, text, offset,
-                       self._get_resource(), maxfixes)
-        self.env.show_doc(docs, prefix)
-        if docs is None:
-            self.env.message('No docs avilable!')
+        try:
+            return get_doc(self.project, text, offset,
+                           self.resource, maxfixes)
+        except exceptions.BadIdentifierError:
+            return None
 
     def _get_text(self):
-        if not self.env.is_modified():
-            return self._get_resource().read()
+        resource = self.resource
+        if not self.env.is_modified() and resource is not None:
+            return resource.read()
         return self.env.get_text()
 
     def _base_findit(self, do_find, optionals, get_kwds):
@@ -232,6 +275,14 @@ class RopeMode(object):
     def auto_import(self):
         _CodeAssist(self, self.env).auto_import()
 
+    @decorators.local_function([])
+    def completions(self):
+        return _CodeAssist(self, self.env).completions()
+
+    @decorators.local_function([])
+    def extended_completions(self):
+        return _CodeAssist(self, self.env).extended_completions()
+
     def _check_autoimport(self):
         self._check_project()
         if self.autoimport is None:
@@ -252,6 +303,8 @@ class RopeMode(object):
                 if not isinstance(modname, basestring):
                     modname = modname.value()
                 modnames.append(modname)
+        else:
+            modules = []
         def generate(handle):
             self.autoimport.generate_cache(task_handle=handle)
             self.autoimport.generate_modules_cache(modules, task_handle=handle)
@@ -340,8 +393,7 @@ class RopeMode(object):
     def analyze_module(self):
         """Perform static object analysis on this module"""
         self._check_project()
-        resource = self._get_resource()
-        self.project.pycore.analyze_module(resource)
+        self.project.pycore.analyze_module(self.resource)
 
     @decorators.global_command()
     def analyze_modules(self):
@@ -355,8 +407,7 @@ class RopeMode(object):
     def run_module(self):
         """Run and perform dynamic object analysis on this module"""
         self._check_project()
-        resource = self._get_resource()
-        process = self.project.pycore.run_module(resource)
+        process = self.project.pycore.run_module(self.resource)
         try:
             process.wait_process()
         finally:
@@ -381,22 +432,38 @@ class RopeMode(object):
     def _goto_location(self, resource, lineno):
         if resource:
             self.env.find_file(str(resource.real_path),
-                               resource.project != self.project)
+                               other=self.env.get('goto_def_newwin'))
         if lineno:
             self.env.goto_line(lineno)
 
     def _get_location(self):
-        resource = self._get_resource()
         offset = self.env.get_offset()
-        return resource, offset
+        return self.resource, offset
 
     def _get_resource(self, filename=None):
         if filename is None:
             filename = self.env.filename()
-        if filename is None:
+        if filename is None or self.project is None:
             return
         resource = libutils.path_to_resource(self.project, filename, 'file')
         return resource
+
+    @property
+    def resource(self):
+        """the current resource
+
+        Returns `None` when file does not exist.
+        """
+        resource = self._get_resource()
+        if resource and resource.exists():
+            return resource
+
+    @decorators.global_command()
+    def get_project_root(self):
+        if self.project is not None:
+            return self.project.root.real_path
+        else:
+            return None
 
     def _check_project(self):
         if self.project is None:
@@ -485,41 +552,48 @@ class Location(object):
             return self.location.lineno
         return self.location.resource.read().count('\n', 0, self.offset) + 1
 
+    @property
+    def line_content(self):
+        resource_contents = self.location.resource.read()
+        # rfind returns -1 for start of string, so by adding 1 we get the start
+        # of the string. When a match is found we want to exclude the matching
+        # character so again we add 1.
+        line_start = resource_contents.rfind("\n", 0, self.offset) + 1
+        line_end = resource_contents.find("\n", self.offset)
+        if line_end < 0:
+            line_end = len(resource_contents)
+        return resource_contents[line_start:line_end]
+
 
 class _CodeAssist(object):
 
     def __init__(self, interface, env):
         self.interface = interface
-        self.autoimport = interface.autoimport
         self.env = env
-        self._source = None
-        self._offset = None
-        self._starting_offset = None
-        self._starting = None
-        self._expression = None
 
     def code_assist(self, prefix):
-        names = self._calculate_proposals()
+        proposals = self._calculate_proposals()
         if prefix is not None:
             arg = self.env.prefix_value(prefix)
             if arg == 0:
-                arg = len(names)
-            common_start = self._calculate_prefix(names[:arg])
+                arg = len(proposals)
+            common_start = self._calculate_prefix(proposals[:arg])
             self.env.insert(common_start[self.offset - self.starting_offset:])
             self._starting = common_start
             self._offset = self.starting_offset + len(common_start)
         prompt = 'Completion for %s: ' % self.expression
-        result = self.env.ask_completion(prompt, names, self.starting)
+        proposals = map(self.env._completion_data, proposals)
+        result = self.env.ask_completion(prompt, proposals, self.starting)
         if result is not None:
             self._apply_assist(result)
 
     def lucky_assist(self, prefix):
-        names = self._calculate_proposals()
+        proposals = self._calculate_proposals()
         selected = 0
         if prefix is not None:
             selected = self.env.prefix_value(prefix)
-        if 0 <= selected < len(names):
-            result = names[selected]
+        if 0 <= selected < len(proposals):
+            result = self.env._completion_text(proposals[selected])
         else:
             self.env.message('Not enough proposals!')
             return
@@ -540,6 +614,18 @@ class _CodeAssist(object):
         else:
             self.env.message('Global name %s not found!' % name)
 
+    def completions(self):
+        proposals = self._calculate_proposals()
+        prefix = self.offset - self.starting_offset
+        return [self.env._completion_text(proposal)[prefix:]
+                for proposal in proposals]
+
+    def extended_completions(self):
+        proposals = self._calculate_proposals()
+        prefix = self.offset - self.starting_offset
+        return [[proposal.name[prefix:], proposal.get_doc(),
+                 proposal.type] for proposal in proposals]
+
     def _apply_assist(self, assist):
         if ' : ' in assist:
             name, module = assist.rsplit(' : ', 1)
@@ -552,30 +638,34 @@ class _CodeAssist(object):
 
     def _calculate_proposals(self):
         self.interface._check_project()
-        resource = self.interface._get_resource()
+        resource = self.interface.resource
         maxfixes = self.env.get('codeassist_maxfixes')
         proposals = codeassist.code_assist(
             self.interface.project, self.source, self.offset,
             resource, maxfixes=maxfixes)
-        proposals = codeassist.sorted_proposals(proposals)
-        names = [proposal.name for proposal in proposals]
+        if self.env.get('sorted_completions', True):
+            proposals = codeassist.sorted_proposals(proposals)
         if self.autoimport is not None:
             if self.starting.strip() and '.' not in self.expression:
                 import_assists = self.autoimport.import_assist(self.starting)
-                names.extend(x[0] + ' : ' + x[1] for x in import_assists)
-        return names
+                for assist in import_assists:
+                    p = codeassist.CompletionProposal(' : '.join(assist),
+                                                      'autoimport')
+                    proposals.append(p)
+        return proposals
 
     def _insert_import(self, name, module):
         lineno = self.autoimport.find_insertion_line(self.source)
         line = 'from %s import %s' % (module, name)
         self.env.insert_line(line, lineno)
 
-    def _calculate_prefix(self, names):
-        if not names:
+    def _calculate_prefix(self, proposals):
+        if not proposals:
             return ''
-        prefix = names[0]
-        for name in names:
+        prefix = self.env._completion_text(proposals[0])
+        for proposal in proposals:
             common = 0
+            name = self.env._completion_text(proposal)
             for c1, c2 in zip(prefix, name):
                 if c1 != c2 or ' ' in (c1, c2):
                     break
@@ -584,33 +674,30 @@ class _CodeAssist(object):
         return prefix
 
     @property
+    @utils.cacheit
     def offset(self):
-        if self._offset is None:
-            self._offset = self.env.get_offset()
-        return self._offset
+        return self.env.get_offset()
 
     @property
+    @utils.cacheit
     def source(self):
-        if self._source is None:
-            self._source = self.interface._get_text()
-        return self._source
+        return self.interface._get_text()
 
     @property
+    @utils.cacheit
     def starting_offset(self):
-        if self._starting_offset is None:
-            self._starting_offset = codeassist.starting_offset(self.source,
-                                                               self.offset)
-        return self._starting_offset
+        return codeassist.starting_offset(self.source, self.offset)
 
     @property
+    @utils.cacheit
     def starting(self):
-        if self._starting is None:
-            self._starting = self.source[self.starting_offset:self.offset]
-        return self._starting
+        return self.source[self.starting_offset:self.offset]
 
     @property
+    @utils.cacheit
     def expression(self):
-        if self._expression is None:
-            self._expression = codeassist.starting_expression(self.source,
-                                                              self.offset)
-        return self._expression
+        return codeassist.starting_expression(self.source, self.offset)
+
+    @property
+    def autoimport(self):
+        return self.interface.autoimport

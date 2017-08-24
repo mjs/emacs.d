@@ -2,9 +2,11 @@ import rope.base.builtins
 import rope.base.pynames
 import rope.base.pyobjects
 from rope.base import ast, astutils, exceptions, pyobjects, arguments, worder
+from rope.base.utils import pycompat
 
 
 BadIdentifierError = exceptions.BadIdentifierError
+
 
 def eval_location(pymodule, offset):
     """Find the pyname at the offset"""
@@ -40,7 +42,8 @@ def eval_str2(holding_scope, name):
         # parenthesizing for handling cases like 'a_var.\nattr'
         node = ast.parse('(%s)' % name)
     except SyntaxError:
-        raise BadIdentifierError('Not a resolvable python identifier selected.')
+        raise BadIdentifierError(
+            'Not a resolvable python identifier selected.')
     return eval_node2(holding_scope, node)
 
 
@@ -81,7 +84,8 @@ class ScopeNameFinder(object):
             keyword_name = self.worder.get_word_at(offset)
             pyobject = self.get_enclosing_function(offset)
             if isinstance(pyobject, pyobjects.PyFunction):
-                return (None, pyobject.get_parameters().get(keyword_name, None))
+                return (None,
+                        pyobject.get_parameters().get(keyword_name, None))
         # class body
         if self._is_defined_in_class_body(holding_scope, offset, lineno):
             class_scope = holding_scope
@@ -93,7 +97,8 @@ class ScopeNameFinder(object):
             except rope.base.exceptions.AttributeNotFoundError:
                 return (None, None)
         # function header
-        if self._is_function_name_in_function_header(holding_scope, offset, lineno):
+        if self._is_function_name_in_function_header(holding_scope,
+                                                     offset, lineno):
             name = self.worder.get_primary_at(offset).strip()
             return (None, holding_scope.parent[name])
         # from statement module
@@ -118,7 +123,7 @@ class ScopeNameFinder(object):
             if isinstance(pyobject, pyobjects.AbstractFunction):
                 return pyobject
             elif isinstance(pyobject, pyobjects.AbstractClass) and \
-                 '__init__' in pyobject:
+                    '__init__' in pyobject:
                 return pyobject['__init__'].get_object()
             elif '__call__' in pyobject:
                 return pyobject['__call__'].get_object()
@@ -157,6 +162,7 @@ class StatementEvaluator(object):
         primary, pyobject = self._get_primary_and_object_for_node(node.func)
         if pyobject is None:
             return
+
         def _get_returned(pyobject):
             args = arguments.create_arguments(primary, pyobject,
                                               node, self.scope)
@@ -199,8 +205,10 @@ class StatementEvaluator(object):
             self._get_object_for_node(node.left))
 
     def _BoolOp(self, node):
-        self.result = rope.base.pynames.UnboundName(
-            self._get_object_for_node(node.values[0]))
+        pyobject = self._get_object_for_node(node.values[0])
+        if pyobject is None:
+            pyobject = self._get_object_for_node(node.values[1])
+        self.result = rope.base.pynames.UnboundName(pyobject)
 
     def _Repr(self, node):
         self.result = self._get_builtin_name('str')
@@ -283,7 +291,11 @@ class StatementEvaluator(object):
             self._call_function(node.value, '__getitem__',
                                 [node.slice.value])
         elif isinstance(node.slice, ast.Slice):
-            self._call_function(node.value, '__getslice__')
+            self._call_function(node.value, '__getitem__',
+                                [node.slice])
+
+    def _Slice(self, node):
+        self.result = self._get_builtin_name('slice')
 
     def _call_function(self, node, function_name, other_args=None):
         pyname = eval_node(self.scope, node)
@@ -292,13 +304,16 @@ class StatementEvaluator(object):
         else:
             return
         if function_name in pyobject:
-            call_function = pyobject[function_name].get_object()
+            called = pyobject[function_name].get_object()
+            if not called or \
+                    not isinstance(called, pyobjects.AbstractFunction):
+                return
             args = [node]
             if other_args:
                 args += other_args
             arguments_ = arguments.Arguments(args, self.scope)
             self.result = rope.base.pynames.UnboundName(
-                pyobject=call_function.get_returned_object(arguments_))
+                pyobject=called.get_returned_object(arguments_))
 
     def _Lambda(self, node):
         self.result = rope.base.pynames.UnboundName(

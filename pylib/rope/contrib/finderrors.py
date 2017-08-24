@@ -5,7 +5,7 @@ attribute accesses.  As an example::
 
   errors = find_errors(project, project.get_resource('mod.py'))
   for error in errors:
-      print '%s: %s' % (error.lineno, error.error)
+      print('%s: %s' % (error.lineno, error.error))
 
 prints possible errors for ``mod.py`` file.
 
@@ -31,7 +31,7 @@ def find_errors(project, resource):
 
     It returns a list of `Error`\s.
     """
-    pymodule = project.pycore.resource_to_pyobject(resource)
+    pymodule = project.get_pymodule(resource)
     finder = _BadAccessFinder(pymodule)
     ast.walk(pymodule.get_ast(), finder)
     return finder.errors

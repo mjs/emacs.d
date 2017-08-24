@@ -1,4 +1,7 @@
-import cPickle as pickle
+try:
+    import pickle
+except ImportError:
+    import cPickle as pickle
 import marshal
 import os
 import socket
@@ -25,11 +28,11 @@ class PythonFileRunner(object):
         """Execute the process"""
         env = dict(os.environ)
         file_path = self.file.real_path
-        path_folders = self.pycore.get_source_folders() + \
-                       self.pycore.get_python_path_folders()
+        path_folders = self.pycore.project.get_source_folders() + \
+            self.pycore.project.get_python_path_folders()
         env['PYTHONPATH'] = os.pathsep.join(folder.real_path
                                             for folder in path_folders)
-        runmod_path = self.pycore.find_module('rope.base.oi.runmod').real_path
+        runmod_path = self.pycore.project.find_module('rope.base.oi.runmod').real_path
         self.receiver = None
         self._init_data_receiving()
         send_info = '-'
@@ -56,12 +59,13 @@ class PythonFileRunner(object):
             self.receiver = _SocketReceiver()
         else:
             self.receiver = _FIFOReceiver()
-        self.receiving_thread = threading.Thread(target=self._receive_information)
+        self.receiving_thread = threading.Thread(
+            target=self._receive_information)
         self.receiving_thread.setDaemon(True)
         self.receiving_thread.start()
 
     def _receive_information(self):
-        #temp = open('/dev/shm/info', 'w')
+        #temp = open('/dev/shm/info', 'wb')
         for data in self.receiver.receive_data():
             self.analyze_data(data)
             #temp.write(str(data) + '\n')
@@ -114,7 +118,7 @@ class _SocketReceiver(_MessageReceiver):
             try:
                 self.server_socket.bind(('', self.data_port))
                 break
-            except socket.error, e:
+            except socket.error:
                 self.data_port += 1
         self.server_socket.listen(1)
 
@@ -124,7 +128,7 @@ class _SocketReceiver(_MessageReceiver):
     def receive_data(self):
         conn, addr = self.server_socket.accept()
         self.server_socket.close()
-        my_file = conn.makefile('r')
+        my_file = conn.makefile('rb')
         while True:
             try:
                 yield pickle.load(my_file)

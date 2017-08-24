@@ -10,6 +10,12 @@ import os
 import shutil
 import subprocess
 
+import rope.base.utils.pycompat as pycompat
+
+try:
+    unicode
+except NameError:
+    unicode = str
 
 def create_fscommands(root):
     dirlist = os.listdir(root)
@@ -82,9 +88,19 @@ class MercurialCommands(object):
     def __init__(self, root):
         self.hg = self._import_mercurial()
         self.normal_actions = FileSystemCommands()
-        self.ui = self.hg.ui.ui(
-            verbose=False, debug=False, quiet=True,
-            interactive=False, traceback=False, report_untrusted=False)
+        try:
+            self.ui = self.hg.ui.ui(
+                verbose=False, debug=False, quiet=True,
+                interactive=False, traceback=False, report_untrusted=False)
+        except:
+            self.ui = self.hg.ui.ui()
+            self.ui.setconfig('ui', 'interactive', 'no')
+            self.ui.setconfig('ui', 'debug', 'no')
+            self.ui.setconfig('ui', 'traceback', 'no')
+            self.ui.setconfig('ui', 'verbose', 'no')
+            self.ui.setconfig('ui', 'report_untrusted', 'no')
+            self.ui.setconfig('ui', 'quiet', 'yes')
+
         self.repo = self.hg.hg.repository(self.ui, root)
 
     def _import_mercurial(self):
@@ -189,29 +205,36 @@ def unicode_to_file_data(contents, encoding=None):
     except UnicodeEncodeError:
         return contents.encode('utf-8')
 
+
 def file_data_to_unicode(data, encoding=None):
     result = _decode_data(data, encoding)
     if '\r' in result:
         result = result.replace('\r\n', '\n').replace('\r', '\n')
     return result
 
+
 def _decode_data(data, encoding):
+    if isinstance(data, unicode):
+        return data
     if encoding is None:
         encoding = read_str_coding(data)
+    if encoding is None:
+        # there is no encoding tip, we need to guess.
+        # PEP263 says that "encoding not explicitly defined" means it is ascii,
+        # but we will use utf8 instead since utf8 fully covers ascii and btw is
+        # the only non-latin sane encoding.
+        encoding = 'utf-8'
     try:
-        if encoding is not None:
-            return unicode(data, encoding)
-        return unicode(data)
-    except (UnicodeDecodeError, LookupError):
-        # Using ``utf-8`` if guessed encoding fails
-        return unicode(data, 'utf-8')
+        return data.decode(encoding)
+    except (UnicodeError, LookupError):
+        # fallback to latin1: it should never fail
+        return data.decode('latin1')
 
 
 def read_file_coding(path):
     file = open(path, 'b')
     count = 0
     result = []
-    buffsize = 10
     while True:
         current = file.read(10)
         if not current:
@@ -223,29 +246,43 @@ def read_file_coding(path):
 
 
 def read_str_coding(source):
+    if type(source) == bytes:
+        newline = b'\n'
+    else:
+        newline = '\n'
+    #try:
+    #    source = source.decode("utf-8")
+    #except AttributeError:
+    #    pass
     try:
-        first = source.index('\n') + 1
-        second = source.index('\n', first) + 1
+        first = source.index(newline) + 1
+        second = source.index(newline, first) + 1
     except ValueError:
         second = len(source)
     return _find_coding(source[:second])
 
 
 def _find_coding(text):
-    coding = 'coding'
+    if isinstance(text, pycompat.str):
+        text = text.encode('utf-8')
+    coding = b'coding'
+    to_chr = chr if pycompat.PY3 else lambda x: x
     try:
         start = text.index(coding) + len(coding)
-        if text[start] not in '=:':
+        if text[start] not in b'=:':
             return
         start += 1
-        while start < len(text) and text[start].isspace():
+        while start < len(text) and to_chr(text[start]).isspace():
             start += 1
         end = start
         while end < len(text):
             c = text[end]
-            if not c.isalnum() and c not in '-_':
+            if not to_chr(c).isalnum() and c not in b'-_':
                 break
             end += 1
-        return text[start:end]
+        result = text[start:end]
+        if isinstance(result, bytes):
+            result = result.decode('utf-8')
+        return result
     except ValueError:
         pass

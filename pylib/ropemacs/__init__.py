@@ -1,4 +1,6 @@
 """ropemacs, an emacs mode for using rope refactoring library"""
+import sys
+
 import ropemode.decorators
 import ropemode.environment
 import ropemode.interface
@@ -171,11 +173,16 @@ class LispUtils(ropemode.environment.Environment):
                     lisp.switch_to_buffer_other_window(new_buffer)
                 lisp.goto_char(lisp.point_min())
             elif window == 'other':
-                new_window = lisp.display_buffer(new_buffer)
-                lisp.set_window_point(new_window, lisp.point_min())
-                if fit_lines and lisp.fboundp(lisp['fit-window-to-buffer']):
-                    lisp.fit_window_to_buffer(new_window, fit_lines)
-                    lisp.bury_buffer(new_buffer)
+                if self.get("use_pop_to_buffer"):
+                    lisp.pop_to_buffer(new_buffer)
+                    lisp.goto_char(lisp.point_min())
+                else:
+                    new_window = lisp.display_buffer(new_buffer)
+                    lisp.set_window_point(new_window, lisp.point_min())
+                    if (fit_lines
+                        and lisp.fboundp(lisp['fit-window-to-buffer'])):
+                        lisp.fit_window_to_buffer(new_window, fit_lines)
+                        lisp.bury_buffer(new_buffer)
         return new_buffer
 
     def _hide_buffer(self, name, delete=True):
@@ -204,24 +211,73 @@ class LispUtils(ropemode.environment.Environment):
         return lisp.current_word()
 
     def push_mark(self):
-        lisp.push_mark()
+        marker_ring = self.get('marker_ring')
+        marker = lisp.point_marker()
+        lisp.ring_insert(marker_ring, marker)
+
+    def pop_mark(self):
+        marker_ring = self.get('marker_ring')
+        if lisp.ring_empty_p(marker_ring):
+            self.message("There are no more marked buffers in \
+the rope-marker-ring")
+        else:
+            oldbuf = lisp.current_buffer()
+            marker = lisp.ring_remove(marker_ring, 0)
+            marker_buffer = lisp.marker_buffer(marker)
+            if marker_buffer is None:
+                lisp.message("The marked buffer has been deleted")
+                return
+            marker_point  = lisp.marker_position(marker)
+            lisp.set_buffer(marker_buffer)
+            lisp.goto_char(marker_point)
+            #Kill that marker so it doesn't slow down editing.
+            lisp.set_marker(marker, None, None)
+            if not lisp.eq(oldbuf, marker_buffer):
+                lisp.switch_to_buffer(marker_buffer)
 
     def prefix_value(self, prefix):
         return lisp.prefix_numeric_value(prefix)
 
+    def read_line_from_file(self, filename, lineno):
+        with open(filename) as f:
+            for i, line in enumerate(f):
+                if i+1 == lineno:
+                    return line
+
+        return "" # If lineno goes beyond the end of the file
+
     def show_occurrences(self, locations):
-        text = ['List of occurrences:', '']
-        for location in locations:
-            line = '%s : %s   %s %s' % (location.filename, location.lineno,
-                                        location.note, location.offset)
-            text.append(line)
-        text = '\n'.join(text) + '\n'
-        buffer = self._make_buffer('*rope-occurrences*', text, switch=False)
+        buffer = self._make_buffer('*rope-occurrences*', "", switch=False)
         lisp.set_buffer(buffer)
+        lisp.toggle_read_only(0)
+
+        trunc_length = len(lisp.rope_get_project_root())
+
+        lisp.insert('List of occurrences:\n')
+        for location in locations:
+            code_line = self.read_line_from_file(location.filename, location.lineno).rstrip()
+            filename = location.filename[trunc_length:]
+            lineno = str(location.lineno)
+            offset = str(location.offset)
+
+            lisp.insert(filename + ":" + lineno + ":" + code_line + " " + offset)
+
+            beginning = lisp.line_beginning_position()
+            end = beginning + len(filename)
+
+            lisp.add_text_properties(beginning, end, [lisp.face, lisp.button])
+            lisp.add_text_properties(beginning, end, [lisp.mouse_face, lisp.highlight,
+                                                      lisp.help_echo, "mouse-2: visit this file in other window"])
+
+            lisp.insert("\n")
+
         lisp.toggle_read_only(1)
+
         lisp.set(lisp["next-error-function"], lisp.rope_occurrences_next)
         lisp.local_set_key('\r', lisp.rope_occurrences_goto)
+        lisp.local_set_key((lisp.mouse_1,), lisp.rope_occurrences_goto)
         lisp.local_set_key('q', lisp.delete_window)
+
 
     def show_doc(self, docs, altview=False):
         use_minibuffer = not altview
@@ -336,15 +392,27 @@ def message(message):
     lisp.message(message.replace('%', '%%'))
 
 def occurrences_goto():
-    if lisp.line_number_at_pos() < 3:
-        lisp.forward_line(3 - lisp.line_number_at_pos())
+    if lisp.line_number_at_pos() < 1:
+        lisp.forward_line(1 - lisp.line_number_at_pos())
     lisp.end_of_line()
     end = lisp.point()
     lisp.beginning_of_line()
     line = lisp.buffer_substring_no_properties(lisp.point(), end)
     tokens = line.split()
-    if tokens:
-        filename = tokens[0]
+    semicolon_tokens = line.split(":")
+
+    project_root = lisp.rope_get_project_root()
+    if tokens and semicolon_tokens:
+        # Mark this line with an arrow
+        lisp('''
+        (remove-overlays (point-min) (point-max))
+            (overlay-put (make-overlay (line-beginning-position) (line-end-position))
+            'before-string
+            (propertize "A" 'display '(left-fringe right-triangle)))
+        ''')
+
+
+        filename = project_root + "/" + semicolon_tokens[0]
         offset = int(tokens[-1])
         resource = _interface._get_resource(filename)
         LispUtils().find_file(resource.real_path, other=True)
@@ -386,6 +454,11 @@ How many errors to fix, at most, when proposing code completions.")
 (defcustom ropemacs-max-doc-buffer-height 22
   "The maximum buffer height for `rope-show-doc'.")
 
+(defcustom ropemacs-use-pop-to-buffer nil
+  "Use native `pop-to-buffer' to show new buffer.
+
+This affect all ropemacs function including `rope-show-doc'.")
+
 (defcustom ropemacs-enable-autoimport 'nil
   "Specifies whether autoimport should be enabled.")
 (defcustom ropemacs-autoimport-modules nil
@@ -421,6 +494,12 @@ Use nil to prevent binding keys.")
 
 Use nil to prevent binding keys.")
 
+(defcustom ropemacs-marker-ring-length 16
+  "Length of the rope marker ring.")
+
+(defcustom ropemacs-marker-ring (make-ring ropemacs-marker-ring-length)
+  "Ring of markers which are locations from which goto-definition was invoked.")
+
 (defcustom ropemacs-enable-shortcuts 't
   "Shows whether to bind ropemacs shortcuts keys.
 
@@ -431,6 +510,7 @@ Key               Command
 ================  ============================
 M-/               rope-code-assist
 C-c g             rope-goto-definition
+C-c u             rope-pop-mark
 C-c d             rope-show-doc
 C-c f             rope-find-occurrences
 M-?               rope-lucky-assist
@@ -445,6 +525,7 @@ M-?               rope-lucky-assist
                     ["Code assist" rope-code-assist t]
                     ["Lucky assist" rope-lucky-assist t]
                     ["Goto definition" rope-goto-definition t]
+                    ["Pop mark" rope-pop-mark t]
                     ["Jump to global" rope-jump-to-global t]
                     ["Show documentation" rope-show-doc t]
                     ["Find Occurrences" rope-find-occurrences t]
@@ -500,26 +581,95 @@ already opened.")
 """
 
 MINOR_MODE = """\
+(require 'thingatpt)
+
 (define-minor-mode ropemacs-mode
  "ropemacs, rope in emacs!" nil " Rope" ropemacs-local-keymap
-  :global nil)
-)
+  (if ropemacs-mode
+      (add-hook 'completion-at-point-functions 'ropemacs-completion-at-point nil t)
+    (remove-hook 'completion-at-point-functions 'ropemacs-completion-at-point t)))
+
+(defun ropemacs-completion-at-point ()
+  (unless (nth 8 (syntax-ppss))
+    (let ((bounds (or (bounds-of-thing-at-point 'symbol)
+                      (cons (point) (point)))))
+      (list (car bounds)
+            (cdr bounds)
+            'ropemacs--completion-table
+            :company-doc-buffer 'ropemacs--completion-doc-buffer
+            :company-location 'ropemacs--completion-location))))
+
+(defalias 'ropemacs--completion-table
+  (if (fboundp 'completion-table-with-cache)
+      (completion-table-with-cache #'ropemacs--completion-candidates)
+    (completion-table-dynamic #'ropemacs--completion-candidates)))
+
+(defun ropemacs--completion-candidates (prefix)
+  (mapcar (lambda (element) (concat prefix element))
+          (rope-completions)))
+
+(defun ropemacs--with-inserted (candidate fn)
+  (let ((inhibit-modification-hooks t)
+        (inhibit-point-motion-hooks t)
+        (modified-p (buffer-modified-p))
+        (beg (or (car (bounds-of-thing-at-point 'symbol)) (point)))
+        (pt (point)))
+     (insert (substring candidate (- pt beg)))
+     (unwind-protect
+         (funcall fn)
+       (delete-region pt (point))
+       (set-buffer-modified-p modified-p))))
+
+(defun ropemacs--completion-doc-buffer (candidate)
+  (let ((doc (ropemacs--with-inserted candidate #'rope-get-doc)))
+    (when doc
+      (with-current-buffer (get-buffer-create "*ropemacs-completion-doc*")
+        (erase-buffer)
+        (insert doc)
+        (goto-char (point-min))
+        (current-buffer)))))
+
+(defun ropemacs--completion-location (candidate)
+  (let ((location (ropemacs--with-inserted
+                   candidate #'rope-definition-location)))
+    (when location
+      (cons (elt location 0) (elt location 1)))))
 """
 
 shortcuts = [('M-/', 'rope-code-assist'),
              ('M-?', 'rope-lucky-assist'),
              ('C-c g', 'rope-goto-definition'),
+             ('C-c u', 'rope-pop-mark'),
              ('C-c d', 'rope-show-doc'),
              ('C-c f', 'rope-find-occurrences')]
 
 
-ropemode.decorators.logger.message = message
-lisp(DEFVARS)
-_interface = ropemode.interface.RopeMode(env=LispUtils())
-_interface.init()
-lisp(MINOR_MODE)
+_interface = None
 
-# for key, command in shortcuts:
-#     LispUtils()._bind_local(command, key)
+def _load_ropemacs():
+    global _interface
+    ropemode.decorators.logger.message = message
+    lisp(DEFVARS)
+    _interface = ropemode.interface.RopeMode(env=LispUtils())
+    _interface.init()
+    lisp(MINOR_MODE)
 
-lisp.add_hook(lisp['python-mode-hook'], lisp['ropemacs-mode'])
+    if LispUtils().get('enable_shortcuts'):
+        for key, command in shortcuts:
+            LispUtils()._bind_local(command, key)
+
+    lisp.add_hook(lisp['python-mode-hook'], lisp['ropemacs-mode'])
+
+def _started_from_pymacs():
+    import inspect
+    frame = sys._getframe()
+    while frame:
+        # checking frame.f_code.co_name == 'pymacs_load_helper' might
+        # be very fragile.
+        filename = inspect.getfile(frame).rstrip('c')
+        if filename.endswith(('Pymacs.py', 'pymacs.py')):
+            return True
+        frame = frame.f_back
+
+if _started_from_pymacs():
+    _load_ropemacs()

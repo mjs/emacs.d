@@ -1,4 +1,5 @@
 # The default ``config.py``
+# flake8: noqa
 
 
 def set_prefs(prefs):
@@ -14,7 +15,7 @@ def set_prefs(prefs):
     # 'build/*.o': matches 'build/lib.o' but not 'build/sub/lib.o'
     # 'build//*.o': matches 'build/lib.o' and 'build/sub/lib.o'
     prefs['ignored_resources'] = ['*.pyc', '*~', '.ropeproject',
-                                  '.hg', '.svn', '_svn', '.git']
+                                  '.hg', '.svn', '_svn', '.git', '.tox']
 
     # Specifies which files should be considered python files.  It is
     # useful when you have scripts inside your project.  Only files
@@ -78,6 +79,32 @@ def set_prefs(prefs):
     # If `True`, rope ignores unresolvable imports.  Otherwise, they
     # appear in the importing namespace.
     prefs['ignore_bad_imports'] = False
+
+    # If `True`, rope will insert new module imports as
+    # `from <package> import <module>` by default.
+    prefs['prefer_module_from_imports'] = False
+
+    # If `True`, rope will transform a comma list of imports into
+    # multiple separate import statements when organizing
+    # imports.
+    prefs['split_imports'] = False
+
+    # If `True`, rope will remove all top-level import statements and
+    # reinsert them at the top of the module when making changes.
+    prefs['pull_imports_to_top'] = True
+
+    # If `True`, rope will sort imports alphabetically by module name instead of
+    # alphabetically by import statement, with from imports after normal
+    # imports.
+    prefs['sort_imports_alphabetically'] = False
+
+    # Location of implementation of rope.base.oi.type_hinting.interfaces.ITypeHintingFactory
+    # In general case, you don't have to change this value, unless you're an rope expert.
+    # Change this value to inject you own implementations of interfaces
+    # listed in module rope.base.oi.type_hinting.providers.interfaces
+    # For example, you can add you own providers for Django Models, or disable the search
+    # type-hinting in a class hierarchy, etc.
+    prefs['type_hinting_factory'] = 'rope.base.oi.type_hinting.factory.default_type_hinting_factory'
 
 
 def project_opened(project):

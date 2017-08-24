@@ -8,6 +8,7 @@ import rope.base.builtins
 import rope.base.pynames
 import rope.base.pyobjects
 from rope.base import evaluate, utils, arguments
+from rope.base.oi.type_hinting.factory import get_type_hinting_factory
 
 
 _ignore_inferred = utils.ignore_exception(
@@ -28,7 +29,14 @@ def infer_returned_object(pyfunction, args):
                 pyfunction.get_param_names(special_args=False))
             object_info.function_called(pyfunction, params, result)
         return result
-    return object_info.get_returned(pyfunction, args)
+    result = object_info.get_returned(pyfunction, args)
+    if result is not None:
+        return result
+    hint_return = get_type_hinting_factory(pyfunction.pycore.project).make_return_provider()
+    type_ = hint_return(pyfunction)
+    if type_ is not None:
+        return rope.base.pyobjects.PyObject(type_)
+
 
 @_ignore_inferred
 def infer_parameter_objects(pyfunction):
@@ -39,6 +47,7 @@ def infer_parameter_objects(pyfunction):
         result = _parameter_objects(pyfunction)
     _handle_first_parameter(pyfunction, result)
     return result
+
 
 def _handle_first_parameter(pyobject, parameters):
     kind = pyobject.get_kind()
@@ -53,14 +62,26 @@ def _handle_first_parameter(pyobject, parameters):
     if kind == 'classmethod':
         parameters[0] = pyobject.parent
 
+
 @_ignore_inferred
 def infer_assigned_object(pyname):
     if not pyname.assignments:
         return
     for assignment in reversed(pyname.assignments):
         result = _infer_assignment(assignment, pyname.module)
-        if result is not None:
+        if isinstance(result, rope.base.builtins.BuiltinUnknown) and result.get_name() == 'NotImplementedType':
+            break
+        elif result == rope.base.pyobjects.get_unknown():
+            break
+        elif result is not None:
             return result
+
+    hint_assignment = get_type_hinting_factory(pyname.module.pycore.project).make_assignment_provider()
+    hinting_result = hint_assignment(pyname)
+    if hinting_result is not None:
+        return rope.base.pyobjects.PyObject(hinting_result)
+    return result
+
 
 def get_passed_objects(pyfunction, parameter_index):
     object_info = pyfunction.pycore.object_info
@@ -71,6 +92,7 @@ def get_passed_objects(pyfunction, parameter_index):
         if len(statically_inferred) > parameter_index:
             result.append(statically_inferred[parameter_index])
     return result
+
 
 def _infer_returned(pyobject, args):
     if args:
@@ -99,11 +121,21 @@ def _infer_returned(pyobject, args):
         except rope.base.pyobjects.IsBeingInferredError:
             pass
 
+
 def _parameter_objects(pyobject):
+    result = []
     params = pyobject.get_param_names(special_args=False)
-    return [rope.base.pyobjects.get_unknown()] * len(params)
+    hint_param = get_type_hinting_factory(pyobject.pycore.project).make_param_provider()
+    for name in params:
+        type_ = hint_param(pyobject, name)
+        if type_ is not None:
+            result.append(rope.base.pyobjects.PyObject(type_))
+        else:
+            result.append(rope.base.pyobjects.get_unknown())
+    return result
 
 # handling `rope.base.pynames.AssignmentValue`
+
 
 @_ignore_inferred
 def _infer_assignment(assignment, pymodule):
@@ -115,6 +147,7 @@ def _infer_assignment(assignment, pymodule):
     if pyobject is None:
         return None
     return _follow_levels(assignment, pyobject)
+
 
 def _follow_levels(assignment, pyobject):
     for index in assignment.levels:
@@ -132,6 +165,7 @@ def _follow_levels(assignment, pyobject):
             break
     return pyobject
 
+
 @_ignore_inferred
 def _follow_pyname(assignment, pymodule, lineno=None):
     assign_node = assignment.ast_node
@@ -148,6 +182,7 @@ def _follow_pyname(assignment, pymodule, lineno=None):
             return pyname, result.get_type().get_property_object(
                 arguments.ObjectArguments([arg]))
         return pyname, result
+
 
 @_ignore_inferred
 def _follow_evaluations(assignment, pyname, pyobject):
@@ -180,6 +215,7 @@ def _get_lineno_for_node(assign_node):
        assign_node.lineno is not None:
         return assign_node.lineno
     return 1
+
 
 def _get_attribute(pyobject, name):
     if pyobject is not None and name in pyobject:

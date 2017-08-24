@@ -3,6 +3,12 @@ import re
 import warnings
 
 from rope.base import ast, codeanalyze, exceptions
+from rope.base.utils import pycompat
+
+try:
+    basestring
+except NameError:
+    basestring = (str, bytes)
 
 
 def get_patched_ast(source, sorted_children=False):
@@ -68,6 +74,7 @@ class _PatchingASTWalker(object):
 
     Number = object()
     String = object()
+    semicolon_or_as_in_except = object()
 
     def __call__(self, node):
         method = getattr(self, '_' + node.__class__.__name__, None)
@@ -111,6 +118,10 @@ class _PatchingASTWalker(object):
                 elif child == '!=':
                     # INFO: This has been added to handle deprecated ``<>``
                     region = self.source.consume_not_equal()
+                elif child == self.semicolon_or_as_in_except:
+                    # INFO: This has been added to handle deprecated
+                    # semicolon in except
+                    region = self.source.consume_except_as_or_semicolon()
                 else:
                     region = self.source.consume(child)
                 child = self.source[region[0]:region[1]]
@@ -204,16 +215,18 @@ class _PatchingASTWalker(object):
         for children in reversed(self.children_stack):
             for child in children:
                 if isinstance(child, ast.stmt):
-                    return self.lines.get_line_start(child.lineno)
+                    return child.col_offset \
+                        + self.lines.get_line_start(child.lineno)
         return len(self.source.source)
 
-    _operators = {'And': 'and', 'Or': 'or', 'Add': '+', 'Sub': '-', 'Mult': '*',
-                  'Div': '/', 'Mod': '%', 'Pow': '**', 'LShift': '<<',
-                  'RShift': '>>', 'BitOr': '|', 'BitAnd': '&', 'BitXor': '^',
-                  'FloorDiv': '//', 'Invert': '~', 'Not': 'not', 'UAdd': '+',
-                  'USub': '-', 'Eq': '==', 'NotEq': '!=', 'Lt': '<',
-                  'LtE': '<=', 'Gt': '>', 'GtE': '>=', 'Is': 'is',
-                  'IsNot': 'is not', 'In': 'in', 'NotIn': 'not in'}
+    _operators = {'And': 'and', 'Or': 'or', 'Add': '+', 'Sub': '-',
+                  'Mult': '*', 'Div': '/', 'Mod': '%', 'Pow': '**',
+                  'LShift': '<<', 'RShift': '>>', 'BitOr': '|', 'BitAnd': '&',
+                  'BitXor': '^', 'FloorDiv': '//', 'Invert': '~',
+                  'Not': 'not', 'UAdd': '+', 'USub': '-', 'Eq': '==',
+                  'NotEq': '!=', 'Lt': '<', 'LtE': '<=', 'Gt': '>',
+                  'GtE': '>=', 'Is': 'is', 'IsNot': 'is not', 'In': 'in',
+                  'NotIn': 'not in'}
 
     def _get_op(self, node):
         return self._operators[node.__class__.__name__].split(' ')
@@ -258,11 +271,11 @@ class _PatchingASTWalker(object):
         children = [node.func, '(']
         args = list(node.args) + node.keywords
         children.extend(self._child_nodes(args, ','))
-        if node.starargs is not None:
+        if getattr(node, 'starargs', None):
             if args:
                 children.append(',')
             children.extend(['*', node.starargs])
-        if node.kwargs is not None:
+        if getattr(node, 'kwargs', None):
             if args or node.starargs is not None:
                 children.append(',')
             children.extend(['**', node.kwargs])
@@ -330,6 +343,14 @@ class _PatchingASTWalker(object):
             children.extend([',', node.locals])
         self._handle(node, children)
 
+    def _ExtSlice(self, node):
+        children = []
+        for index, dim in enumerate(node.dims):
+            if index > 0:
+                children.append(',')
+            children.append(dim)
+        self._handle(node, children)
+
     def _For(self, node):
         children = ['for', node.target, 'in', node.iter, ':']
         children.extend(node.body)
@@ -342,7 +363,9 @@ class _PatchingASTWalker(object):
         children = ['from']
         if node.level:
             children.append('.' * node.level)
-        children.extend([node.module, 'import'])
+        # see comment at rope.base.ast.walk
+        children.extend([node.module or '',
+                         'import'])
         children.extend(self._child_nodes(node.names, ','))
         self._handle(node, children)
 
@@ -370,7 +393,8 @@ class _PatchingASTWalker(object):
     def _arguments(self, node):
         children = []
         args = list(node.args)
-        defaults = [None] * (len(args) - len(node.defaults)) + list(node.defaults)
+        defaults = [None] * (len(args) - len(node.defaults)) + \
+            list(node.defaults)
         for index, (arg, default) in enumerate(zip(args, defaults)):
             if index > 0:
                 children.append(',')
@@ -378,11 +402,11 @@ class _PatchingASTWalker(object):
         if node.vararg is not None:
             if args:
                 children.append(',')
-            children.extend(['*', node.vararg])
+            children.extend(['*', pycompat.get_ast_arg_arg(node.vararg)])
         if node.kwarg is not None:
             if args or node.vararg is not None:
                 children.append(',')
-            children.extend(['**', node.kwarg])
+            children.extend(['**', pycompat.get_ast_arg_arg(node.kwarg)])
         self._handle(node, children)
 
     def _add_args_to_children(self, children, arg, default):
@@ -457,7 +481,12 @@ class _PatchingASTWalker(object):
         self._handle(node, children)
 
     def _keyword(self, node):
-        self._handle(node, [node.arg, '=', node.value])
+        children = []
+        if node.arg is None:
+            children.append(node.value)
+        else:
+            children.extend([node.arg, '=', node.value])
+        self._handle(node, children)
 
     def _Lambda(self, node):
         self._handle(node, ['lambda', node.args, ':', node.body])
@@ -471,11 +500,40 @@ class _PatchingASTWalker(object):
         children.append(']')
         self._handle(node, children)
 
+    def _Set(self, node):
+        if node.elts:
+            self._handle(node,
+                         ['{'] + self._child_nodes(node.elts, ',') + ['}'])
+            return
+        # Python doesn't have empty set literals
+        warnings.warn('Tried to handle empty <Set> literal; please report!',
+                      RuntimeWarning)
+        self._handle(node, ['set(', ')'])
+
+    def _SetComp(self, node):
+        children = ['{', node.elt]
+        children.extend(node.generators)
+        children.append('}')
+        self._handle(node, children)
+
+    def _DictComp(self, node):
+        children = ['{']
+        children.extend([node.key, ':', node.value])
+        children.extend(node.generators)
+        children.append('}')
+        self._handle(node, children)
+
     def _Module(self, node):
         self._handle(node, list(node.body), eat_spaces=True)
 
     def _Name(self, node):
         self._handle(node, [node.id])
+
+    def _NameConstant(self, node):
+        self._handle(node, [str(node.value)])
+
+    def _arg(self, node):
+        self._handle(node, [node.arg])
 
     def _Pass(self, node):
         self._handle(node, ['pass'])
@@ -492,15 +550,30 @@ class _PatchingASTWalker(object):
         self._handle(node, children)
 
     def _Raise(self, node):
-        children = ['raise']
-        if node.type:
-            children.append(node.type)
-        if node.inst:
-            children.append(',')
-            children.append(node.inst)
-        if node.tback:
-            children.append(',')
-            children.append(node.tback)
+
+        def get_python3_raise_children(node):
+            children = ['raise']
+            if node.exc:
+                children.append(node.exc)
+            if node.cause:
+                children.append(node.cause)
+            return children
+
+        def get_python2_raise_children(node):
+            children = ['raise']
+            if node.type:
+                children.append(node.type)
+            if node.inst:
+                children.append(',')
+                children.append(node.inst)
+            if node.tback:
+                children.append(',')
+                children.append(node.tback)
+            return children
+        if pycompat.PY2:
+            children = get_python2_raise_children(node)
+        else:
+            children = get_python3_raise_children(node)
         self._handle(node, children)
 
     def _Return(self, node):
@@ -537,10 +610,25 @@ class _PatchingASTWalker(object):
         self._handle(node, children)
 
     def _TryFinally(self, node):
+        # @todo fixme
+        is_there_except_handler = False
+        not_empty_body = True
+        if len(node.finalbody) == 1:
+            if pycompat.PY2:
+                is_there_except_handler = isinstance(node.body[0], ast.TryExcept)
+                not_empty_body = not bool(len(node.body))
+            elif pycompat.PY3:
+                try:
+                    is_there_except_handler = isinstance(node.handlers[0], ast.ExceptHandler)
+                    not_empty_body = True
+                except IndexError:
+                    pass
         children = []
-        if len(node.body) != 1 or not isinstance(node.body[0], ast.TryExcept):
+        if not_empty_body or not is_there_except_handler:
             children.extend(['try', ':'])
         children.extend(node.body)
+        if pycompat.PY3:
+            children.extend(node.handlers)
         children.extend(['finally', ':'])
         children.extend(node.finalbody)
         self._handle(node, children)
@@ -554,17 +642,26 @@ class _PatchingASTWalker(object):
             children.extend(node.orelse)
         self._handle(node, children)
 
+    def _Try(self, node):
+        if len(node.finalbody):
+            self._TryFinally(node)
+        else:
+            self._TryExcept(node)
+
     def _ExceptHandler(self, node):
         self._excepthandler(node)
 
     def _excepthandler(self, node):
+        # self._handle(node, [self.semicolon_or_as_in_except])
         children = ['except']
         if node.type:
             children.append(node.type)
         if node.name:
-            children.extend([',', node.name])
+            children.append(self.semicolon_or_as_in_except)
+            children.append(node.name)
         children.append(':')
         children.extend(node.body)
+
         self._handle(node, children)
 
     def _Tuple(self, node):
@@ -594,9 +691,11 @@ class _PatchingASTWalker(object):
         self._handle(node, children)
 
     def _With(self, node):
-        children = ['with', node.context_expr]
-        if node.optional_vars:
-            children.extend(['as', node.optional_vars])
+        children = []
+        for item in pycompat.get_ast_with_items(node):
+            children.extend(['with', item.context_expr])
+            if item.optional_vars:
+                children.extend(['as', item.optional_vars])
         children.append(':')
         children.extend(node.body)
         self._handle(node, children)
@@ -609,6 +708,8 @@ class _PatchingASTWalker(object):
                 children.append(separator)
         return children
 
+    def _Starred(self, node):
+        self._handle(node, [node.value])
 
 class _Source(object):
 
@@ -651,6 +752,10 @@ class _Source(object):
         if _Source._not_equals_pattern is None:
             _Source._not_equals_pattern = re.compile(r'<>|!=')
         repattern = _Source._not_equals_pattern
+        return self._consume_pattern(repattern)
+
+    def consume_except_as_or_semicolon(self):
+        repattern = re.compile(r'as|,')
         return self._consume_pattern(repattern)
 
     def _good_token(self, token, offset, start=None):
@@ -716,8 +821,8 @@ class _Source(object):
 
     def _get_number_pattern(self):
         # HACK: It is merely an approaximation and does the job
-        integer = r'(0|0x)?[\da-fA-F]+[lL]?'
-        return r'(%s(\.\d*)?|(\.\d+))([eE][-+]?\d*)?[jJ]?' % integer
+        integer = r'\-?(0x[\da-fA-F]+|\d+)[lL]?'
+        return r'(%s(\.\d*)?|(\.\d+))([eE][-+]?\d+)?[jJ]?' % integer
 
     _string_pattern = None
     _number_pattern = None

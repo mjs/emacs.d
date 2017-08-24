@@ -1,7 +1,6 @@
 """
-This module contains variables with global |jedi| setting. To change the
-behavior of |jedi|, change the variables defined in
-:mod:`jedi.settings`.
+This module contains variables with global |jedi| settings. To change the
+behavior of |jedi|, change the variables defined in :mod:`jedi.settings`.
 
 Plugins should expose an interface so that the user can adjust the
 configuration.
@@ -17,7 +16,6 @@ Completion output
 ~~~~~~~~~~~~~~~~~
 
 .. autodata:: case_insensitive_completion
-.. autodata:: add_dot_after_module
 .. autodata:: add_bracket_after_function
 .. autodata:: no_completion_duplicates
 
@@ -38,11 +36,11 @@ Parser
 Dynamic stuff
 ~~~~~~~~~~~~~
 
-.. autodata:: dynamic_arrays_instances
 .. autodata:: dynamic_array_additions
 .. autodata:: dynamic_params
 .. autodata:: dynamic_params_for_other_modules
 .. autodata:: additional_dynamic_modules
+.. autodata:: auto_import_modules
 
 
 .. _settings-recursion:
@@ -64,14 +62,13 @@ definitely worse in some cases. But a completion should also be fast.
 .. autodata:: max_function_recursion_level
 .. autodata:: max_executions_without_builtins
 .. autodata:: max_executions
-.. autodata:: scale_function_definition
+.. autodata:: scale_call_signatures
 
 
 Caching
 ~~~~~~~
 
-.. autodata:: star_import_cache_validity
-.. autodata:: function_definition_validity
+.. autodata:: call_signatures_validity
 
 
 """
@@ -85,13 +82,6 @@ import platform
 case_insensitive_completion = True
 """
 The completion is by default case insensitive.
-"""
-
-add_dot_after_module = False
-"""
-Adds a dot after a module, because a module that is not accessed this way is
-definitely not the normal case. However, in VIM this doesn't work, that's why
-it isn't used at the moment.
 """
 
 add_bracket_after_function = False
@@ -127,8 +117,10 @@ cache_directory = os.path.expanduser(_cache_directory)
 """
 The path where all the caches can be found.
 
-On Linux, this defaults to ``~/.cache/jedi/``, on OS X to ``~/.jedi/`` and on
-Windows to ``%APPDATA%\\Jedi\\Jedi\\``.
+On Linux, this defaults to ``~/.cache/jedi/``, on OS X to
+``~/Library/Caches/Jedi/`` and on Windows to ``%APPDATA%\\Jedi\\Jedi\\``.
+On Linux, if environment variable ``$XDG_CACHE_HOME`` is set,
+``$XDG_CACHE_HOME/jedi`` is used instead of the default one.
 """
 
 # ----------------
@@ -146,14 +138,9 @@ function is being reparsed.
 # dynamic stuff
 # ----------------
 
-dynamic_arrays_instances = True
-"""
-Check for `append`, etc. on array instances like list()
-"""
-
 dynamic_array_additions = True
 """
-check for `append`, etc. on arrays: [], {}, ()
+check for `append`, etc. on arrays: [], {}, () as well as list/set calls.
 """
 
 dynamic_params = True
@@ -171,6 +158,20 @@ additional_dynamic_modules = []
 """
 Additional modules in which |jedi| checks if statements are to be found. This
 is practical for IDEs, that want to administrate their modules themselves.
+"""
+
+dynamic_flow_information = True
+"""
+Check for `isinstance` and other information to infer a type.
+"""
+
+auto_import_modules = [
+    'hashlib',  # setattr
+]
+"""
+Modules that are not analyzed but imported, although they contain Python code.
+This improves autocompletion for libraries that use ``setattr`` or
+``globals()`` modifications a lot.
 """
 
 # ----------------
@@ -204,9 +205,9 @@ max_executions = 250
 A maximum amount of time, the completion may use.
 """
 
-scale_function_definition = 0.1
+scale_call_signatures = 0.1
 """
-Because function_definition is normally used on every single key hit, it has
+Because call_signatures is normally used on every single key hit, it has
 to be faster than a normal completion. This is the factor that is used to
 scale `max_executions` and `max_until_execution_unique`:
 """
@@ -215,14 +216,7 @@ scale `max_executions` and `max_until_execution_unique`:
 # caching validity (time)
 # ----------------
 
-star_import_cache_validity = 60.0
-"""
-In huge packages like numpy, checking all star imports on every completion
-might be slow, therefore we do a star import caching, that lasts a certain
-time span (in seconds).
-"""
-
-function_definition_validity = 3.0
+call_signatures_validity = 3.0
 """
 Finding function calls might be slow (0.1-0.5s). This is not acceptible for
 normal writing. Therefore cache it for a short time.

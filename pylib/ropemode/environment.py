@@ -72,6 +72,9 @@ class Environment(object):
     def push_mark(self):
         pass
 
+    def pop_mark(self):
+        pass
+
     def prefix_value(self, prefix):
         pass
 
@@ -92,3 +95,10 @@ class Environment(object):
 
     def add_hook(self, name, callback, hook):
         pass
+
+    def _completion_text(self, proposal):
+        return proposal.name
+
+    def _completion_data(self, proposal):
+        return self._completion_text(proposal)
+
