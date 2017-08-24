@@ -10,9 +10,6 @@
 (require 'flymake-pyflakes)
 (require 'python-pylint)
 
-(autoload 'jedi:setup "jedi" nil t)
-(add-hook 'python-mode-hook 'jedi:setup)
-
 ;; Include underscores when matching words (not sure why this isn't the default)
 (modify-syntax-entry ?_ "w" python-mode-syntax-table)
 
@@ -50,11 +47,16 @@
 
 (defun python-customizations ()
   "Additional customizations for python mode"
+  (add-to-list 'company-backends 'company-jedi)
   (define-key python-mode-map "\C-c\C-c" 'python-pylint)
   (define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key python-mode-map "\C-cwc"  'py-which-class)
   (define-key python-mode-map "\C-cwf"  'py-which-function))
 
 (add-hook 'python-mode-hook 'python-customizations)
+
+; Jump to definition and back again
+(evil-define-key 'normal python-mode-map (kbd "M-.") 'jedi:goto-definition)
+(evil-define-key 'normal python-mode-map (kbd "M-,") 'jedi:goto-definition-pop-marker)
 
 (provide 'python-config)

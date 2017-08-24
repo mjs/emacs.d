@@ -11,6 +11,8 @@
 (setq gofmt-command "goimports")
 
 (defun my-go-mode-hook ()
+  (set (make-local-variable 'company-backends) '(company-go))
+
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
            "gochecker -v"))
@@ -20,8 +22,7 @@
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(require 'go-autocomplete)
-(require 'auto-complete-config)
-(ac-config-default)
+(require 'company)    ; load company mode
+(require 'company-go) ; load company mode go backend
 
 (provide 'go-config)

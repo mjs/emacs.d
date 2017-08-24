@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (or (file-name-directory #$) (car load-path)))
 
-;;;### (autoloads nil "jedi-core" "jedi-core.el" (22736 19713 85927
-;;;;;;  425000))
+;;;### (autoloads nil "jedi-core" "jedi-core.el" (22942 14582 575764
+;;;;;;  183000))
 ;;; Generated autoloads from jedi-core.el
 
 (autoload 'jedi:start-dedicated-server "jedi-core" "\
@@ -100,8 +100,8 @@ Blocking version `jedi:install-server'.
 
 ;;;***
 
-;;;### (autoloads nil nil ("jedi-core-pkg.el") (22736 19713 98977
-;;;;;;  725000))
+;;;### (autoloads nil nil ("jedi-core-pkg.el") (22942 14582 585703
+;;;;;;  893000))
 
 ;;;***
 

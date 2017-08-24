@@ -29,6 +29,7 @@
 (require 'elisp-utils)
 (require 'evil-config)   ; Become like Vim!
 (require 'gui-config)
+(require 'company-config)
 (require 'clipboard-config)
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc
