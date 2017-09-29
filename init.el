@@ -53,7 +53,6 @@
 (require 'gpg-config)
 (require 'yasnippet-config)
 (require 'csharp-config)
-(require 'markdown-config)
 (require 'text-config)
 (require 'grep-config)
 (require 'file-config)
