@@ -6,6 +6,7 @@
 
 (require 'go-mode)
 (require 'go-guru)
+(require 'go-projectile)
 
 ; Use goimports instead of go-fmt
 (setq gofmt-command "goimports")

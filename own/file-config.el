@@ -5,6 +5,9 @@
 
 (defalias 'rb 'revert-buffer)
 
+(projectile-mode)
+(require 'go-projectile)
+
 (defun show-file-name ()
   "Show the full path file name in the minibuffer."
   (interactive)
