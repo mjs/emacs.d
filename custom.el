@@ -113,7 +113,7 @@ static char *gnus-pointer[] = {
      ("asm" . "*.[sS]"))))
  '(grep-find-template
    "find . <X> -type f <F> -print0 | xargs -0 rg <C> --no-heading --maxdepth 1 -e <R>")
- '(grep-template "rg <C> --no-heading --maxdepth 1 -e <R> <F>")
+ '(grep-template "rg --no-heading --maxdepth 1 -e <R> <F>")
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-tail-colors
    (quote
@@ -138,6 +138,7 @@ static char *gnus-pointer[] = {
  '(ido-default-file-method (quote selected-window))
  '(ido-enable-flex-matching t)
  '(initial-buffer-choice t)
+ '(ispell-dictionary "british")
  '(ispell-program-name "/usr/bin/ispell")
  '(jdee-db-active-breakpoint-face-colors (cons "#1c1f24" "#51afef"))
  '(jdee-db-requested-breakpoint-face-colors (cons "#1c1f24" "#7bc275"))
@@ -148,6 +149,7 @@ static char *gnus-pointer[] = {
  '(js2-basic-offset 4)
  '(js2-electric-keys (quote nil))
  '(js2-mirror-mode nil)
+ '(large-file-warning-threshold 100000000)
  '(linum-format " %6d ")
  '(magit-diff-use-overlays nil)
  '(magit-push-arguments (quote ("--force-with-lease")))
@@ -169,6 +171,9 @@ static char *gnus-pointer[] = {
  '(org-fontify-whole-heading-line t)
  '(org-hide-leading-stars t)
  '(org-odd-levels-only t)
+ '(package-selected-packages
+   (quote
+    (smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme js2-refactor go-projectile flycheck evil-magit danneskjold-theme csharp-mode company-jedi company-go clojure-mode airline-themes)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote
@@ -179,8 +184,12 @@ static char *gnus-pointer[] = {
  '(pos-tip-foreground-color "#242728")
  '(powerline-color1 "#222232")
  '(powerline-color2 "#333343")
+ '(projectile-globally-ignored-directories
+   (quote
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "vendor")))
  '(recentf-max-saved-items 100)
  '(ropemacs-enable-shortcuts nil)
+ '(select-enable-primary t)
  '(shell-file-name "/bin/bash")
  '(show-paren-mode t)
  '(size-indication-mode t)
@@ -194,7 +203,7 @@ static char *gnus-pointer[] = {
  '(sml/inactive-foreground-color "#34495e")
  '(tags-revert-without-query t)
  '(tool-bar-mode nil)
- '(tramp-ssh-controlmaster-options "")
+ '(tramp-ssh-controlmaster-options "" t)
  '(transient-mark-mode (quote (only . t)))
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
@@ -225,7 +234,6 @@ static char *gnus-pointer[] = {
    (unspecified "#242728" "#424748" "#F70057" "#ff0066" "#86C30D" "#63de5d" "#BEB244" "#E6DB74" "#40CAE4" "#06d8ff" "#FF61FF" "#ff8eff" "#00b2ac" "#53f2dc" "#f8fbfc" "#ffffff"))
  '(window-divider-default-right-width 1)
  '(window-divider-mode t)
- '(x-select-enable-primary t)
  '(xgit-use-index (quote always)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
@@ -235,4 +243,5 @@ static char *gnus-pointer[] = {
  '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "GOOG" :family "Noto Mono"))))
  '(ethan-wspace-face ((t (:background "#020a07" :foreground "firebrick" :underline (:color foreground-color :style wave)))))
  '(lazy-highlight ((t (:background "#264b4b"))))
- '(org-level-1 ((t (:foreground "#7b87a0" :weight normal :height 1.1)))))
+ '(org-level-1 ((t (:foreground "#7b87a0" :weight normal :height 1.1))))
+ '(powerline-active2 ((t (:inherit mode-line :background "grey33")))))
