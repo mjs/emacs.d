@@ -27,22 +27,29 @@
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
-;; Show size and position scrollbar in modeline
-(require 'sml-modeline)
-(sml-modeline-mode t)
-
 (column-number-mode)
 
-(require 'idomenu)
-(global-set-key (kbd "C-c i") 'idomenu)
+;; ido
+(require 'flx-ido)
 (ido-mode 1)
-(ido-everywhere 1)     ; make switch buffer and find file much nicer
+(ido-vertical-mode 1)
+(ido-everywhere 1)
 
+; Better fuzzy matching
+(flx-ido-mode 1)
+;; disable ido faces to see flx highlights.
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces nil)
+
+; Smart M-x (uses ido)
 (require 'smex)
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
 (global-set-key (kbd "M-X") 'smex-major-mode-commands)
-(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)    ;; This is the default M-x.
+
+;; Amazing status line
+(require 'powerline)
+(powerline-center-evil-theme)
 
 ;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
@@ -83,7 +90,7 @@
         (delete-other-windows)
         (let ((first-win (selected-window)))
           (funcall splitter)
-          (if this-win-2nd (other-window 1))
+         (if this-win-2nd (other-window 1))
           (set-window-buffer (selected-window) this-win-buffer)
           (set-window-buffer (next-window) next-win-buffer)
           (select-window first-win)

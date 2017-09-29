@@ -1,10 +1,12 @@
-;;; smex.el --- M-x interface with Ido-style fuzzy matching.
+;;; smex.el --- M-x interface with Ido-style fuzzy matching. -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2009, 2010 Cornelius Mika
+;; Copyright (C) 2009-2014 Cornelius Mika and contributors
 ;;
-;; Author: Cornelius Mika <cornelius.mika@gmail.com>
+;; Author: Cornelius Mika <cornelius.mika@gmail.com> and contributors
 ;; URL: http://github.com/nonsequitur/smex/
-;; Version: 1.1.2
+;; Package-Version: 20151212.1409
+;; Package-Requires: ((emacs "24"))
+;; Version: 3.0
 ;; Keywords: convenience, usability
 
 ;; This file is not part of GNU Emacs.
@@ -24,15 +26,14 @@
 ;; For a detailed introduction see:
 ;; http://github.com/nonsequitur/smex/blob/master/README.markdown
 
+;;; Code:
+
 (require 'ido)
-;; Provides `union', `dolist' and `delete-if'.
-(require 'cl)
 
 (defgroup smex nil
   "M-x interface with Ido-style fuzzy matching and ranking heuristics."
   :group 'extensions
   :group 'convenience
-  :version "1.1"
   :link '(emacs-library-link :tag "Lisp File" "smex.el"))
 
 (defcustom smex-auto-update t
@@ -41,7 +42,7 @@ Turn it off for minor speed improvements on older systems."
   :type 'boolean
   :group 'smex)
 
-(defcustom smex-save-file "~/.smex-items"
+(defcustom smex-save-file (locate-user-emacs-file "smex-items" ".smex-items")
   "File in which the smex state is saved between Emacs sessions.
 Variables stored are: `smex-data', `smex-history'.
 Must be set before initializing Smex."
@@ -60,11 +61,13 @@ Must be set before initializing Smex."
   :type 'string
   :group 'smex)
 
-(defcustom smex-key-advice-ignore-menu-bar nil
-  "If non-nil, `smex-key-advice' ignores `menu-bar' bindings"
+(defcustom smex-flex-matching t
+  "Enables Ido flex matching. On by default.
+Set this to nil to disable fuzzy matching."
   :type 'boolean
   :group 'smex)
 
+(defvar smex-initialized-p nil)
 (defvar smex-cache)
 (defvar smex-ido-cache)
 (defvar smex-data)
@@ -72,56 +75,69 @@ Must be set before initializing Smex."
 (defvar smex-command-count 0)
 (defvar smex-custom-action nil)
 
+;; Check if Smex is supported
+(when (equal (cons 1 1)
+             (ignore-errors
+               (subr-arity (symbol-function 'execute-extended-command))))
+  (error "Your Emacs has a non-elisp version of `execute-extended-command', which is incompatible with Smex"))
+
 ;;--------------------------------------------------------------------------------
 ;; Smex Interface
 
+;;;###autoload
 (defun smex ()
   (interactive)
+  (unless smex-initialized-p
+    (smex-initialize))
   (if (smex-already-running)
       (smex-update-and-rerun)
-    (and smex-auto-update (smex-detect-new-commands)
+    (and smex-auto-update
+         (smex-detect-new-commands)
          (smex-update))
     (smex-read-and-run smex-ido-cache)))
 
-(defsubst smex-already-running ()
-  (and (boundp 'ido-choice-list) (eql ido-choice-list smex-ido-cache)))
+(defun smex-already-running ()
+  (and (boundp 'ido-choice-list)
+       (eql ido-choice-list smex-ido-cache)
+       (minibuffer-window-active-p (selected-window))))
 
-(defsubst smex-update-and-rerun ()
+(defun smex-update-and-rerun ()
   (smex-do-with-selected-item
-   (lambda (ignore) (smex-update) (smex-read-and-run smex-ido-cache ido-text))))
+   (lambda (_) (smex-update) (smex-read-and-run smex-ido-cache ido-text))))
 
 (defun smex-read-and-run (commands &optional initial-input)
-  (let ((chosen-item (intern (smex-completing-read commands initial-input))))
+  (let* ((chosen-item-name (smex-completing-read commands initial-input))
+         (chosen-item (intern chosen-item-name)))
     (if smex-custom-action
         (let ((action smex-custom-action))
           (setq smex-custom-action nil)
           (funcall action chosen-item))
       (unwind-protect
-          (progn (setq prefix-arg current-prefix-arg)
-                 (command-execute chosen-item 'record))
-        (smex-rank chosen-item)
-        (smex-show-key-advice chosen-item)
-        ;; Todo: Is there a better way to manipulate 'last-repeatable-command'
-        ;; from the inside of an interactively called function?
-        (run-at-time 0.01 nil (lambda (cmd) (setq last-repeatable-command cmd))
-                     chosen-item)))))
+          (with-no-warnings ; Don't warn about interactive use of `execute-extended-command'
+            (execute-extended-command current-prefix-arg chosen-item-name))
+        (smex-rank chosen-item)))))
 
+;;;###autoload
 (defun smex-major-mode-commands ()
   "Like `smex', but limited to commands that are relevant to the active major mode."
   (interactive)
-  (let ((commands (union (extract-commands-from-keymap (current-local-map))
-                         (extract-commands-from-features major-mode))))
+  (unless smex-initialized-p
+    (smex-initialize))
+  (let ((commands (delete-dups (append (smex-extract-commands-from-keymap (current-local-map))
+                                       (smex-extract-commands-from-features major-mode)))))
     (setq commands (smex-sort-according-to-cache commands))
-    (setq commands (mapcar (lambda (command) (symbol-name command)) commands))
+    (setq commands (mapcar #'symbol-name commands))
     (smex-read-and-run commands)))
 
 (defun smex-completing-read (choices initial-input)
   (let ((ido-completion-map ido-completion-map)
         (ido-setup-hook (cons 'smex-prepare-ido-bindings ido-setup-hook))
         (ido-enable-prefix nil)
-        (ido-enable-flex-matching t)
-        (ido-max-prospects 10))
-    (ido-completing-read (smex-prompt-with-prefix-arg) choices nil nil initial-input)))
+        (ido-enable-flex-matching smex-flex-matching)
+        (ido-max-prospects 10)
+        (minibuffer-completion-table choices))
+    (ido-completing-read (smex-prompt-with-prefix-arg) choices nil nil
+                         initial-input 'extended-command-history (car choices))))
 
 (defun smex-prompt-with-prefix-arg ()
   (if (not current-prefix-arg)
@@ -137,7 +153,9 @@ Must be set before initializing Smex."
      smex-prompt-string)))
 
 (defun smex-prepare-ido-bindings ()
+  (define-key ido-completion-map (kbd "TAB") 'minibuffer-complete)
   (define-key ido-completion-map (kbd "C-h f") 'smex-describe-function)
+  (define-key ido-completion-map (kbd "C-h w") 'smex-where-is)
   (define-key ido-completion-map (kbd "M-.") 'smex-find-function)
   (define-key ido-completion-map (kbd "C-a") 'move-beginning-of-line))
 
@@ -174,10 +192,13 @@ Must be set before initializing Smex."
       (setcdr (nthcdr (- smex-history-length 1) smex-history) nil))
   (mapc (lambda (command)
           (unless (eq command (caar smex-cache))
-            (let ((command-cell-position (smex-detect-position smex-cache (lambda (cell)
-                                                                (eq command (caar cell))))))
-              (if command-cell-position
-                (let ((command-cell (smex-remove-nth-cell command-cell-position smex-cache)))
+            (let ((command-cell-position (smex-detect-position
+                                          smex-cache
+                                          (lambda (cell)
+                                            (eq command (caar cell))))))
+              (when command-cell-position
+                (let ((command-cell (smex-remove-nth-cell
+                                     command-cell-position smex-cache)))
                   (setcdr command-cell smex-cache)
                   (setq smex-cache command-cell))))))
         (reverse smex-history)))
@@ -209,52 +230,59 @@ Must be set before initializing Smex."
   (run-with-idle-timer idle-time t
                        '(lambda () (if (smex-detect-new-commands) (smex-update)))))
 
-(defun smex-detect-legacy-save-file ()
-  "The default value of `smex-save-file' was changed in between releases.
-This function provides temporary means to aid the transition."
-  (unless (file-readable-p smex-save-file)
-    (let ((legacy-save-file "~/smex.save"))
-      (when (file-readable-p legacy-save-file)
-        (message (format "%s not found. Falling back to %s"
-                         smex-save-file legacy-save-file))
-        (setq smex-save-file legacy-save-file)))))
-
 ;;;###autoload
 (defun smex-initialize ()
   (interactive)
   (unless ido-mode (smex-initialize-ido))
-  (smex-detect-legacy-save-file)
+  (smex-load-save-file)
+  (smex-detect-new-commands)
+  (smex-rebuild-cache)
+  (add-hook 'kill-emacs-hook 'smex-save-to-file)
+  (setq smex-initialized-p t))
+
+(defun smex-initialize-ido ()
+  "Sets up a minimal Ido environment for `ido-completing-read'."
+  (with-no-warnings ; `ido-init-completion-maps' is deprecated in Emacs 25
+    (ido-init-completion-maps))
+  (add-hook 'minibuffer-setup-hook 'ido-minibuffer-setup))
+
+(defsubst smex-save-file-not-empty-p ()
+  (string-match-p "\[^[:space:]\]" (buffer-string)))
+
+(defun smex-load-save-file ()
+  "Loads `smex-history' and `smex-data' from `smex-save-file'"
   (let ((save-file (expand-file-name smex-save-file)))
     (if (file-readable-p save-file)
         (with-temp-buffer
           (insert-file-contents save-file)
-          (setq smex-history (read (current-buffer))
-                smex-data (read (current-buffer))))
-      (setq smex-history nil smex-data nil))
-    (smex-detect-new-commands)
-    (smex-rebuild-cache)
-    (add-hook 'kill-emacs-hook 'smex-save-to-file)))
-
-(defun smex-initialize-ido ()
-  "Sets up a minimal Ido environment for `ido-completing-read'."
-  (ido-init-completion-maps)
-  (add-hook 'minibuffer-setup-hook 'ido-minibuffer-setup))
+          (condition-case nil
+              (setq smex-history (read (current-buffer))
+                    smex-data    (read (current-buffer)))
+            (error (if (smex-save-file-not-empty-p)
+                       (error "Invalid data in smex-save-file (%s). Can't restore history."
+                              smex-save-file)
+                     (unless (boundp 'smex-history) (setq smex-history nil))
+                     (unless (boundp 'smex-data)    (setq smex-data nil))))))
+      (setq smex-history nil smex-data nil))))
 
 (defun smex-save-history ()
   "Updates `smex-history'"
   (setq smex-history nil)
   (let ((cell smex-cache))
-    (dotimes (i smex-history-length)
+    (dotimes (_ smex-history-length)
       (setq smex-history (cons (caar cell) smex-history))
       (setq cell (cdr cell))))
   (setq smex-history (nreverse smex-history)))
+
+(defmacro smex-pp (list-var)
+  `(smex-pp* ,list-var ,(symbol-name list-var)))
 
 (defun smex-save-to-file ()
   (interactive)
   (smex-save-history)
   (with-temp-file (expand-file-name smex-save-file)
-    (ido-pp 'smex-history)
-    (ido-pp 'smex-data)))
+    (smex-pp smex-history)
+    (smex-pp smex-data)))
 
 ;;--------------------------------------------------------------------------------
 ;; Ranking
@@ -316,10 +344,11 @@ This function provides temporary means to aid the transition."
 (defun smex-sort-item-at (n)
   "Sorts item at position N in `smex-cache'."
   (let* ((command-cell (nthcdr n smex-cache))
-         (command-item (car command-cell))
-         (command-count (cdr command-item)))
-    (let ((insert-at (smex-detect-position command-cell (lambda (cell)
-                       (smex-sorting-rules command-item (car cell))))))
+         (command-item (car command-cell)))
+    (let ((insert-at (smex-detect-position
+                      command-cell
+                      (lambda (cell)
+                        (smex-sorting-rules command-item (car cell))))))
       ;; TODO: Should we handle the case of 'insert-at' being nil?
       ;; This will never happen in practice.
       (when (> insert-at 1)
@@ -369,72 +398,42 @@ Returns nil when reaching the end of the list."
 (defun smex-describe-function ()
   (interactive)
   (smex-do-with-selected-item (lambda (chosen)
-                           (describe-function chosen)
-                           (pop-to-buffer "*Help*"))))
+                                (describe-function chosen)
+                                (pop-to-buffer "*Help*"))))
+
+(defun smex-where-is ()
+  (interactive)
+  (smex-do-with-selected-item 'where-is))
 
 (defun smex-find-function ()
   (interactive)
   (smex-do-with-selected-item 'find-function))
 
-(defvar smex-old-message nil
-  "A temporary storage used by `smex-show-key-advice'")
-
-(defun smex-show-key-advice (command)
-  "Shows the keybinding for command, if available. Like `execute-extended-command'."
-  (let ((advice (smex-key-advice command)))
-    (when advice
-      (if (current-message)
-          (progn
-            (run-at-time 2 nil (lambda (advice)
-                                 (setq smex-old-message (current-message))
-                                 (smex-unlogged-message advice)) advice)
-
-            (run-at-time 4.5 nil (lambda (advice)
-                                 (if (equal (current-message) advice)
-                                     (smex-unlogged-message smex-old-message))) advice))
-        (smex-unlogged-message advice)))))
-
-(defun smex-key-advice (command)
-  (let ((keys (where-is-internal command)))
-    (if smex-key-advice-ignore-menu-bar
-        (setq keys (delete-if
-                    (lambda (vect) (equal (aref vect 0) 'menu-bar))
-                    keys)))
-    (if keys
-        (format "You can run the command `%s' with %s"
-                command
-                (mapconcat 'key-description keys ", ")))))
-
-(defun smex-unlogged-message (string)
-  "Bypasses logging in *Messages*"
-  (let (message-log-max)
-    (message "%s" string)))
-
-(defun extract-commands-from-keymap (map)
+(defun smex-extract-commands-from-keymap (map)
   (let (commands)
-    (parse-keymap map)
+    (smex-parse-keymap map commands)
     commands))
 
-(defun parse-keymap (map)
-  (map-keymap (lambda (binding element)
+(defun smex-parse-keymap (map commands)
+  (map-keymap (lambda (_binding element)
                 (if (and (listp element) (eq 'keymap (car element)))
-                    (parse-keymap element)
-                          ; Strings are commands, too. Reject them.
+                    (smex-parse-keymap element commands)
+                  ;; Strings are commands, too. Reject them.
                   (if (and (symbolp element) (commandp element))
-                      (setq commands (cons element commands)))))
+                      (push element commands))))
               map))
 
-(defun extract-commands-from-features (mode)
+(defun smex-extract-commands-from-features (mode)
   (let ((library-path (symbol-file mode))
         (mode-name (symbol-name mode))
         commands)
-    
+
     (string-match "\\(.+?\\)\\(-mode\\)?$" mode-name)
     ;; 'lisp-mode' -> 'lisp'
     (setq mode-name (match-string 1 mode-name))
     (if (string= mode-name "c") (setq mode-name "cc"))
     (setq mode-name (regexp-quote mode-name))
-    
+
     (dolist (feature load-history)
       (let ((feature-path (car feature)))
         (when (and feature-path (or (equal feature-path library-path)
@@ -458,10 +457,28 @@ sorted by frequency of use."
                                             command-item))
                                         smex-data))))
     (view-buffer-other-window "*Smex: Unbound Commands*")
-    (toggle-read-only nil)
-    (erase-buffer)
-    (ido-pp 'unbound-commands)
+    (setq buffer-read-only t)
+    (let ((inhibit-read-only t))
+      (erase-buffer)
+      (smex-pp unbound-commands))
+    (set-buffer-modified-p nil)
     (goto-char (point-min))))
+
+;; A copy of `ido-pp' that's compatible with lexical bindings
+(defun smex-pp* (list list-name)
+  (let ((print-level nil) (eval-expression-print-level nil)
+        (print-length nil) (eval-expression-print-length nil))
+    (insert "\n;; ----- " list-name " -----\n(\n ")
+    (while list
+      (let* ((elt (car list))
+             (s (if (consp elt) (car elt) elt)))
+        (if (and (stringp s) (= (length s) 0))
+            (setq s nil))
+        (if s
+            (prin1 elt (current-buffer)))
+        (if (and (setq list (cdr list)) s)
+            (insert "\n "))))
+    (insert "\n)\n")))
 
 (provide 'smex)
 ;;; smex.el ends here
