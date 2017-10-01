@@ -1,9 +1,5 @@
-(require 'org-config)
-(require 'canonical-config)
-
 ;; run midnight mode hooks a bit more often given that this machine
 ;; isn't on at night
 (setq midnight-period (* 6 60 60))
 
-(setq file-cache-site-directories '("~/go/src"
-                                    "~/canonical/notes"))
+(setq file-cache-site-directories '("~/go/src"))
