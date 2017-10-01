@@ -30,10 +30,11 @@
 
 ; Prevent file-cache-add-file from blowing up on dangling symlinks
 ; and deleted files.
-(defadvice file-cache-add-file (around file-cache-add-file-noerr activate)
-  (condition-case nil
-      ad-do-it
-    (error nil)))
+(defun file-cache-add-file-no-err (orig-func &rest filename)
+  (ignore-errors
+    (apply orig-func filename)))
+
+(advice-add 'file-cache-add-file :around #'file-cache-add-file-no-err)
 
 (refresh-file-cache)
 
