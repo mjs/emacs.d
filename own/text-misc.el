@@ -52,4 +52,16 @@ by using nxml's indentation rules."
 (setq synonyms-cache-file (expand-file-name "~/.emacs.d/tmp/mthesaur.txt.cache"))
 (require 'synonyms)
 
+(defun unfill-paragraph ()
+  "Replace newline chars in current paragraph by single spaces.
+This command does the inverse of `fill-paragraph'.
+
+URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'
+Version 2016-07-13"
+  (interactive)
+  (let ((fill-column most-positive-fixnum))
+    (fill-paragraph)))
+
+(global-set-key (kbd "M-Q") 'unfill-paragraph)
+
 (provide 'text-misc)
