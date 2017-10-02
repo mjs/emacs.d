@@ -19,7 +19,10 @@
            "gochecker -v"))
   (add-hook 'before-save-hook 'gofmt-before-save)
   (setq tab-width 4)
-  (ethan-wspace-mode -1))
+  (ethan-wspace-mode -1)
+  (with-eval-after-load 'evil
+    (define-key evil-normal-state-local-map (kbd "M-}") 'godoc-at-point)))
+
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
