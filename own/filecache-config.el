@@ -7,7 +7,9 @@
 (add-to-list 'file-cache-filter-regexps "/[.]svn")
 (add-to-list 'file-cache-filter-regexps "/[.]hg")
 (add-to-list 'file-cache-filter-regexps "[.]i$")    ;; created by hg
+(add-to-list 'file-cache-filter-regexps "/[.]bzr")
 (add-to-list 'file-cache-filter-regexps "[.]pyc$")
+(add-to-list 'file-cache-filter-regexps "/.emacs.d/external/")
 
 ; Directories we expect to exist and indexed on all hosts
 ; XXX why not just have one that gets appended to?
@@ -20,23 +22,51 @@
 (unless (boundp 'file-cache-site-directories)
   (setq file-cache-site-directories ()))
 
-(defun refresh-file-cache ()
+;; XXX extract async core and helpers to a separate (releasable) package
+;; - have a single path which holds the interesting directories
+;; - split config from functionality
+
+(defun file-cache-refresh ()
   (interactive)
   (message "Loading file cache...")
   (file-cache-clear-cache)
-  (let ((all-cache-directories (append file-cache-site-directories file-cache-common-directories)))
-    (loop for dir in all-cache-directories
-          do (file-cache-add-directory-using-find dir))))
+  (let ((all-cache-directories (mapcar 'expand-file-name (append file-cache-site-directories file-cache-common-directories))))
+    (file-cache-add-dirs-async all-cache-directories)))
 
-; Prevent file-cache-add-file from blowing up on dangling symlinks
-; and deleted files.
-(defun file-cache-add-file-no-err (orig-func &rest filename)
+; XXX doc
+; TODO: apply the exclusion regexes here as part of the find command line
+(defun file-cache-add-dirs-async (dirs)
+  (make-process
+   :name "file-cache-load-async"
+   :filter (file-cache-make-async-filter)
+   :command (append '("find") dirs '("-ignore_readdir_race"))
+   :stderr "file-cache-add-dirs-error"))
+
+(defun file-cache-make-async-filter ()
+  "Return a new filter function for use with
+  file-cache-add-dirs-async. The returned function expects to be given
+  filenames - one per line - and handles the case of filenames being
+  split between calls."
+  (lexical-let ((remainder ""))
+    (lambda (proc output)
+      (let ((lines (split-string output)))
+        (file-cache-add-file-filtered (concat remainder (pop lines)))
+        (unless (string-match-p "\n$" output)
+          (setq remainder (car (last lines)))
+          (nbutlast lines))
+        (dolist (line lines)
+          (file-cache-add-file-filtered line))))))
+
+(cl-defun file-cache-add-file-filtered (filename)
+  (dolist (regexp file-cache-filter-regexps)
+    (when (string-match regexp filename)
+      (return-from file-cache-add-file-filtered)))
+  ; Prevent file-cache-add-file from blowing up on dangling symlinks
+  ; and deleted files.
   (ignore-errors
-    (apply orig-func filename)))
+    (file-cache-add-file filename)))
 
-(advice-add 'file-cache-add-file :around #'file-cache-add-file-no-err)
-
-(refresh-file-cache)
+(file-cache-refresh)
 
 (defun file-cache-ido-find-file (file)
   "Using ido, interactively open file from file cache'.
