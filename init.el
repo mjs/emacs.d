@@ -63,11 +63,10 @@
   (if (file-exists-p site-lib) (load-file site-lib)))
 
 (unless quick-start
-  (require 'filecache-config)    ; load after site config
+  (require 'ffc-config)    ; load after site config
 
   (server-start)
 
   ;; Allow editing from Chrome
   (require 'edit-server)
   (edit-server-start))
-
