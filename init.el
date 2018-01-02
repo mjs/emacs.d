@@ -21,8 +21,8 @@
 (require 'temp-config)
 
 ;; Allow the reset of setup to use elpa packages
-(setq package-archives '(("gnu" . "http://elpa.gnu.org/packages/")
-                         ("melpa" . "http://melpa.org/packages/")))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("melpa stable" . "https://stable.melpa.org/packages/")))
 (setq package-enable-at-startup nil)
 (package-initialize)
 
@@ -40,6 +40,7 @@
 (require 'go-config)
 (require 'rust-config)
 (require 'yaml-config)
+(require 'toml-mode)
 (require 'js-config)
 (require 'c-misc)
 (require 'misc-misc)

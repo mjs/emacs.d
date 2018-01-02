@@ -52,15 +52,15 @@ static char *note[] = {
  '(ensime-sem-high-faces
    (quote
     ((var :foreground "#9876aa" :underline
-          (:style wave :color "yellow"))
+	  (:style wave :color "yellow"))
      (val :foreground "#9876aa")
      (varField :slant italic)
      (valField :foreground "#9876aa" :slant italic)
      (functionCall :foreground "#a9b7c6")
      (implicitConversion :underline
-                         (:color "#808080"))
+			 (:color "#808080"))
      (implicitParams :underline
-                     (:color "#808080"))
+		     (:color "#808080"))
      (operator :foreground "#cc7832")
      (param :foreground "#a9b7c6")
      (class :foreground "#4e807d")
@@ -99,6 +99,7 @@ static char *gnus-pointer[] = {
 \"###....####.######\",
 \"###..######.######\",
 \"###########.######\" };")) t)
+ '(godoc-command "godoc")
  '(grep-command "rg --no-heading -e")
  '(grep-files-aliases
    (quote
@@ -152,9 +153,11 @@ static char *gnus-pointer[] = {
  '(large-file-warning-threshold 100000000)
  '(linum-format " %6d ")
  '(magit-diff-use-overlays nil)
- '(magit-push-arguments (quote ("--force-with-lease")))
+ '(magit-push-arguments nil)
  '(main-line-color1 "#222232")
  '(main-line-color2 "#333343")
+ '(markdown-command
+   "markdown_py -x markdown.extensions.fenced_code -x markdown.extensions.sane_lists")
  '(menu-bar-mode nil)
  '(midnight-hook
    (quote
@@ -173,7 +176,7 @@ static char *gnus-pointer[] = {
  '(org-odd-levels-only t)
  '(package-selected-packages
    (quote
-    (smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme js2-refactor go-projectile flycheck evil-magit danneskjold-theme csharp-mode company-jedi company-go clojure-mode airline-themes)))
+    (macrostep s rust-mode ripgrep f projectile multiple-cursors js2-mode go-rename go-eldoc go-guru flx company yasnippet evil python-mode smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme js2-refactor flycheck evil-magit csharp-mode company-jedi company-go clojure-mode airline-themes)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote
@@ -243,5 +246,7 @@ static char *gnus-pointer[] = {
  '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "GOOG" :family "Noto Mono"))))
  '(ethan-wspace-face ((t (:background "#020a07" :foreground "firebrick" :underline (:color foreground-color :style wave)))))
  '(lazy-highlight ((t (:background "#264b4b"))))
- '(org-level-1 ((t (:foreground "#7b87a0" :weight normal :height 1.1))))
+ '(org-level-1 ((t (:foreground "dark orange" :weight normal))))
+ '(org-level-2 ((t (:foreground "deep sky blue" :weight normal))))
+ '(org-level-3 ((t (:foreground "DodgerBlue3" :weight bold))))
  '(powerline-active2 ((t (:inherit mode-line :background "grey33")))))
