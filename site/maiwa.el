@@ -6,4 +6,4 @@
 
 (add-to-list 'ffc-directories "~/go/src")
 (add-to-list 'ffc-directories "~/cacophony")
-(add-to-list 'ffc-directories "~/presentations")
+(add-to-list 'ffc-directories "~/Dropbox/Presentations")

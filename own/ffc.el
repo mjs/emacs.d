@@ -1,9 +1,16 @@
-(require 'text-misc)
-(require 'subr-x)
+;; Fast, async file name caching
 
+(require 'subr-x)
+(require 'ido)
+
+;; XXX minimum emacs version is 25
+;; XXX autoloads
+
+;; XXX custom
 (defvar ffc-directories '()
   "Directories to be included in the fast file cache")
 
+;; XXX custom
 (defvar ffc-filter-regexps
   '("/\\.#"
     "\\.class$"
@@ -91,14 +98,6 @@ directory, select directory. Lastly the file is opened."
           (car dirs)
         (ffc-ido-read
          (format "Find %s in dir: " file) dirs))))))
-
-(defun ffc-find-file-at-point ()
-  "Using the filename at the point, open it using the file cache"
-  (interactive)
-  (let ((filename (filename-near-point)))
-    (if (string= filename "")
-        (message "No filename at point")
-      (ffc-ido-find-file filename))))
 
 (defun ffc-ido-read (prompt choices)
   (let ((ido-make-buffer-list-hook
