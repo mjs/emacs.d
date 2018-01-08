@@ -1,5 +1,5 @@
 (defun plain-thing-at-point (thing-type)
-  "Like thing-at-point, but strip out any text properties"
+  "Like thing-at-point, but strip out any text properties."
   (let ((thing (thing-at-point thing-type)))
       (set-text-properties 0 (length thing) nil thing)
       thing))

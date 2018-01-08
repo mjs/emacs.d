@@ -1,4 +1,10 @@
-;; Keep temporary and backup files in sane places.
+;; temp-config.el --- Keep temporary and backup files in sane places
+
+;;; Commentary:
+
+;; Set up where temporary, backup and auto-save files go.
+
+;;; Code:
 (setq temporary-file-directory "~/.emacs.d/tmp/")
 (defvar auto-save-dir (concat temporary-file-directory "auto-save/"))
 (setq auto-save-list-file-prefix (concat auto-save-dir ".saves-"))
@@ -14,3 +20,4 @@
 (setq tramp-backup-directory-alist backup-directory-alist)
 
 (provide 'temp-config)
+;;; temp-config.el ends here
