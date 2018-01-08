@@ -48,7 +48,6 @@
 (require 'lua-mode)
 (require 'org-config)
 (require 'calc)
-(require 'php-mode)
 (require 'pastebinit)
 (require 'dired-config)
 (require 'gpg-config)
