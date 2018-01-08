@@ -34,8 +34,8 @@
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc
 (require 'uniquify)
+(require 'flycheck-config)
 (require 'lisp-config)
-(require 'flymake-config)
 (require 'python-config)
 (require 'go-config)
 (require 'rust-config)

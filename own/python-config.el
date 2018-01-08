@@ -1,4 +1,8 @@
-;; Customisations related to editing Python files
+;; python-config.el --- Configuration for editing of Python files
+
+;;; Commentary:
+
+;;; Code:
 
 ;; allow access to dependent Python libraries (Pymacs etc)
 (setenv "PYTHONPATH" (format "%s:%s"
@@ -7,8 +11,10 @@
 
 (require 'python)   ; built-in Emacs version (good as of Emacs 24.3)
 (require 'text-misc)
-(require 'flymake-pyflakes)
 (require 'python-pylint)
+
+(with-eval-after-load 'flycheck
+  (add-hook 'flycheck-mode-hook #'flycheck-pycheckers-setup))
 
 ;; Include underscores when matching words (not sure why this isn't the default)
 (modify-syntax-entry ?_ "w" python-mode-syntax-table)
@@ -18,6 +24,9 @@
 (pymacs-load "ropemacs" "rope-")
 
 (defun py-which-thing (thing-type)
+  "Display name of the current Python THING-TYPE thing.
+
+THING-TYPE might be 'class', 'def' etc."
   (save-excursion
     (re-search-backward (format "^ *%s " thing-type))
     (forward-word)
@@ -25,17 +34,17 @@
     (message (plain-thing-at-point 'symbol))))
 
 (defun py-which-class ()
-  "Display name of the current Python class"
+  "Display name of the current Python class."
   (interactive)
   (py-which-thing "class"))
 
 (defun py-which-function ()
-  "Display name of the current Python function/method"
+  "Display name of the current Python function/method."
   (interactive)
   (py-which-thing "def"))
 
 (defun py-pdbrc-breakpoint ()
-  "Set breakpoint for current line for pdb to see"
+  "Set breakpoint for current line for pdb to see."
   (interactive)
   (save-selected-window
     (let ((current-file buffer-file-name)
@@ -46,12 +55,13 @@
       (save-buffer))))
 
 (defun python-customizations ()
-  "Additional customizations for python mode"
+  "Additional customizations for python mode."
   (add-to-list 'company-backends 'company-jedi)
   (define-key python-mode-map "\C-c\C-c" 'python-pylint)
   (define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key python-mode-map "\C-cwc"  'py-which-class)
   (define-key python-mode-map "\C-cwf"  'py-which-function))
+  ;;(flycheck-mode))
 
 (add-hook 'python-mode-hook 'python-customizations)
 
@@ -60,3 +70,4 @@
 (evil-define-key 'normal python-mode-map (kbd "M-,") 'jedi:goto-definition-pop-marker)
 
 (provide 'python-config)
+;;; python-config.el ends here
