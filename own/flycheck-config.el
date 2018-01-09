@@ -9,5 +9,8 @@
 
 (global-flycheck-mode 1)
 
+(global-set-key (kbd "C-c C-n") 'flycheck-next-error)
+(global-set-key (kbd "C-c C-p") 'flycheck-previous-error)
+
 (provide 'flycheck-config)
 ;;; flycheck-config.el ends here
