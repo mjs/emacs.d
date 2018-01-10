@@ -10,11 +10,9 @@
                              (getenv "PYTHONPATH")))
 
 (require 'python)   ; built-in Emacs version (good as of Emacs 24.3)
+(require 'pyvenv)
+(require 'flycheck-virtualenv)
 (require 'text-misc)
-(require 'python-pylint)
-
-(with-eval-after-load 'flycheck
-  (add-hook 'flycheck-mode-hook #'flycheck-pycheckers-setup))
 
 ;; Include underscores when matching words (not sure why this isn't the default)
 (modify-syntax-entry ?_ "w" python-mode-syntax-table)
@@ -57,11 +55,13 @@ THING-TYPE might be 'class', 'def' etc."
 (defun python-customizations ()
   "Additional customizations for python mode."
   (add-to-list 'company-backends 'company-jedi)
+  (flycheck-virtualenv-setup)
+  (pungi:setup-jedi)
+
   (define-key python-mode-map "\C-c\C-c" 'python-pylint)
   (define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key python-mode-map "\C-cwc"  'py-which-class)
   (define-key python-mode-map "\C-cwf"  'py-which-function))
-  ;;(flycheck-mode))
 
 (add-hook 'python-mode-hook 'python-customizations)
 
