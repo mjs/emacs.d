@@ -12,6 +12,7 @@
 (require 'python)   ; built-in Emacs version (good as of Emacs 24.3)
 (require 'pyvenv)
 (require 'flycheck-virtualenv)
+(require 'yapfify)
 (require 'text-misc)
 
 ;; Include underscores when matching words (not sure why this isn't the default)
@@ -52,16 +53,26 @@ THING-TYPE might be 'class', 'def' etc."
       (insert "break " current-file ":" current-line "\n")
       (save-buffer))))
 
+(defun py-enable-yapf ()
+  "Run the yapf autoformatter on the buffer and enable yapf-mode."
+  (interactive)
+  (yapfify-buffer)
+  (yapf-mode))
+
 (defun python-customizations ()
   "Additional customizations for python mode."
   (add-to-list 'company-backends 'company-jedi)
   (flycheck-virtualenv-setup)
   (pungi:setup-jedi)
 
-  (define-key python-mode-map "\C-c\C-c" 'python-pylint)
   (define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
   (define-key python-mode-map "\C-cwc"  'py-which-class)
-  (define-key python-mode-map "\C-cwf"  'py-which-function))
+  (define-key python-mode-map "\C-cwf"  'py-which-function)
+
+  (define-key python-mode-map (kbd "\C-c C-p") 'flycheck-previous-error)
+  (define-key python-mode-map (kbd "\C-c C-n") 'flycheck-next-error)
+
+  (define-key python-mode-map (kbd "\C-c C-y") 'py-enable-yapf))
 
 (add-hook 'python-mode-hook 'python-customizations)
 
