@@ -13,6 +13,7 @@
 (require 'pyvenv)
 (require 'flycheck-virtualenv)
 (require 'yapfify)
+(require 'cython-mode)
 (require 'text-misc)
 
 ;; Include underscores when matching words (not sure why this isn't the default)
