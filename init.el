@@ -34,6 +34,7 @@
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc
 (require 'uniquify)
+(require 'projectile-config)
 (require 'flycheck-config)
 (require 'lisp-config)
 (require 'python-config)
