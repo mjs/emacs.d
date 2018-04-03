@@ -20,6 +20,8 @@
 (modify-syntax-entry ?_ "w" python-mode-syntax-table)
 
 ;; Pymacs and ropemacs
+;; XXX what value is pymacs / ropemacs providing?
+;; if keeping, install from MELPA
 (require 'pymacs)
 (pymacs-load "ropemacs" "rope-")
 
@@ -64,18 +66,21 @@ THING-TYPE might be 'class', 'def' etc."
   "Additional customizations for python mode."
   (add-to-list 'company-backends 'company-jedi)
   (flycheck-virtualenv-setup)
-  (pungi:setup-jedi)
-
-  (define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
-  (define-key python-mode-map "\C-cwc"  'py-which-class)
-  (define-key python-mode-map "\C-cwf"  'py-which-function)
-
-  (define-key python-mode-map (kbd "\C-c C-p") 'flycheck-previous-error)
-  (define-key python-mode-map (kbd "\C-c C-n") 'flycheck-next-error)
-
-  (define-key python-mode-map (kbd "\C-c C-y") 'py-enable-yapf))
+  (pungi:setup-jedi))
 
 (add-hook 'python-mode-hook 'python-customizations)
+
+
+(define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
+(define-key python-mode-map "\C-cwc"  'py-which-class)
+(define-key python-mode-map "\C-cwf"  'py-which-function)
+
+(define-key python-mode-map (kbd "\C-c C-p") 'flycheck-previous-error)
+(define-key python-mode-map (kbd "\C-c C-n") 'flycheck-next-error)
+
+(define-key python-mode-map (kbd "C-c C-r") 'projectile-ripgrep)
+
+(define-key python-mode-map (kbd "\C-c C-y") 'py-enable-yapf)
 
 ; Jump to definition and back again
 (evil-define-key 'normal python-mode-map (kbd "M-.") 'jedi:goto-definition)
