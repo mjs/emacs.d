@@ -1,9 +1,5 @@
 
 ;; Colour theme
-; (load-theme 'kosmos)
-; (load-theme 'distinguished)
-; (load-theme 'danneskjold)
-; (load-theme 'gruber-darker)
 (load-theme 'metalspleen)
 
 (defun disable-all-themes ()
@@ -37,9 +33,8 @@
 
 ; Better fuzzy matching
 (flx-ido-mode 1)
-;; disable ido faces to see flx highlights.
 (setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)
+(setq ido-use-faces nil)  ; disable ido faces to see flx highlights.
 
 ; Smart M-x (uses ido)
 (require 'smex)
@@ -56,19 +51,13 @@
 
 (winner-mode)
 
-;; Make window sizing saner
-(defun enlarge-window-horiz-quick (arg)
-  (interactive "P")
-  (enlarge-window-horizontally 3))
+;; Easier window sizing bindings.
+(global-set-key (kbd "M--") 'shrink-window)
+(global-set-key (kbd "M-=") 'enlarge-window)
 
-(defun shrink-window-horiz-quick (arg)
-  (interactive "P")
-  (shrink-window-horizontally 3))
-
-(global-set-key (kbd "C-_") 'shrink-window-horiz-quick)
-(global-set-key (kbd "C-+") 'enlarge-window-horiz-quick)
-(global-set-key (kbd "C--") 'shrink-window)
-(global-set-key (kbd "C-=") 'enlarge-window)
+;; Font scaling
+(global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-=") 'text-scale-increase)
 
 (defun toggle-window-split ()
   "Switch between horizontal and vertical window split config"
@@ -100,7 +89,6 @@
 
 
 ;; Default window splitting behaviour to suit wide monitors
-
 (setq split-height-threshold 45)
 (setq split-width-threshold 160)
 

@@ -205,6 +205,7 @@ static char *gnus-pointer[] = {
  '(sml/inactive-background-color "#dfe4ea")
  '(sml/inactive-foreground-color "#34495e")
  '(tags-revert-without-query t)
+ '(text-scale-mode-step 1.1)
  '(tool-bar-mode nil)
  '(tramp-ssh-controlmaster-options "" t)
  '(transient-mark-mode (quote (only . t)))
