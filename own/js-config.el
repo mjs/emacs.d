@@ -1,19 +1,12 @@
-; (require js2-mode)
-
+(require 'js)
 (add-to-list 'auto-mode-alist '("\\.js$" . js-mode))
+(setq js-indent-level 2)
 
-(add-hook 'js-mode-hook 'flycheck-mode)
-
-;
-;(require 'js2-refactor)
-;(add-hook 'js2-mode-hook #'js2-refactor-mode)
-;(js2r-add-keybindings-with-prefix "C-c C-r")
-;(define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+(require 'web-beautify)
+(eval-after-load 'js
+  '(define-key js-mode-map (kbd "C-c b") 'web-beautify-js))
 
 ; TODO xref-js2 - needs Emacs 25
 ; TODO company-tern
-
-
-
 
 (provide 'js-config)
