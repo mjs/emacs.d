@@ -1,7 +1,3 @@
-;; Set true to skip non-essential (and slow) startup items
-;; useful when restarting Emacs a lot to test some new config.
-(defvar quick-start nil)
-
 ;; Move all the customize stuff elsewhere to reduce clutter.
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
@@ -63,11 +59,6 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
-(unless quick-start
-  (require 'ffc-config)    ; load after site config
+(require 'ffc-config)    ; load after site config
 
-  (server-start)
-
-  ;; Allow editing from Chrome
-  (require 'edit-server)
-  (edit-server-start))
+(server-start)
