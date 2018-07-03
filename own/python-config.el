@@ -12,7 +12,7 @@
 (require 'python)   ; built-in Emacs version (good as of Emacs 24.3)
 (require 'pyvenv)
 (require 'flycheck-virtualenv)
-(require 'yapfify)
+(require 'blacken)
 (require 'cython-mode)
 (require 'text-misc)
 
@@ -56,11 +56,11 @@ THING-TYPE might be 'class', 'def' etc."
       (insert "break " current-file ":" current-line "\n")
       (save-buffer))))
 
-(defun py-enable-yapf ()
-  "Run the yapf autoformatter on the buffer and enable yapf-mode."
+(defun py-enable-blacken ()
+  "Run the blacken autoformatter on the buffer and enable blacken-mode."
   (interactive)
-  (yapfify-buffer)
-  (yapf-mode))
+  (blacken-buffer t)
+  (blacken-mode))
 
 (defun python-customizations ()
   "Additional customizations for python mode."
@@ -80,7 +80,7 @@ THING-TYPE might be 'class', 'def' etc."
 
 (define-key python-mode-map (kbd "C-c C-r") 'projectile-ripgrep)
 
-(define-key python-mode-map (kbd "\C-c C-y") 'py-enable-yapf)
+(define-key python-mode-map (kbd "\C-c C-b") 'py-enable-blacken)
 
 ; Jump to definition and back again
 (evil-define-key 'normal python-mode-map (kbd "M-.") 'jedi:goto-definition)
