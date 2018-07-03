@@ -25,6 +25,11 @@
 
 (column-number-mode)
 
+;; Set cursor to blink for a while after input
+(blink-cursor-mode 1)
+(setq blink-cursor-interval 0.3)
+(setq blink-cursor-blinks 50)
+
 ;; ido
 (require 'flx-ido)
 (ido-mode 1)
