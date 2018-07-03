@@ -2,9 +2,11 @@
 (require 'dired-single)
 
 (defun my-dired-init ()
-  "Bunch of stuff to run for dired, either immediately or when it's
-   loaded."
-  ;; <add other stuff here>
+  "A bunch of stuff to run for dired, either immediately or when it's loaded."
+
+  ; Fix search and replace, broken in 25.1
+  (define-key dired-mode-map "Q" 'dired-do-query-replace-regexp)
+
   (define-key dired-mode-map [return] 'joc-dired-single-buffer)
   (define-key dired-mode-map [Mouse-1] 'joc-dired-single-buffer-mouse)
   (define-key dired-mode-map "^"
