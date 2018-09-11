@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Standard footer
+# key: footer
+# --
+;;; ${1:`(file-name-nondirectory (buffer-file-name))`} ends here

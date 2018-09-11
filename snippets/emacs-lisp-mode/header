@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: Standard elisp file header
+# key: header
+# --
+
+;;; ${1:`(file-name-nondirectory (buffer-file-name))`} --- $2
+;;
+;;; Commentary:
+;;
+;; $3
+;;
+;;; Code:
+
+$0
