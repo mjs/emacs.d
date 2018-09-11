@@ -1,4 +1,19 @@
 
+;;; misc-misc.el --- Random stuff
+;;
+;;; Commentary:
+;;
+;;
+;;
+;;; Code:
+
+(defun run-terminal ()
+  "Spawn an interactive terminal."
+  (interactive)
+  (shell-command "term"))
+
+(global-set-key (kbd "C-c t") 'run-terminal)
+
 (global-set-key (kbd "C-x C-#") 'bury-buffer)
 
 ;; Less convoluted key for window switching
@@ -18,3 +33,4 @@
     (reusable-frames . t)))
 
 (provide 'misc-misc)
+;;; misc-misc.el ends here
