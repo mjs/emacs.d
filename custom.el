@@ -52,15 +52,15 @@ static char *note[] = {
  '(ensime-sem-high-faces
    (quote
     ((var :foreground "#9876aa" :underline
-	  (:style wave :color "yellow"))
+          (:style wave :color "yellow"))
      (val :foreground "#9876aa")
      (varField :slant italic)
      (valField :foreground "#9876aa" :slant italic)
      (functionCall :foreground "#a9b7c6")
      (implicitConversion :underline
-			 (:color "#808080"))
+                         (:color "#808080"))
      (implicitParams :underline
-		     (:color "#808080"))
+                     (:color "#808080"))
      (operator :foreground "#cc7832")
      (param :foreground "#a9b7c6")
      (class :foreground "#4e807d")
@@ -68,12 +68,18 @@ static char *note[] = {
      (object :foreground "#6897bb" :slant italic)
      (package :foreground "#cc7832")
      (deprecated :strike-through "#a9b7c6"))))
+ '(evil-symbol-word-search t)
  '(fci-rule-color "#383838" t)
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
+ '(flycheck-disabled-checkers (quote (systemd-analyze)))
+ '(flycheck-pycheckers-checkers (quote (pylint pep8)))
+ '(flycheck-pycheckers-max-line-length 150)
  '(flymake-number-of-errors-to-display 3)
+ '(font-use-system-font t)
  '(frame-background-mode (quote dark))
  '(frame-brackground-mode (quote dark))
  '(fringe-mode 10 nil (fringe))
+ '(global-flycheck-mode t)
  '(global-hl-line-mode t)
  '(gnus-logo-colors (quote ("#4c8383" "#bababa")) t)
  '(gnus-mode-line-image-cache
@@ -176,7 +182,7 @@ static char *gnus-pointer[] = {
  '(org-odd-levels-only t)
  '(package-selected-packages
    (quote
-    (macrostep s rust-mode ripgrep f projectile multiple-cursors js2-mode go-rename go-eldoc go-guru flx company yasnippet evil python-mode smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme js2-refactor flycheck evil-magit csharp-mode company-jedi company-go clojure-mode airline-themes)))
+    (use-package vue-html-mode vue-mode web-mode systemd powerline cython-mode web-beautify pungi macrostep s rust-mode ripgrep f projectile multiple-cursors go-rename go-eldoc go-guru flx company yasnippet evil smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit csharp-mode company-jedi company-go clojure-mode)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote
@@ -189,9 +195,11 @@ static char *gnus-pointer[] = {
  '(powerline-color2 "#333343")
  '(projectile-globally-ignored-directories
    (quote
-    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "vendor")))
+    (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "vendor" "node_modules")))
+ '(projectile-tags-command "ctags -Re --exclude=node_modules -f \"%s\" %s ")
  '(recentf-max-saved-items 100)
  '(ropemacs-enable-shortcuts nil)
+ '(safe-local-variable-values (quote ((firestarter . ert-run-tests-interactively))))
  '(select-enable-primary t)
  '(shell-file-name "/bin/bash")
  '(show-paren-mode t)
@@ -208,7 +216,6 @@ static char *gnus-pointer[] = {
  '(text-scale-mode-step 1.1)
  '(tool-bar-mode nil)
  '(tramp-ssh-controlmaster-options "" t)
- '(transient-mark-mode (quote (only . t)))
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
  '(vc-annotate-background "#2B2B2B")
@@ -244,9 +251,11 @@ static char *gnus-pointer[] = {
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "GOOG" :family "Noto Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "1ASC" :family "Droid Sans Mono"))))
  '(ethan-wspace-face ((t (:background "#020a07" :foreground "firebrick" :underline (:color foreground-color :style wave)))))
  '(lazy-highlight ((t (:background "#264b4b"))))
+ '(markdown-code-face ((t (:inherit fixed-pitch :background "#003300"))))
+ '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "deep sky blue" :height 1.0))))
  '(org-level-1 ((t (:foreground "dark orange" :weight normal))))
  '(org-level-2 ((t (:foreground "deep sky blue" :weight normal))))
  '(org-level-3 ((t (:foreground "DodgerBlue3" :weight bold))))
