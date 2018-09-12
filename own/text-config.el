@@ -1,4 +1,18 @@
+
+;;; text-config.el --- General text manipulation configuration.
+;;
+;;; Commentary:
+;;
+;; Bindings, aliases and config for text general text manipulation
+;; functionality.
+;;
+;;; Code:
+
+
+
+(require 'text-misc)
 (require 'longlines)
+
 (defalias 'll 'longlines-mode)
 (defalias 'tt 'toggle-truncate-lines)
 
@@ -16,4 +30,7 @@
 (require 'ethan-wspace)
 (global-ethan-wspace-mode 1)
 
+(global-set-key (kbd "M-Q") 'unfill-paragraph)
+
 (provide 'text-config)
+;;; text-config.el ends here

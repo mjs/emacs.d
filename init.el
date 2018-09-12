@@ -27,6 +27,7 @@
 (require 'gui-config)
 (require 'company-config)
 (require 'clipboard-config)
+(require 'text-config)
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc
 (require 'uniquify)
@@ -50,7 +51,6 @@
 (require 'gpg-config)
 (require 'yasnippet-config)
 (require 'csharp-config)
-(require 'text-config)
 (require 'grep-config)
 (require 'file-config)
 (require 'misc-config)
