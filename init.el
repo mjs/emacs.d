@@ -62,3 +62,6 @@
 (require 'ffc-config)    ; load after site config
 
 (server-start)
+
+(require 'edit-server)
+(edit-server-start)
