@@ -20,14 +20,15 @@
 
   (setq tab-width 4)
   (add-hook 'before-save-hook 'gofmt-before-save)
-  (ethan-wspace-mode -1)
-
-  (with-eval-after-load 'evil
-    (define-key evil-normal-state-local-map (kbd "M-}") 'godoc-at-point)))
+  (ethan-wspace-mode -1))
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(define-key go-mode-map [f9] 'compile)
+(evil-define-key 'normal go-mode-map (kbd "M-.") 'godef-jump)
+(evil-define-key 'normal go-mode-map (kbd "M-?") 'godef-jump-other-window)
+(evil-define-key 'normal go-mode-map (kbd "M-,") 'pop-tag-mark)
+(evil-define-key 'normal go-mode-map (kbd "M-}") 'godoc-at-point)
+(evil-define-key 'normal go-mode-map [f9] 'compile)
 
 (require 'company)    ; load company mode
 (require 'company-go) ; load company mode go backend
