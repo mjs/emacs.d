@@ -163,7 +163,7 @@ static char *gnus-pointer[] = {
  '(main-line-color1 "#222232")
  '(main-line-color2 "#333343")
  '(markdown-command
-   "markdown_py -x markdown.extensions.fenced_code -x markdown.extensions.sane_lists")
+   "markdown_py -x markdown.extensions.fenced_code -x markdown.extensions.sane_lists -x markdown.extensions.tables")
  '(menu-bar-mode nil)
  '(midnight-hook
    (quote
@@ -251,11 +251,12 @@ static char *gnus-pointer[] = {
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "1ASC" :family "Droid Sans Mono"))))
+ '(default ((t (:inherit nil :stipple nil :background "#020a07" :foreground "#8693ae" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight normal :height 99 :width normal :foundry "FBI " :family "Input Mono"))))
  '(ethan-wspace-face ((t (:background "#020a07" :foreground "firebrick" :underline (:color foreground-color :style wave)))))
  '(lazy-highlight ((t (:background "#264b4b"))))
  '(markdown-code-face ((t (:inherit fixed-pitch :background "#003300"))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "deep sky blue" :height 1.0))))
+ '(mmm-default-submode-face ((t (:background "gray10"))))
  '(org-level-1 ((t (:foreground "dark orange" :weight normal))))
  '(org-level-2 ((t (:foreground "deep sky blue" :weight normal))))
  '(org-level-3 ((t (:foreground "DodgerBlue3" :weight bold))))
