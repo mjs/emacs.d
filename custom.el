@@ -182,7 +182,7 @@ static char *gnus-pointer[] = {
  '(org-odd-levels-only t)
  '(package-selected-packages
    (quote
-    (use-package vue-html-mode vue-mode web-mode systemd powerline cython-mode web-beautify pungi macrostep s rust-mode ripgrep f projectile multiple-cursors go-rename go-eldoc go-guru flx company yasnippet evil smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit csharp-mode company-jedi company-go clojure-mode)))
+    (cython-mode yasnippet pyenv-mode csharp-mode magit vue-html-mode vue-mode web-mode systemd powerline web-beautify pungi macrostep s rust-mode ripgrep f multiple-cursors go-rename go-eldoc go-guru flx company smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit company-jedi company-go clojure-mode)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote
