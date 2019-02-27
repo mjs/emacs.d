@@ -4,7 +4,7 @@
 
 ;;; Code:
 
-;; allow access to dependent Python libraries (Pymacs etc)
+;; allow access to dependent Python libraries
 (setenv "PYTHONPATH" (format "%s:%s"
                              (expand-file-name "~/.emacs.d/pylib")
                              (getenv "PYTHONPATH")))
@@ -18,12 +18,6 @@
 
 ;; Include underscores when matching words (not sure why this isn't the default)
 (modify-syntax-entry ?_ "w" python-mode-syntax-table)
-
-;; Pymacs and ropemacs
-;; XXX what value is pymacs / ropemacs providing?
-;; if keeping, install from MELPA
-(require 'pymacs)
-(pymacs-load "ropemacs" "rope-")
 
 (defun py-which-thing (thing-type)
   "Display name of the current Python THING-TYPE thing.
