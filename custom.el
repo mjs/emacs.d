@@ -71,7 +71,7 @@ static char *note[] = {
  '(evil-symbol-word-search t)
  '(fci-rule-color "#383838" t)
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
- '(flycheck-disabled-checkers (quote (go-gofmt systemd-analyze go-govet)))
+ '(flycheck-disabled-checkers (quote (go-gofmt systemd-analyze go-vet)))
  '(flycheck-go-golint-executable "revive")
  '(flycheck-pycheckers-checkers (quote (pylint pep8)))
  '(flycheck-pycheckers-max-line-length 150)
