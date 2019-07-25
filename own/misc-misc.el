@@ -10,7 +10,7 @@
 (defun run-terminal ()
   "Spawn an interactive terminal."
   (interactive)
-  (shell-command "term"))
+  (start-process "terminal" nil "term"))
 
 (global-set-key (kbd "C-c t") 'run-terminal)
 
