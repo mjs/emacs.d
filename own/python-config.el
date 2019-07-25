@@ -54,7 +54,8 @@ THING-TYPE might be 'class', 'def' etc."
   "Run the blacken autoformatter on the buffer and enable blacken-mode."
   (interactive)
   (blacken-buffer t)
-  (blacken-mode))
+  (blacken-mode)
+  (message "Black formatting enabled for buffer"))
 
 (defun python-customizations ()
   "Additional customizations for python mode."
