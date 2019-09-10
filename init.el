@@ -9,9 +9,6 @@
 ;; Make more elisp mods available.
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
-;; TODO: use officially packaged orgmode
-(add-to-list 'load-path "~/.emacs.d/external/orgmode/core")
-(add-to-list 'load-path "~/.emacs.d/external/orgmode/contrib")
 
 ;; Put temporary files in sane locations.
 (require 'temp-config)
@@ -45,7 +42,7 @@
 (require 'misc-misc)
 (require 'insert-timestamp)
 (require 'lua-mode)
-(require 'org-config)
+;(require 'org-config)
 (require 'calc)
 (require 'pastebinit)
 (require 'dired-config)

@@ -33,8 +33,4 @@
     (insert converted)
     (insert "\n")))
 
-(defun org-today-in-internal-format ()
-  (let ((now (decode-time)))
-    (encode-time 0 0 0 (nth 3 now) (nth 4 now) (nth 5 now))))
-
 (provide 'org-utils)    
