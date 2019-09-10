@@ -159,6 +159,7 @@ static char *gnus-pointer[] = {
  '(js2-mirror-mode nil)
  '(large-file-warning-threshold 100000000)
  '(linum-format " %6d ")
+ '(lsp-auto-guess-root t)
  '(magit-diff-use-overlays nil)
  '(magit-push-arguments nil)
  '(main-line-color1 "#222232")
@@ -183,7 +184,7 @@ static char *gnus-pointer[] = {
  '(org-odd-levels-only t)
  '(package-selected-packages
    (quote
-    (flycheck-rust cython-mode yasnippet pyenv-mode csharp-mode magit vue-html-mode vue-mode web-mode systemd powerline web-beautify pungi macrostep s rust-mode ripgrep f multiple-cursors go-rename go-eldoc go-guru flx company smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit company-jedi company-go clojure-mode)))
+    (go-eldoc org-re-reveal lsp-mode company-lsp flycheck-rust cython-mode yasnippet pyenv-mode csharp-mode magit vue-html-mode vue-mode web-mode systemd powerline web-beautify pungi macrostep s rust-mode ripgrep f multiple-cursors go-rename go-guru flx company smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit company-jedi company-go clojure-mode)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote

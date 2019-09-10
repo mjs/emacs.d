@@ -12,7 +12,8 @@
 (setq gofmt-command "goimports")
 
 (defun my-go-mode-hook ()
-  (set (make-local-variable 'company-backends) '(company-go))
+  ;(set (make-local-variable 'company-backends) '(company-go))
+  (lsp)
 
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
@@ -31,6 +32,6 @@
 (evil-define-key 'normal go-mode-map [f9] 'compile)
 
 (require 'company)    ; load company mode
-(require 'company-go) ; load company mode go backend
+;(require 'company-go) ; load company mode go backend
 
 (provide 'go-config)
