@@ -7,3 +7,7 @@ site.el
 projectile-bookmarks.eld
 tramp
 /.python-environments
+/.lsp-session*
+/ido.last
+/recentf
+/session.*
