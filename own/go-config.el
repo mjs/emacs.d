@@ -7,13 +7,14 @@
 (require 'go-mode)
 (require 'go-guru)
 (require 'go-projectile)
+(require 'company)
+(require 'company-lsp)
 
 ; Use goimports instead of go-fmt
-(setq gofmt-command "goimports")
+(setq gofmt-command "my-go-fmt")
 
 (defun my-go-mode-hook ()
-  ;(set (make-local-variable 'company-backends) '(company-go))
-  (lsp)
+  (lsp-deferred)
 
   (if (not (string-match "go" compile-command))
       (set (make-local-variable 'compile-command)
@@ -25,13 +26,9 @@
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(evil-define-key 'normal go-mode-map (kbd "M-.") 'godef-jump)
-(evil-define-key 'normal go-mode-map (kbd "M-?") 'godef-jump-other-window)
+(evil-define-key 'normal go-mode-map (kbd "M-.") 'lsp-find-definition)
+(evil-define-key 'normal go-mode-map (kbd "M->") 'lsp-ui-peek-find-definitions)
 (evil-define-key 'normal go-mode-map (kbd "M-,") 'pop-tag-mark)
-(evil-define-key 'normal go-mode-map (kbd "M-}") 'godoc-at-point)
 (evil-define-key 'normal go-mode-map [f9] 'compile)
-
-(require 'company)    ; load company mode
-;(require 'company-go) ; load company mode go backend
 
 (provide 'go-config)
