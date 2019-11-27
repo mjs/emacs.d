@@ -5,7 +5,6 @@
 
 
 (require 'go-mode)
-(require 'go-projectile)
 (require 'lsp-config)
 (require 'company)
 (require 'company-lsp)
