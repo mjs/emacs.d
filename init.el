@@ -25,6 +25,7 @@
 (require 'company-config)
 (require 'clipboard-config)
 (require 'text-config)
+(require 'lsp-config)
 (require 'markdown-config)
 (require 'magit-config)
 (require 'gitk)         ;; spawn gitk for the current file etc

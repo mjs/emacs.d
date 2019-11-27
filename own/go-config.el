@@ -7,7 +7,7 @@
 (require 'go-mode)
 (require 'go-guru)
 (require 'go-projectile)
-(require 'lsp)
+(require 'lsp-config)
 (require 'company)
 (require 'company-lsp)
 
@@ -27,8 +27,7 @@
 
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
-(evil-define-key 'normal go-mode-map (kbd "M-.") 'lsp-find-definition)
-(evil-define-key 'normal go-mode-map (kbd "M-,") 'pop-tag-mark)
 (evil-define-key 'normal go-mode-map [f9] 'compile)
 
 (provide 'go-config)
+;;; go-config.el ends here
