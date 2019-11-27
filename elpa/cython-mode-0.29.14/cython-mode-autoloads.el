@@ -3,8 +3,8 @@
 ;;; Code:
 (add-to-list 'load-path (directory-file-name (or (file-name-directory #$) (car load-path))))
 
-;;;### (autoloads nil "cython-mode" "cython-mode.el" (23925 56809
-;;;;;;  405166 251000))
+;;;### (autoloads nil "cython-mode" "cython-mode.el" (24030 55267
+;;;;;;  227033 510000))
 ;;; Generated autoloads from cython-mode.el
 
 (add-to-list 'auto-mode-alist '("\\.pyx\\'" . cython-mode))
