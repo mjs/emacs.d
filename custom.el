@@ -160,7 +160,7 @@ static char *gnus-pointer[] = {
  '(large-file-warning-threshold 100000000)
  '(linum-format " %6d ")
  '(lsp-auto-guess-root t)
- '(lsp-ui-doc-enable t)
+ '(lsp-ui-doc-enable nil)
  '(lsp-ui-imenu-enable nil)
  '(lsp-ui-peek-peek-height 30)
  '(lsp-ui-sideline-enable nil)
@@ -188,7 +188,7 @@ static char *gnus-pointer[] = {
  '(org-odd-levels-only t)
  '(package-selected-packages
    (quote
-    (lsp-ui go-eldoc org-re-reveal company-lsp flycheck-rust yasnippet pyenv-mode csharp-mode vue-html-mode vue-mode web-mode systemd powerline web-beautify pungi macrostep s ripgrep multiple-cursors go-rename go-guru flx company smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit company-jedi company-go clojure-mode)))
+    (cython-mode typescript-mode go-eldoc org-re-reveal company-lsp flycheck-rust yasnippet pyenv-mode csharp-mode vue-html-mode vue-mode web-mode systemd powerline web-beautify pungi macrostep s ripgrep multiple-cursors flx company smex ido-vertical-mode flx-ido markdown-mode toml-mode slime-repl racer projectile-ripgrep popup metalspleen-theme flycheck evil-magit company-jedi clojure-mode)))
  '(pastebin-default-domain "paste.ubuntu.com")
  '(pastebin-domain-versions
    (quote
