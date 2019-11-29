@@ -1,13 +1,13 @@
+(require 'go-mode)
+(require 'lsp-config)
+(require 'company)
+(require 'company-lsp)
+
 (setenv "PATH" (format "%s:%s"
                        (expand-file-name "~/go/bin")
                        (getenv "PATH")))
 (setenv "GOPATH" (expand-file-name "~/go"))
 
-
-(require 'go-mode)
-(require 'lsp-config)
-(require 'company)
-(require 'company-lsp)
 
 ; Use goimports instead of go-fmt
 (setq gofmt-command "my-go-fmt")
