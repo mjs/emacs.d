@@ -66,7 +66,6 @@ THING-TYPE might be 'class', 'def' etc."
 (add-hook 'python-mode-hook 'python-customizations)
 
 
-(define-key python-mode-map "\C-cb"   'py-pdbrc-breakpoint)
 (define-key python-mode-map "\C-cwc"  'py-which-class)
 (define-key python-mode-map "\C-cwf"  'py-which-function)
 
@@ -75,7 +74,7 @@ THING-TYPE might be 'class', 'def' etc."
 
 (define-key python-mode-map (kbd "C-c C-r") 'projectile-ripgrep)
 
-(define-key python-mode-map (kbd "\C-c C-b") 'py-enable-blacken)
+(define-key python-mode-map (kbd "<f6>") 'py-enable-blacken)
 
 ; Jump to definition and back again
 (evil-define-key 'normal python-mode-map (kbd "M-.") 'jedi:goto-definition)
