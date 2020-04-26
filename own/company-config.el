@@ -13,8 +13,10 @@
 ;(define-key evil-normal-state-map (kbd "C-c /") 'company-complete)
 (define-key evil-insert-state-map (kbd "TAB") #'company-indent-or-complete-common)
 (define-key evil-insert-state-map (kbd "M-/") 'company-complete)
-
 (evil-declare-change-repeat 'company-complete-common)
+
+(define-key company-active-map (kbd "C-n") 'company-select-next)
+(define-key company-active-map (kbd "C-p") 'company-select-previous)
 
 ;; Abort company-mode when exiting insert mode
 (defun abort-company-on-insert-state-exit ()
