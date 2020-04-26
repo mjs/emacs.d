@@ -8,6 +8,9 @@
 
 ;; Colour theme
 (load-theme 'metalspleen)
+; base16-classic-dark
+; santiyinc-tomorrow-night
+; flatui-dark
 
 (defun disable-all-themes ()
   "Turn off all enabled colour themes."
@@ -56,7 +59,6 @@
 
 ;; Amazing status line
 (require 'powerline)
-
 
 (defun powerline-center-evil-mod-theme ()
   "Setup a mode-line with major, evil, and minor modes centered."
