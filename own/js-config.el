@@ -10,6 +10,8 @@
                        "/opt/node-v8.16.1-linux-x64/bin"
                        (getenv "PATH")))
 
+(setq exec-path (cons "/opt/node-v8.16.1-linux-x64/bin" exec-path))
+
 (require 'js)
 (require 'prettier-js)
 (require 'web-beautify)
@@ -27,7 +29,8 @@
 
 
 (defun my-ts-mode-hook ()
-  (lsp-deferred))
+  (lsp-deferred)
+  (setq typescript-indent-level 2))
 
 (eval-after-load 'typescript
   (add-hook 'typescript-mode-hook 'my-ts-mode-hook))
