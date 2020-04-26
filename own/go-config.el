@@ -18,8 +18,7 @@
 (require 'lsp)
 (require 'ethan-wspace)
 
-; Use goimports instead of go-fmt
-(setq gofmt-command "my-go-fmt")
+(setq gofmt-command "gofmt")
 
 (defun go-mode-customisations ()
   "Set up go-mode to suit my tastes."
