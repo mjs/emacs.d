@@ -1,4 +1,5 @@
 (require 'company)
+(require 'company-lsp)
 
 (setq company-minimum-prefix-length 1)               ; start completing after 1 char
 (setq company-idle-delay .3)                         ; decrease delay before autocompletion popup shows
