@@ -3,7 +3,8 @@
 (global-set-key "\M-p" 'previous-error)
 
 ;; Unique grep buffer per search
-(require 'grep-a-lot)
+(use-package grep-a-lot
+  :straight t)
 (grep-a-lot-setup-keys)
 
 (defalias 'rg 'ripgrep-regexp)

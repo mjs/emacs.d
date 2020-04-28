@@ -5,7 +5,8 @@
 ;; Minor configuration tweaks for flycheck.
 
 ;;; Code:
-(require 'flycheck)
+(use-package flycheck
+  :straight t)
 
 (global-flycheck-mode 1)
 

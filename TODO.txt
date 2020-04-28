@@ -1,1 +1,29 @@
+Check Python editing
+- Is pyvenv required or will pungi handle that?
+
+Check Go editing
+---
+
+grab use-package using straight
+
+remove elpa files
+
+remove external
+
+pull own files into .emacs.d
+
+---
+
+jedi vs python language server?
+
+Split out misc-misc
+
+integrate org-utils
+
+---
+
+turn off elisp flycheck rule for headers and footers
+
+
+
 Go snippets

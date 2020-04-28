@@ -16,8 +16,8 @@
   :config
   (defalias 'll 'longlines-mode))
 
-
 (use-package ethan-wspace
+  :straight t
   :init
   (setq ethan-wspace-face '(t (:background "#05ff00")))
   (setq ethan-wspace-face-customized t))

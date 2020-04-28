@@ -7,6 +7,9 @@
 ;;; Code:
 
 ;; Colour theme
+
+(add-to-list 'custom-theme-load-path "~/.emacs.d/own/themes")
+
 (load-theme 'metalspleen)
 ; base16-classic-dark
 ; santiyinc-tomorrow-night
@@ -41,24 +44,34 @@
 (setq blink-cursor-blinks 50)
 
 ;; ido
-(require 'flx-ido)
 (ido-mode 1)
-(ido-vertical-mode 1)
 (ido-everywhere 1)
 
+
+(use-package ido-vertical-mode
+  :straight t)
+(ido-vertical-mode 1)
+
 ; Better fuzzy matching
-(flx-ido-mode 1)
-(setq ido-enable-flex-matching t)
-(setq ido-use-faces nil)  ; disable ido faces to see flx highlights.
+(use-package flx-ido
+  :straight t
+  :config
+  (flx-ido-mode 1)
+  (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil)  ; disable ido faces to see flx highlights.
+  )
 
 ; Smart M-x (uses ido)
-(require 'smex)
-(smex-initialize)
-(global-set-key (kbd "M-x") 'smex)
-(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+(use-package smex
+  :straight t
+  :config
+  (smex-initialize)
+  :bind (("M-x" . smex)
+         ("M-X" . smex-major-mode-commands)))
 
 ;; Amazing status line
-(require 'powerline)
+(use-package powerline
+  :straight t)
 
 (defun powerline-center-evil-mod-theme ()
   "Setup a mode-line with major, evil, and minor modes centered."

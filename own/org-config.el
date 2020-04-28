@@ -1,5 +1,6 @@
 (use-package org
-  :mode (("\\.org$" . org-mode))
+  :straight t
+  :mode ("\\.org$" . org-mode)
   :config
   (setq org-directory "~/Dropbox/Notes")
 
@@ -16,6 +17,7 @@
          ("<M-S-return>" . my-org-insert-todo-heading)))
 
 (use-package org-utils)
-(use-package org-re-reveal)
+(use-package org-re-reveal
+  :straight t)
 
 (provide 'org-config)

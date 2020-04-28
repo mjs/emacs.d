@@ -1,4 +1,5 @@
 (use-package evil
+  :straight t
   :init
 
   (setq evil-esc-delay 0.001)           ; avoid ESC/meta mixups
@@ -50,11 +51,13 @@
 
 (evil-mode 1)
 
-(use-package evil-numbers)
+(use-package evil-numbers
+  :straight t)
 (use-package elemental)
 
 ;; Provide a menu of tags when there's multiple matches
 (use-package etags-select
+  :straight t
   :config
   (defun etags-select-ultimate-find-tag ()
     "Try to find the tag at point but if there isn't one then prompt"

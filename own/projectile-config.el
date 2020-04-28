@@ -1,14 +1,12 @@
-;;; projectile-config.el -- personal config for projectile
+(use-package projectile
+  :straight t
+  :bind (("C-c C-r" . projectile-ripgrep)
+         :map projectile-mode-map
+         ("C-c p" . projectile-command-map)))
 
-;;; Commentary:
-
-;;; Code:
-(require 'projectile)
-(require 'projectile-ripgrep)
+(use-package projectile-ripgrep
+  :straight t)
 
 (projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-(global-set-key (kbd "C-c C-r") 'projectile-ripgrep)
 
 (provide 'projectile-config)
-;;; projectile-config.el ends here
