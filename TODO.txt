@@ -1,17 +1,4 @@
----
-grab use-package using straight
-
-move packaging stuff to it's own file
-
-scan down list of files to see if there's anything silly
-
-remove elpa files
-
-remove external
-
-pull own files into .emacs.d
-
-look for XXXs
+Figure out smex ido key binding issue
 ---
 
 Check Python editing
@@ -20,8 +7,13 @@ Check Python editing
 - hopefully no pungi or
 
 ---
+disable flycheck mode in elisp
+---
+rename own to lisp
+---
+load FFC from source control
+---
 load elemental from source control
-
 ---
 https://github.com/raxod502/selectrum/blob/master/README.md#installation
 
@@ -30,6 +22,7 @@ Blackout: https://github.com/raxod502/blackout/blob/master/README.md
 Zerodark: https://github.com/NicolasPetton/zerodark-theme/
 
 https://github.com/alpha22jp/atomic-chrome/blob/master/README.md
+or other edit in Firefox setup
 
 https://github.com/Fuco1/smartparens/blob/master/README.md
 
