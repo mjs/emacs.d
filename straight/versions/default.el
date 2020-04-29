@@ -53,10 +53,13 @@
  ("smex" . "55aaebe3d793c2c990b39a302eb26c184281c42c")
  ("spinner" . "2daa167bec1c7566d662d48613a94453536b524a")
  ("straight.el" . "21c431c0d5144790df666b3888122a1594090d4f")
+ ("toml-mode.el" . "f6c61817b00f9c4a3cab1bae9c309e0fc45cdd06")
  ("transient" . "629c963e1f17715b56848a5bbd9017896fa49bdf")
  ("typescript.el" . "102587e458d48ece6335cd708300647f22ec8b8d")
  ("undo-tree" . "5b6df03781495d8a25695d846b0cce496d3d3058")
+ ("use-package" . "c873d5529c9c80cb58222f22873a4f081c307cb2")
  ("web-beautify" . "e1b45321d8c11b404b12c8e55afe55eaa7c84ee9")
  ("with-editor" . "4fe66d4d55c8eacebda53a13cc38e01d32bdaaa2")
+ ("yaml-mode" . "cecf4b106b0c4236931b14919fdf87ff3546e2c9")
  ("yasnippet" . "5b1217ab085fab4abeb1118dccb260691b446703"))
 :alpha
