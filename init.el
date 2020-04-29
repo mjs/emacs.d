@@ -1,4 +1,3 @@
-;(package-initialize)
 ;; Move all the customize stuff elsewhere to reduce clutter.
 (setq custom-file "~/.emacs.d/custom.el")
 (load custom-file)
@@ -12,19 +11,19 @@
 (require 'package-config)
 
 (require 'temp-config) ;; Put temporary files in sane locations.
+(require 'gui-config)
 (require 'elisp-utils)
 (require 'evil-config)
 (require 'text-misc)
 (require 'text-config)
-(require 'gui-config)
+(require 'flycheck-config)
+(require 'magit-config)
+(require 'projectile-config)
 (require 'company-config)
 (require 'clipboard-config)
 (require 'lsp-config)
 (require 'markdown-config)
-(require 'magit-config)
 (require 'uniquify)
-(require 'projectile-config)
-(require 'flycheck-config)
 (require 'lisp-config)
 (require 'python-config)
 (require 'go-config)
