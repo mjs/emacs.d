@@ -8,7 +8,6 @@
 (cd (expand-file-name "~"))
 
 (add-to-list 'load-path "~/.emacs.d/own")
-(add-to-list 'load-path "~/.emacs.d/external")
 
 (require 'package-config)
 
@@ -35,7 +34,6 @@
 (require 'c-misc)
 (require 'misc-misc)
 (require 'insert-timestamp)
-(require 'lua-mode)
 (require 'org-config)
 (require 'calc)
 (require 'pastebinit)
@@ -46,6 +44,7 @@
 (require 'grep-config)
 (require 'file-config)
 (require 'misc-config)
+(use-package lua-mode :straight t)
 (use-package toml-mode :straight t)
 
 (let ((site-lib (expand-file-name "~/.emacs.d/site.el")))
@@ -57,5 +56,5 @@
 
 (server-start)
 
-(require 'edit-server)
+(use-package edit-server :straight t)
 (edit-server-start)
