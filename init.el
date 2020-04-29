@@ -21,11 +21,10 @@
 j      (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
+(straight-use-package 'use-package)
+
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
-(add-to-list 'load-path "~/.emacs.d/external/use-package")
-
-(require 'use-package)
 
 ;; Put temporary files in sane locations.
 (require 'temp-config)
