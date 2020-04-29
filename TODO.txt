@@ -1,13 +1,11 @@
+disable flycheck mode in elisp
+---
+
 Check Python editing
 - Try for just jedi and pyvenv
   - is this enough for jedi and flycheck?
 - hopefully no pungi or
 
----
-disable flycheck mode in elisp
-
----
-integrate undo-fu
 ---
 check JS editing
 check markdown editing

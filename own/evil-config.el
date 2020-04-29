@@ -11,6 +11,9 @@
 
   :config
 
+  ; evil likes undo-tree but it's buggy. Use undo-fu instead.
+  (global-undo-tree-mode -1)
+
   ;; Use hippie-expand instead of evil's own completion for C-n
   ; XXX should this be company?
   (setq evil-complete-next-func 'hippie-expand)
@@ -19,23 +22,9 @@
   ;; without it.
   (evil-update-insert-state-bindings nil nil t)
 
-  :bind (
-         :map evil-normal-state-map
+  :bind (:map evil-normal-state-map
          ("H-i" . evil-jump-forward)   ; Now set up C-i / H-i
          ("S" . replace-symbol-at-point)
-
-         ("C-]" . etags-select-ultimate-find-tag)
-         ("M-]" . etags-select-find-tag)
-
-         ("=" . evil-numbers/inc-at-pt)
-         ("-" . evil-numbers/dec-at-pt)
-
-         (")" . elem/forward-one)
-         ("(" . elem/backward-one)
-         ("gs" . elem/transpose)
-         ("gS" . (lambda ()
-                  (interactive)
-                  (elem/transpose -1)))
 
          ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
          ("C-p" . universal-argument)
@@ -44,16 +33,31 @@
          ("C-p" . universal-argument)
 
          :map evil-visual-state-map
-         ("C-p" . universal-argument)
-
-         )
-)
+         ("C-p" . universal-argument)))
 
 (evil-mode 1)
 
 (use-package evil-numbers
-  :straight t)
-(use-package elemental)
+  :straight t
+  :bind (:map evil-normal-state-map
+         ("=" . evil-numbers/inc-at-pt)
+         ("-" . evil-numbers/dec-at-pt)))
+
+(use-package elemental
+  :bind (:map evil-normal-state-map
+         (")" . elem/forward-one)
+         ("(" . elem/backward-one)
+         ("gs" . elem/transpose)
+         ("gS" . (lambda ()
+                  (interactive)
+                  (elem/transpose -1)))))
+
+(use-package undo-fu
+  :straight t
+
+  :bind (:map evil-normal-state-map
+         ("u" . undo-fu-only-undo)
+         ("C-r" . undo-fu-only-redo)))
 
 ;; Provide a menu of tags when there's multiple matches
 (use-package etags-select
@@ -65,6 +69,10 @@
     (let ((tag (find-tag-default)))
       (if tag
           (etags-select-find tag)
-        (etags-select-find-tag)))))
+        (etags-select-find-tag))))
+
+  :bind (:map evil-normal-state-map
+         ("C-]" . etags-select-ultimate-find-tag)
+         ("M-]" . etags-select-find-tag)))
 
 (provide 'evil-config)
