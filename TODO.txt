@@ -1,6 +1,3 @@
-Figure out smex ido key binding issue
----
-
 Check Python editing
 - Try for just jedi and pyvenv
   - is this enough for jedi and flycheck?
@@ -8,6 +5,10 @@ Check Python editing
 
 ---
 disable flycheck mode in elisp
+
+---
+check JS editing
+check markdown editing
 ---
 rename own to lisp
 ---
@@ -15,8 +16,6 @@ load FFC from source control
 ---
 load elemental from source control
 ---
-https://github.com/raxod502/selectrum/blob/master/README.md#installation
-
 Blackout: https://github.com/raxod502/blackout/blob/master/README.md
 
 Zerodark: https://github.com/NicolasPetton/zerodark-theme/
@@ -32,12 +31,6 @@ elpy for Python?
 
 Split out misc-misc
 
-integrate org-utils
-
 ---
-
-turn off elisp flycheck rule for headers and footers
-
-
 
 Go snippets

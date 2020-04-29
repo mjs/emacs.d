@@ -43,31 +43,12 @@
 (setq blink-cursor-interval 0.3)
 (setq blink-cursor-blinks 50)
 
-;; ido
-(ido-mode 1)
-(ido-everywhere 1)
+(use-package selectrum :straight t)
+(selectrum-mode +1)
 
-
-(use-package ido-vertical-mode
-  :straight t)
-(ido-vertical-mode 1)
-
-; Better fuzzy matching
-(use-package flx-ido
-  :straight t
-  :config
-  (flx-ido-mode 1)
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil)  ; disable ido faces to see flx highlights.
-  )
-
-; Smart M-x (uses ido)
-(use-package smex
-  :straight t
-  :config
-  (smex-initialize)
-  :bind (("M-x" . smex)
-         ("M-X" . smex-major-mode-commands)))
+(use-package selectrum-prescient :straight t)
+(selectrum-prescient-mode +1)
+(prescient-persist-mode +1)
 
 ;; Amazing status line
 (use-package powerline
