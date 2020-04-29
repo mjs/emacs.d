@@ -7,28 +7,12 @@
 ;; starts from)
 (cd (expand-file-name "~"))
 
-;; Bootstrap straight.el
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 5))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-        (url-retrieve-synchronously
-         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-         'silent 'inhibit-cookies)
-      (goto-char (point-max))
-j      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package 'use-package)
-
 (add-to-list 'load-path "~/.emacs.d/own")
 (add-to-list 'load-path "~/.emacs.d/external")
 
-;; Put temporary files in sane locations.
-(require 'temp-config)
+(require 'package-config)
 
+(require 'temp-config) ;; Put temporary files in sane locations.
 (require 'elisp-utils)
 (require 'evil-config)
 (require 'text-misc)
