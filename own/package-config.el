@@ -1,4 +1,3 @@
-
 ;; Bootstrap straight.el
 (defvar bootstrap-version)
 (let ((bootstrap-file
@@ -10,10 +9,10 @@
          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
          'silent 'inhibit-cookies)
       (goto-char (point-max))
-j      (eval-print-last-sexp)))
+      (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
-
+;; Bootstrap install use-package
 (straight-use-package 'use-package)
 
 (provide 'package-config)
