@@ -1,14 +1,3 @@
-
-;;; text-config.el --- General text manipulation configuration.
-;;
-;;; Commentary:
-;;
-;; Bindings, aliases and config for text general text manipulation
-;; functionality.
-;;
-;;; Code:
-
-
 (global-set-key (kbd "M-Q") 'unfill-paragraph)
 (defalias 'tt 'toggle-truncate-lines)
 
@@ -19,6 +8,7 @@
 (use-package ethan-wspace
   :straight t
   :init
+  (setq mode-require-final-newline nil)  ; ethan-wspace doesn't like this
   (setq ethan-wspace-face '(t (:background "#05ff00")))
   (setq ethan-wspace-face-customized t))
 
@@ -33,4 +23,3 @@
 (setq-default indent-tabs-mode nil)
 
 (provide 'text-config)
-;;; text-config.el ends here
