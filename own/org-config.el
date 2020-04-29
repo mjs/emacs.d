@@ -16,7 +16,6 @@
          ("<tab>" . org-cycle)
          ("<M-S-return>" . my-org-insert-todo-heading)))
 
-(use-package org-utils)
 (use-package org-re-reveal
   :straight t)
 
