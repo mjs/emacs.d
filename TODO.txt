@@ -3,6 +3,8 @@ grab use-package using straight
 
 move packaging stuff to it's own file
 
+scan down list of files to see if there's anything silly
+
 remove elpa files
 
 remove external
