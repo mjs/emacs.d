@@ -111,7 +111,6 @@ static char *gnus-pointer[] = {
 \"###..######.######\",
 \"###########.######\" };")) t)
  '(godoc-command "godoc")
- '(grep-command "rg --no-heading -e")
  '(grep-files-aliases
    (quote
     (("all" . "* .*")
@@ -123,9 +122,6 @@ static char *gnus-pointer[] = {
      ("tex" . "*.tex")
      ("texi" . "*.texi")
      ("asm" . "*.[sS]"))))
- '(grep-find-template
-   "find . <X> -type f <F> -print0 | xargs -0 rg <C> --no-heading --maxdepth 1 -e <R>")
- '(grep-template "rg --no-heading --maxdepth 1 -e <R> <F>")
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-symbol-colors
    (--map

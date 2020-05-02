@@ -1,6 +1,14 @@
-disable flycheck mode in elisp
----
+fix up modeline
+- colours aren't quite right
+- Blackout: https://github.com/raxod502/blackout/blob/master/README.md
 
+Try fuzzy search in prescient config
+
+rg
+- binding conflict on search refine screen
+- define custom interactive current dir search
+
+---
 Check Python editing
 - Try for just jedi and pyvenv
   - is this enough for jedi and flycheck?
@@ -8,6 +16,8 @@ Check Python editing
 
 ---
 check JS editing
+- could try web-mode
+
 check markdown editing
 ---
 rename own to lisp
@@ -19,7 +29,6 @@ load FFC from source control
 ---
 load elemental from source control
 ---
-Blackout: https://github.com/raxod502/blackout/blob/master/README.md
 
 https://github.com/alpha22jp/atomic-chrome/blob/master/README.md
 or other edit in Firefox setup

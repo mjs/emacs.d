@@ -7,8 +7,4 @@
 
 (projectile-mode +1)
 
-(use-package projectile-ripgrep
-  :straight t
-  :bind (("C-c C-r" . projectile-ripgrep)))
-
 (provide 'projectile-config)
