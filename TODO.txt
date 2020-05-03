@@ -1,6 +1,9 @@
 disable flycheck mode in elisp
 ---
 
+sort out dired bindings
+---
+
 Check Python editing
 - Try for just jedi and pyvenv
   - is this enough for jedi and flycheck?
