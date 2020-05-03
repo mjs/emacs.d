@@ -12,9 +12,8 @@
   (modify-syntax-entry ?_ "w" python-mode-syntax-table)
 
   :bind (:map python-mode-map
-         ("\C-c C-p" . flycheck-previous-error)
-         ("\C-c C-n" . flycheck-next-error)
-         ("C-c C-r" . projectile-ripgrep)))
+         ("C-c C-p" . flycheck-previous-error)
+         ("C-c C-n" . flycheck-next-error)))
 
 
 (use-package jedi

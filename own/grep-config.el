@@ -2,11 +2,8 @@
 (global-set-key "\M-n" 'next-error)
 (global-set-key "\M-p" 'previous-error)
 
-;; Unique grep buffer per search
-(use-package grep-a-lot
+(use-package rg
   :straight t)
-(grep-a-lot-setup-keys)
-
-(defalias 'rg 'ripgrep-regexp)
+(rg-enable-default-bindings)
 
 (provide 'grep-config)

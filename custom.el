@@ -73,7 +73,9 @@ static char *note[] = {
  '(evil-symbol-word-search t)
  '(fci-rule-color "#383838" t)
  '(flycheck-color-mode-line-face-to-color (quote mode-line-buffer-id))
- '(flycheck-disabled-checkers (quote (go-gofmt systemd-analyze go-vet)))
+ '(flycheck-disabled-checkers
+   (quote
+    (go-gofmt systemd-analyze go-vet emacs-lisp emacs-lisp-checkdoc)))
  '(flycheck-go-golint-executable "revive")
  '(flycheck-pycheckers-checkers (quote (pylint pep8)))
  '(flycheck-pycheckers-max-line-length 150)
@@ -109,7 +111,6 @@ static char *gnus-pointer[] = {
 \"###..######.######\",
 \"###########.######\" };")) t)
  '(godoc-command "godoc")
- '(grep-command "rg --no-heading -e")
  '(grep-files-aliases
    (quote
     (("all" . "* .*")
@@ -121,9 +122,6 @@ static char *gnus-pointer[] = {
      ("tex" . "*.tex")
      ("texi" . "*.texi")
      ("asm" . "*.[sS]"))))
- '(grep-find-template
-   "find . <X> -type f <F> -print0 | xargs -0 rg <C> --no-heading --maxdepth 1 -e <R>")
- '(grep-template "rg --no-heading --maxdepth 1 -e <R> <F>")
  '(highlight-changes-colors (quote ("#ff8eff" "#ab7eff")))
  '(highlight-symbol-colors
    (--map
