@@ -1,26 +1,14 @@
 (use-package evil
   :straight t
-  :init
+  :demand t
 
+  :init
   (setq evil-esc-delay 0.001)           ; avoid ESC/meta mixups
   (keyboard-translate ?\C-i ?\H-i)      ; map C-i to Hyper-i to avoid conflict with TAB
   (setq evil-want-C-i-jump nil)         ; don't let Evil set the binding, we'll do this ourselves
   (setq evil-want-C-u-scroll t)
   (setq evil-shift-width 4)
   (setq evil-search-module 'evil-search)
-
-  :config
-
-  ; evil likes undo-tree but it's buggy. Use undo-fu instead.
-  (global-undo-tree-mode -1)
-
-  ;; Use hippie-expand instead of evil's own completion for C-n
-  ; XXX should this be company?
-  (setq evil-complete-next-func 'hippie-expand)
-
-  ;; A;; Not sure why this is necessary but various insert mode keys don't work
-  ;; without it.
-  (evil-update-insert-state-bindings nil nil t)
 
   :bind (:map evil-normal-state-map
          ("H-i" . evil-jump-forward)   ; Now set up C-i / H-i
@@ -33,9 +21,24 @@
          ("C-p" . universal-argument)
 
          :map evil-visual-state-map
-         ("C-p" . universal-argument)))
+         ("C-p" . universal-argument))
 
-(evil-mode 1)
+  :config
+  ; evil likes undo-tree but it's buggy. Use undo-fu instead.
+  (global-undo-tree-mode -1)
+
+  ;; Use hippie-expand instead of evil's own completion for C-n
+  ; XXX should this be company?
+  (setq evil-complete-next-func 'hippie-expand)
+
+  ;; A;; Not sure why this is necessary but various insert mode keys don't work
+  ;; without it.
+  (evil-update-insert-state-bindings nil nil t)
+
+  ;; Enable evil-mode in all buffers.
+  (evil-mode 1))
+
+
 
 (use-package evil-numbers
   :straight t
