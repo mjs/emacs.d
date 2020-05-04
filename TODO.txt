@@ -5,8 +5,13 @@ fix up modeline
 Try fuzzy search in prescient config
 
 rg
-- binding conflict on search refine screen
+- binding conflict on search refine screen (in progress)
 - define custom interactive current dir search
+
+generate invoices from org-mode?
+- https://github.com/tmarble/timesheet.el/blob/master/README.md
+- https://code.orgmode.org/bzg/org-mode/raw/master/contrib/lisp/org-invoice.el
+- https://www.wisdomandwonder.com/article/10620/org-mode-documents-can-generate-pdfs-which-include-any-data-including-themselves
 
 sort out dired bindings
 
@@ -15,11 +20,13 @@ Check Python editing
   - is this enough for jedi and flycheck?
 - hopefully no pungi or
 
+avy
+- gotochar
+
 ---
 check JS editing
 - could try web-mode
 
-check markdown editing
 ---
 rename own to lisp
 
