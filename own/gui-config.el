@@ -1,11 +1,3 @@
-;;; gui-config.el --- UI related configuration
-;;
-;;; Commentary:
-;;
-;; A random collection of things affecting the Emacs UI.
-;;
-;;; Code:
-
 ;; Colour theme
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/own/themes")
@@ -110,8 +102,8 @@
 
 (powerline-center-evil-mod-theme)
 
-;; buffer list on crank
 (global-set-key (kbd "C-x C-b") 'ibuffer)
+(global-set-key (kbd "\C-x 9") 'bury-buffer)
 
 (winner-mode)
 
@@ -182,5 +174,19 @@ be passed otherwise the current window is used."
 (setq split-window-preferred-function
       'split-window-sensibly-prefering-horizontal)
 
+;; If the compilation buffer is displayed already, keep using that
+;; frame and window. If it isn't displayed, pop it up in a new frame.
+(add-to-list
+ 'display-buffer-alist
+  '("\\*compilation\\*"
+    (display-buffer-reuse-window display-buffer-pop-up-frame)
+    (reusable-frames . t)))
+
+(defun run-terminal ()
+  "Spawn an interactive terminal."
+  (interactive)
+  (start-process "terminal" nil "term"))
+
+(global-set-key (kbd "C-c t") 'run-terminal)
+
 (provide 'gui-config)
-;;; gui-config.el ends here

@@ -1,5 +1,5 @@
 
-(require 'text-misc)
+(require 'text-utils)
 (require 'ffc)
 
 (add-to-list 'ffc-directories "~/Dropbox/Notes")

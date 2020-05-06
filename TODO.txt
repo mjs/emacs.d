@@ -1,3 +1,8 @@
+fix ffc and ffc-config to not rely on ido
+
+get all temp files under var if possible
+- there's a lot of junk in there
+
 fix up modeline
 - colours aren't quite right
 - Blackout: https://github.com/raxod502/blackout/blob/master/README.md
@@ -31,7 +36,7 @@ check JS editing
 rename own to lisp
 
 make :straight the default for use-pacakge
-- see what needs to have built-in added
+- see what needs to have built-in or :straight nil added
 ---
 load FFC from source control
 ---
@@ -46,8 +51,6 @@ https://github.com/Fuco1/smartparens/blob/master/README.md
 https://github.com/raxod502/ctrlf/blob/master/README.md
 
 elpy for Python?
-
-Split out misc-misc
 
 ---
 

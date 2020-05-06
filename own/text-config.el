@@ -1,4 +1,14 @@
+(defun unfill-paragraph ()
+  "Replace newline chars in current paragraph by single spaces.
+This command does the inverse of `fill-paragraph'.
+
+URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'"
+  (interactive)
+  (let ((fill-column most-positive-fixnum))
+    (fill-paragraph)))
+
 (global-set-key (kbd "M-Q") 'unfill-paragraph)
+
 (defalias 'tt 'toggle-truncate-lines)
 
 (use-package longlines

@@ -4,9 +4,9 @@
 (global-set-key (kbd "C-c o") 'ff-find-other-file)
 
 (setq c-basic-offset 4)
-(setq c-default-style '((c++-mode . "k&r") 
-                        (java-mode . "java") 
-                        (awk-mode . "awk") 
+(setq c-default-style '((c++-mode . "k&r")
+                        (java-mode . "java")
+                        (awk-mode . "awk")
                         (other . "gnu")))
 
 
@@ -18,4 +18,4 @@
 
 (eval-after-load 'cc-mode '(c-customizations))
 
-(provide 'c-misc)
+(provide 'c-config)
