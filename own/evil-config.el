@@ -39,21 +39,11 @@
   (evil-mode 1))
 
 
-
 (use-package evil-numbers
   :straight t
   :bind (:map evil-normal-state-map
          ("=" . evil-numbers/inc-at-pt)
          ("-" . evil-numbers/dec-at-pt)))
-
-(use-package elemental
-  :bind (:map evil-normal-state-map
-         (")" . elem/forward-one)
-         ("(" . elem/backward-one)
-         ("gs" . elem/transpose)
-         ("gS" . (lambda ()
-                  (interactive)
-                  (elem/transpose -1)))))
 
 (use-package undo-fu
   :straight t
@@ -61,6 +51,51 @@
   :bind (:map evil-normal-state-map
          ("u" . undo-fu-only-undo)
          ("C-r" . undo-fu-only-redo)))
+
+(use-package evil-args
+  :straight t
+  :bind (:map evil-inner-text-objects-map
+         ("a" . evil-inner-arg)
+         :map evil-outer-text-objects-map
+         ("a" . evil-outer-arg)
+
+         :map evil-normal-state-map
+         ("L" . evil-forward-arg)
+         ("K" . evil-jump-out-args)
+
+         :map evil-normal-state-map
+         ("H" . evil-backward-arg)
+         ("L" . evil-forward-arg)
+
+         :map evil-motion-state-map
+         ("H" . evil-backward-arg)
+         ("L" . evil-forward-arg)))
+
+
+(use-package evil-exchange
+  :straight t
+  :demand t
+  :config
+  (evil-exchange-install)
+
+  (defun evil-arg-swap-forward ()
+    (interactive)
+    (apply 'evil-exchange (evil-inner-arg))
+    (call-interactively 'evil-forward-arg)
+    (apply 'evil-exchange (evil-inner-arg)))
+
+  (defun evil-arg-swap-backward ()
+    (interactive)
+    (apply 'evil-exchange (evil-inner-arg))
+    (evil-forward-arg 1)
+    (evil-backward-arg 2)
+    (apply 'evil-exchange (evil-inner-arg)))
+
+  :bind (:map evil-normal-state-map
+         ("gs" . evil-arg-swap-forward)
+         ("gl" . evil-arg-swap-forward)
+         ("gS" . evil-arg-swap-backward)
+         ("gh" . evil-arg-swap-backward)))
 
 ;; Provide a menu of tags when there's multiple matches
 (use-package etags-select

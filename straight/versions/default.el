@@ -22,6 +22,8 @@
  ("etags-select" . "6d82619c631e38e6a79b9e25477a00a680b1408a")
  ("ethan-wspace" . "0f110fc26b829093c352e8dc9e50ba51a4e483ac")
  ("evil" . "d243eae8649272799ec3864fde14c1164f036940")
+ ("evil-args" . "758ad5ae54ad34202064fec192c88151c08cb387")
+ ("evil-exchange" . "3030e21ee16a42dfce7f7cf86147b778b3f5d8c1")
  ("evil-magit" . "253c644807013fe92429acdef418748794b8f254")
  ("evil-numbers" . "6ea1c8c3a9b37bed63d48f1128e9a4910e68187e")
  ("f.el" . "1814209e2ff43cf2e6d38c4cd476218915f550fb")

@@ -10,7 +10,6 @@ fix up modeline
 Try fuzzy search in prescient config
 
 rg
-- binding conflict on search refine screen (in progress)
 - define custom interactive current dir search
 
 generate invoices from org-mode?
@@ -39,8 +38,6 @@ make :straight the default for use-pacakge
 - see what needs to have built-in or :straight nil added
 ---
 load FFC from source control
----
-load elemental from source control
 ---
 
 https://github.com/alpha22jp/atomic-chrome/blob/master/README.md
