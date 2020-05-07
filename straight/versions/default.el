@@ -49,7 +49,7 @@
  ("projectile" . "5cd261dd75f4d711c0016617621349e2a98b43aa")
  ("pungi" . "a2d4d439ea371be0b064a12248288903b8a521a0")
  ("pyvenv" . "861998b6d157ae73b829f02a5a6c8a9118310831")
- ("rg.el" . "cac871f5e3520665cb7b99970bcd9e6445a87f7b")
+ ("rg.el" . "68398af419dc16681f784f68f1fd1c11f8379e9f")
  ("rust-mode" . "39f32ccd6a1183df26a223a23db255a67076cd2d")
  ("s.el" . "43ba8b563bee3426cead0e6d4ddc09398e1a349d")
  ("selectrum" . "e13bc3de25014176014d5ca76e84eec24b2fdd6c")
