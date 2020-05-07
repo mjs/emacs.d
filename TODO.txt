@@ -5,11 +5,12 @@ get all temp files under var if possible
 
 fix up modeline
 - colours aren't quite right
+  - possibly using the wrong powerline implementation, there are several
 - Blackout: https://github.com/raxod502/blackout/blob/master/README.md
 
 Try fuzzy search in prescient config
 
-rg
+rg.el
 - define custom interactive current dir search
 
 generate invoices from org-mode?
@@ -32,7 +33,6 @@ check JS editing
 - could try web-mode
 
 ---
-rename own to lisp
 
 make :straight the default for use-pacakge
 - see what needs to have built-in or :straight nil added

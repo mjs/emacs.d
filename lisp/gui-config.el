@@ -1,6 +1,6 @@
 ;; Colour theme
 
-(add-to-list 'custom-theme-load-path "~/.emacs.d/own/themes")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/lisp/themes")
 
 (load-theme 'metalspleen)
 ; base16-classic-dark

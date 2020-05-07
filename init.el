@@ -6,7 +6,7 @@
 ;; starts from)
 (cd (expand-file-name "~"))
 
-(add-to-list 'load-path "~/.emacs.d/own")
+(add-to-list 'load-path "~/.emacs.d/lisp")
 
 (require 'package-config)
 
