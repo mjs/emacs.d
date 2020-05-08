@@ -28,6 +28,7 @@
  ("evil-magit" . "253c644807013fe92429acdef418748794b8f254")
  ("evil-numbers" . "6ea1c8c3a9b37bed63d48f1128e9a4910e68187e")
  ("f.el" . "1814209e2ff43cf2e6d38c4cd476218915f550fb")
+ ("ffc" . "021df303b00ff19549ffec7aa6bab55aa5095e2d")
  ("flycheck" . "246e1d4380721ca03962464f11d02dd1372860ce")
  ("flycheck-rust" . "a139cd53c5062697e9ed94ad80b803c37d999600")
  ("gnu-elpa-mirror" . "43757d0fbde125335081901db2b71b5165bddb82")

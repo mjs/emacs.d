@@ -1,8 +1,6 @@
 get all temp files under var if possible
 - there's a lot of junk in there
 
-fix ffc and ffc-config to not rely on ido
-
 Try fuzzy search in prescient config
 
 rg.el
@@ -38,8 +36,6 @@ check JS editing
 
 make :straight the default for use-pacakge
 - see what needs to have built-in or :straight nil added
----
-load FFC from source control
 ---
 https://github.com/Fuco1/smartparens/blob/master/README.md
 

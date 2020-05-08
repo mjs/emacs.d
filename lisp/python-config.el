@@ -19,8 +19,8 @@
 (use-package jedi
   :straight t
   :bind (:map python-mode-map
-              ("M-." . jedi:goto-definition)
-              ("M-," . jedi:goto-definition-pop-marker)))
+         ("M-." . jedi:goto-definition)
+         ("M-," . jedi:goto-definition-pop-marker)))
 
 
 (use-package company-jedi
