@@ -3,8 +3,8 @@
   :config
   :bind (:map evil-normal-state-map
          ("M-." . lsp-find-definition)
-         ("M-?" . lsp-find-references)
          ("M-," . pop-tag-mark)
+         ("M-l ." . lsp-find-references)
          ("M-l r" . lsp-rename)))
 
 (use-package company-lsp
