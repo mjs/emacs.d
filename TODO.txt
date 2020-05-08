@@ -24,22 +24,12 @@ parens stuff:
 - dumbparens
 - smartparens: https://github.com/Fuco1/smartparens/blob/master/README.md
 
-
----
 check JS editing
 - could try web-mode
 
----
-
-make :straight the default for use-pacakge
+make :straight the default for use-package
 - see what needs to have built-in or :straight nil added
----
-https://github.com/Fuco1/smartparens/blob/master/README.md
 
 https://github.com/raxod502/ctrlf/blob/master/README.md
-
-elpy for Python?
-
----
 
 Go snippets
