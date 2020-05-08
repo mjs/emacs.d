@@ -1,5 +1,3 @@
-fix ffc and ffc-config to not rely on ido
-
 get all temp files under var if possible
 - there's a lot of junk in there
 
@@ -7,6 +5,8 @@ fix up modeline
 - colours aren't quite right
   - possibly using the wrong powerline implementation, there are several
 - Blackout: https://github.com/raxod502/blackout/blob/master/README.md
+
+fix ffc and ffc-config to not rely on ido
 
 Try fuzzy search in prescient config
 
@@ -39,10 +39,6 @@ make :straight the default for use-pacakge
 ---
 load FFC from source control
 ---
-
-https://github.com/alpha22jp/atomic-chrome/blob/master/README.md
-or other edit in Firefox setup
-
 https://github.com/Fuco1/smartparens/blob/master/README.md
 
 https://github.com/raxod502/ctrlf/blob/master/README.md

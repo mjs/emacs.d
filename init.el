@@ -55,5 +55,10 @@
 
 (server-start)
 
-(use-package edit-server :straight t)
-(edit-server-start)
+;; Edit textareas in browsers in Emacs.
+(use-package atomic-chrome
+  :straight t
+  :demand t
+  :config
+  (setq atomic-chrome-buffer-open-style 'frame)
+  (atomic-chrome-start-server))
