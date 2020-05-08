@@ -289,6 +289,7 @@ static char *gnus-pointer[] = {
  '(markdown-code-face ((t (:inherit fixed-pitch :background "#003300"))))
  '(markdown-header-face-1 ((t (:inherit markdown-header-face :foreground "deep sky blue" :height 1.0))))
  '(mmm-default-submode-face ((t (:background "gray10"))))
+ '(mode-line ((t (:background "#2a3235" :foreground "#7b87a0" :box (:line-width 4 :color "black")))))
  '(org-level-1 ((t (:foreground "dark orange" :weight normal))))
  '(org-level-2 ((t (:foreground "deep sky blue" :weight normal))))
  '(org-level-3 ((t (:foreground "DodgerBlue3" :weight bold)))))

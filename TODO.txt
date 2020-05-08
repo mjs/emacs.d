@@ -1,11 +1,6 @@
 get all temp files under var if possible
 - there's a lot of junk in there
 
-fix up modeline
-- colours aren't quite right
-  - possibly using the wrong powerline implementation, there are several
-- Blackout: https://github.com/raxod502/blackout/blob/master/README.md
-
 fix ffc and ffc-config to not rely on ido
 
 Try fuzzy search in prescient config
@@ -27,6 +22,13 @@ Check Python editing
 
 avy
 - gotochar
+
+Helpful: https://github.com/Wilfred/helpful
+
+parens stuff:
+- dumbparens
+- smartparens: https://github.com/Fuco1/smartparens/blob/master/README.md
+
 
 ---
 check JS editing

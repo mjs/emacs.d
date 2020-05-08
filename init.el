@@ -50,7 +50,6 @@
   (message "loading site.el")
   (if (file-exists-p site-lib) (load-file site-lib)))
 
-
 (require 'ffc-config)    ; load after site config
 
 (server-start)
