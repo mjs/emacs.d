@@ -1,14 +1,7 @@
 *.elc
-*.pyc
-/tmp/
-/elpa/archives/
-ac-comphist.dat
+/var/
 site.el
-projectile-bookmarks.eld
 tramp
-/.python-environments
-/.lsp-session*
-/ido.last
-/recentf
-/session.*
 /transient/
+/straight/modified
+/.python-environments/

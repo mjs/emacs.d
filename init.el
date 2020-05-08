@@ -9,8 +9,7 @@
 (add-to-list 'load-path "~/.emacs.d/lisp")
 
 (require 'package-config)
-
-(require 'temp-config) ;; Put temporary files in sane locations.
+(require 'temp-config)
 (require 'gui-config)
 (require 'elisp-utils)
 (require 'text-utils)

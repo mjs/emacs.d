@@ -176,6 +176,7 @@ static char *gnus-pointer[] = {
  '(lsp-gopls-server-args
    (quote
     ("-rpc.trace" "-logfile=/home/menno/tmp/gopls-emacs.log")))
+ '(lsp-session-file "/home/menno/.emacs.d/var/.lsp-session-v1")
  '(lsp-ui-doc-enable nil)
  '(lsp-ui-imenu-enable nil)
  '(lsp-ui-peek-peek-height 30)
@@ -216,11 +217,13 @@ static char *gnus-pointer[] = {
  '(pos-tip-foreground-color "#242728")
  '(powerline-color1 "#222232")
  '(powerline-color2 "#333343")
+ '(projectile-cache-file "/home/menno/.emacs.d/var/projectile.cache")
  '(projectile-globally-ignored-directories
    (quote
     (".idea" ".ensime_cache" ".eunit" ".git" ".hg" ".fslckout" "_FOSSIL_" ".bzr" "_darcs" ".tox" ".svn" ".stack-work" "vendor" "node_modules")))
  '(projectile-tags-command "ctags -Re --exclude=node_modules -f \"%s\" %s ")
  '(recentf-max-saved-items 100)
+ '(recentf-save-file "~/.emacs.d/var/recentf")
  '(ropemacs-enable-shortcuts nil)
  '(safe-local-variable-values (quote ((firestarter . ert-run-tests-interactively))))
  '(select-enable-primary t)
@@ -242,6 +245,7 @@ static char *gnus-pointer[] = {
  '(text-scale-mode-step 1.1)
  '(tool-bar-mode nil)
  '(tramp-ssh-controlmaster-options "" t)
+ '(transient-history-file "~/.emacs.d/var/transient/history.el")
  '(uniquify-buffer-name-style (quote post-forward-angle-brackets) nil (uniquify))
  '(uniquify-min-dir-content 0)
  '(vc-annotate-background "#2B2B2B")

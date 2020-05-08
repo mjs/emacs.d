@@ -1,6 +1,3 @@
-get all temp files under var if possible
-- there's a lot of junk in there
-
 Try fuzzy search in prescient config
 
 rg.el
