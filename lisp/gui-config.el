@@ -1,11 +1,7 @@
 ;; Colour theme
 
 (add-to-list 'custom-theme-load-path "~/.emacs.d/lisp/themes")
-
 (load-theme 'metalspleen)
-; base16-classic-dark
-; santiyinc-tomorrow-night
-; flatui-dark
 
 (defun disable-all-themes ()
   "Turn off all enabled colour themes."
