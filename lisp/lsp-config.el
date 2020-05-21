@@ -7,7 +7,4 @@
          ("M-l ." . lsp-find-references)
          ("M-l r" . lsp-rename)))
 
-(use-package company-lsp
-  :straight t)
-
 (provide 'lsp-config)
