@@ -2,6 +2,5 @@
 /var/
 site.el
 tramp
-/transient/
 /straight/modified
 /.python-environments/

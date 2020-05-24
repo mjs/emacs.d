@@ -12,11 +12,11 @@
   (defun init-go-mode ()
     (interactive)
     (lsp-deferred)
+    (add-hook 'before-save-hook #'lsp-format-buffer t t)
+    (add-hook 'before-save-hook #'lsp-organize-imports t t)
     (setq tab-width 4)
     (ethan-wspace-mode -1))
   :hook (go-mode . init-go-mode)
-  :hook (before-save . gofmt-before-save)
-  :config (setq gofmt-command "gofmt")
   :bind (:map go-mode-map
          ("<f9>" . compile)))
 
