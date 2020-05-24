@@ -224,6 +224,7 @@ static char *gnus-pointer[] = {
  '(projectile-tags-command "ctags -Re --exclude=node_modules -f \"%s\" %s ")
  '(recentf-max-saved-items 100)
  '(recentf-save-file "~/.emacs.d/var/recentf")
+ '(rg-custom-type-aliases (quote (("template" . "*.tmpl"))))
  '(ropemacs-enable-shortcuts nil)
  '(safe-local-variable-values (quote ((firestarter . ert-run-tests-interactively))))
  '(select-enable-primary t)
