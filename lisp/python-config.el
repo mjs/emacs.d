@@ -5,41 +5,18 @@
 
 (use-package python
   :straight (:type built-in)  ; built-in Emacs version (good as of Emacs 24.3)
-
+  :hook (python-mode . lsp-deferred)
   :config
-
   ;; Include underscores when matching words (not sure why this isn't the default)
-  (modify-syntax-entry ?_ "w" python-mode-syntax-table)
-
-  :bind (:map python-mode-map
-         ("C-c C-p" . flycheck-previous-error)
-         ("C-c C-n" . flycheck-next-error)))
+  (modify-syntax-entry ?_ "w" python-mode-syntax-table))
 
 
-(use-package jedi
-  :straight t
-  :bind (:map python-mode-map
-         ("M-." . jedi:goto-definition)
-         ("M-," . jedi:goto-definition-pop-marker)))
-
-
-(use-package company-jedi
-  :straight t
-  :config
-  (add-to-list 'company-backends 'company-jedi))
-
-(use-package pungi
-  :straight t
-  :hook (python-mode . pungi:setup-jedi))
+;; (use-package pungi
+;;   :straight t
+;;   :hook (python-mode . pungi:setup-jedi))
 
 (use-package pyvenv
   :straight t)
-
-
-;; XXX
-;; (use-package flycheck-virtualenv
-;;   :straight t
-;;   :hook (python-mode . flycheck-virtualenv-setup))
 
 (use-package blacken
   :straight t
