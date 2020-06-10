@@ -5,7 +5,7 @@
 
 (use-package python
   :straight (:type built-in)  ; built-in Emacs version (good as of Emacs 24.3)
-  :hook (python-mode . lsp-deferred)
+  :hook (python-mode . init-lsp-for-buffer)
   :config
   ;; Include underscores when matching words (not sure why this isn't the default)
   (modify-syntax-entry ?_ "w" python-mode-syntax-table))

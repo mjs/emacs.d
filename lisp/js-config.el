@@ -7,14 +7,14 @@
 (use-package js
   :straight (:type built-in)
   :mode ("\\.js$" . js-mode)
-  :hook (js-mode . lsp-deferred)
+  :hook (js-mode . init-lsp-for-buffer)
   :config
   (setq js-indent-level 2)
   :bind ("C-c b" . web-beautify-js))
 
 (use-package typescript-mode
   :straight t
-  :hook (typescript-mode . lsp-deferred)
+  :hook (typescript-mode . init-lsp-for-buffer)
   :config
   (setq typescript-indent-level 2))
 

@@ -11,7 +11,7 @@
   :init
   (defun init-go-mode ()
     (interactive)
-    (lsp-deferred)
+    (init-lsp-for-buffer)
     (add-hook 'before-save-hook #'lsp-format-buffer t t)
     (add-hook 'before-save-hook #'lsp-organize-imports t t)
     (setq tab-width 4)
