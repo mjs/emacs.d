@@ -4,3 +4,4 @@ site.el
 tramp
 /straight/modified
 /.python-environments/
+/ac-comphist.dat
