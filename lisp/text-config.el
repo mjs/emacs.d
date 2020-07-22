@@ -9,6 +9,8 @@ URL `http://ergoemacs.org/emacs/emacs_unfill-paragraph.html'"
 
 (global-set-key (kbd "M-Q") 'unfill-paragraph)
 
+(electric-pair-mode)
+
 (defalias 'tt 'toggle-truncate-lines)
 
 (use-package longlines
