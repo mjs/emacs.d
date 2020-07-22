@@ -3,5 +3,6 @@
 site.el
 tramp
 /straight/modified
+/straight/links
 /.python-environments/
 /ac-comphist.dat
