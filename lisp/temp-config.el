@@ -5,7 +5,8 @@
 ;; Set up where temporary, backup and auto-save files go.
 
 ;;; Code:
-(setq temporary-file-directory "~/.emacs.d/var/")
+(setq emacsd-directory (expand-file-name "~/.emacs.d"))
+(setq temporary-file-directory (concat emacsd-directory "/var/"))
 (defvar auto-save-dir (concat temporary-file-directory "auto-save/"))
 (setq auto-save-list-file-prefix (concat auto-save-dir ".saves-"))
 (setq auto-save-file-name-transforms `((".*" ,auto-save-dir t)))
