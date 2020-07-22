@@ -173,9 +173,7 @@ static char *gnus-pointer[] = {
  '(large-file-warning-threshold 100000000)
  '(linum-format " %6d ")
  '(lsp-auto-guess-root t)
- '(lsp-gopls-server-args
-   (quote
-    ("-rpc.trace" "-logfile=/home/menno/tmp/gopls-emacs.log")))
+ '(lsp-gopls-server-args nil)
  '(lsp-session-file "/home/menno/.emacs.d/var/.lsp-session-v1")
  '(lsp-ui-doc-enable nil)
  '(lsp-ui-imenu-enable nil)
