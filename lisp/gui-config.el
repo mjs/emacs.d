@@ -31,12 +31,17 @@
 (setq blink-cursor-interval 0.3)
 (setq blink-cursor-blinks 50)
 
-(use-package selectrum :straight t)
-(selectrum-mode +1)
+(use-package selectrum
+  :straight t
+  :config
+  (selectrum-mode +1))
 
-(use-package selectrum-prescient :straight t)
-(selectrum-prescient-mode +1)
-(prescient-persist-mode +1)
+(use-package selectrum-prescient
+  :straight t
+  :config
+  (setq prescient-filter-method '(literal fuzzy))
+  (selectrum-prescient-mode +1)
+  (prescient-persist-mode +1))
 
 (use-package spaceline
   :straight t
