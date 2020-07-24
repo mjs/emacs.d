@@ -12,7 +12,7 @@
 
   :bind (:map evil-normal-state-map
          ("H-i" . evil-jump-forward)   ; Now set up C-i / H-i
-         ("S" . replace-symbol-at-point)
+         ("gr" . replace-symbol-at-point)
 
          ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
          ("C-p" . universal-argument)
@@ -38,6 +38,10 @@
   ;; Enable evil-mode in all buffers.
   (evil-mode 1))
 
+(use-package evil-surround
+  :straight t
+  :config
+  (global-evil-surround-mode 1))
 
 (use-package evil-numbers
   :straight t
