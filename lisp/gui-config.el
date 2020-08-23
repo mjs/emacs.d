@@ -141,4 +141,6 @@ be passed otherwise the current window is used."
 
 (global-set-key (kbd "C-c t") 'run-terminal)
 
+(text-scale-set 0)
+
 (provide 'gui-config)
