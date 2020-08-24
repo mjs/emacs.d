@@ -3,18 +3,18 @@
   :demand t
 
   :init
-  (setq evil-esc-delay 0.001)           ; avoid ESC/meta mixups
-  (keyboard-translate ?\C-i ?\H-i)      ; map C-i to Hyper-i to avoid conflict with TAB
-  (setq evil-want-C-i-jump nil)         ; don't let Evil set the binding, we'll do this ourselves
-  (setq evil-want-C-u-scroll t)
+  (define-key input-decode-map "\C-i" [C-i])  ; convert C-i to avoid confict with TAB
   (setq evil-shift-width 4)
   (setq evil-search-module 'evil-search)
 
   :bind (:map evil-normal-state-map
-         ("H-i" . evil-jump-forward)   ; Now set up C-i / H-i
          ("gr" . replace-symbol-at-point)
 
-         ;; Bind this elsewhere since Evil uses C-u (think p == 'prefix')
+         :map evil-motion-state-map
+         ("C-u" . 'evil-scroll-up)
+         ([C-i] . 'evil-jump-forward)  ; see above for why this is [C-i]
+
+         ;; Bind universal-argument on C-p since C-u is used for scrolling (think p == 'prefix')
          ("C-p" . universal-argument)
 
          :map evil-insert-state-map
